@@ -2,7 +2,8 @@ const Footer = () => {
   return (
     <footer className="py-12 px-4 border-t border-border bg-card/50 pb-24 md:pb-12">
       <div className="container mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Mobile: 2 columns (Brand + Liên hệ), Desktop: 4 columns */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
@@ -18,8 +19,8 @@ const Footer = () => {
             </p>
           </div>
 
-          {/* Dịch vụ */}
-          <div className="space-y-4">
+          {/* Dịch vụ - Hidden on mobile */}
+          <div className="space-y-4 hidden lg:block">
             <h4 className="text-foreground font-semibold italic">Dịch vụ</h4>
             <nav className="flex flex-col gap-2">
               <a 
@@ -56,8 +57,8 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Thông tin */}
-          <div className="space-y-4">
+          {/* Thông tin - Hidden on mobile */}
+          <div className="space-y-4 hidden lg:block">
             <h4 className="text-foreground font-semibold italic">Thông tin</h4>
             <div className="text-sm text-muted-foreground space-y-1">
               <p>© {new Date().getFullYear()} Miyaru Team.</p>
