@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import GDVSection from "@/components/GDVSection";
 import GDTGSection from "@/components/GDTGSection";
-import BankSection from "@/components/BankSection";
+import FacebookAdminSection from "@/components/FacebookAdminSection";
 import ProcessSection from "@/components/ProcessSection";
 import AdvantagesSection from "@/components/AdvantagesSection";
 import Footer from "@/components/Footer";
@@ -15,7 +15,7 @@ const Index = () => {
         <HeroSection />
         <GDVSection />
         <GDTGSection />
-        <BankSection />
+        <FacebookAdminSection />
         <ProcessSection />
         <AdvantagesSection />
       </main>
