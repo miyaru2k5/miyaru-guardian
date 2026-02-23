@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Users, Shield } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import ProfileDropdown from "./ProfileDropdown";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,11 +43,13 @@ const Header = () => {
                 Giao dịch trung gian
               </a>
               <ThemeToggle />
+              <ProfileDropdown />
             </nav>
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center gap-2">
               <ThemeToggle />
+              <ProfileDropdown />
               <button 
                 className="p-2 text-muted-foreground hover:text-foreground"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
