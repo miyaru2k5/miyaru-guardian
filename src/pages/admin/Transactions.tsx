@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, CheckCircle, Clock, Ban } from "lucide-react";
+import { Plus, Search, CheckCircle, Clock, Ban, Download } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -68,6 +68,29 @@ const Transactions = () => {
     return matchSearch && matchStatus;
   });
 
+  const exportCSV = () => {
+    if (filtered.length === 0) return;
+    const headers = ["Mã GD", "Người mua", "Người bán", "Số tiền", "Phí", "Trạng thái", "Ngày tạo"];
+    const rows = filtered.map(t => [
+      t.transaction_code,
+      t.buyer_name,
+      t.seller_name,
+      t.amount,
+      t.fee,
+      statusConfig[t.status]?.label || t.status,
+      new Date(t.created_at).toLocaleDateString("vi-VN"),
+    ]);
+    const bom = "\uFEFF";
+    const csv = bom + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `giao-dich-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -75,9 +98,14 @@ const Transactions = () => {
           <h1 className="text-2xl font-bold text-foreground">Giao dịch trung gian</h1>
           <p className="text-muted-foreground text-sm">Quản lý giao dịch GDTG</p>
         </div>
-        <Button onClick={() => { reset({ transaction_code: "", buyer_name: "", seller_name: "", amount: 0, fee: 0, notes: "" }); setDialogOpen(true); }} className="btn-glow gap-2">
-          <Plus size={16} /> Tạo giao dịch
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportCSV} disabled={filtered.length === 0} className="gap-2">
+            <Download size={16} /> Xuất CSV
+          </Button>
+          <Button onClick={() => { reset({ transaction_code: "", buyer_name: "", seller_name: "", amount: 0, fee: 0, notes: "" }); setDialogOpen(true); }} className="btn-glow gap-2">
+            <Plus size={16} /> Tạo giao dịch
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
