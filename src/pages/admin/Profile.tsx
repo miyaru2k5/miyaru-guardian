@@ -4,7 +4,8 @@ import { useAuth } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Lock } from "lucide-react";
+import { User, Mail, Lock, Palette, RotateCcw } from "lucide-react";
+import { useThemeCustomizer, hslToHex, hexToHsl } from "@/contexts/ThemeCustomizerContext";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -13,6 +14,16 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [pwForm, setPwForm] = useState({ password: "", confirmPassword: "" });
   const [pwLoading, setPwLoading] = useState(false);
+  const {
+    allowUserTheme,
+    currentMode,
+    currentPrimaryColor,
+    currentBackgroundColor,
+    toggleMode,
+    setUserPrimaryColor,
+    setUserBackgroundColor,
+    resetToSystemDefaults,
+  } = useThemeCustomizer();
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +89,51 @@ const Profile = () => {
           </Button>
         </div>
       </div>
+
+      {/* Theme Customizer */}
+      {allowUserTheme && (
+        <div className="glow-border rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+            <Palette size={18} /> Tùy chỉnh giao diện
+          </h3>
+          <div className="space-y-4">
+            {/* Mode toggle */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Chế độ hiển thị</span>
+              <Button variant="outline" size="sm" onClick={toggleMode}>
+                {currentMode === "dark" ? "🌙 Tối" : "☀️ Sáng"}
+              </Button>
+            </div>
+
+            {/* Primary color */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Màu chính</span>
+              <input
+                type="color"
+                value={hslToHex(currentPrimaryColor)}
+                onChange={e => setUserPrimaryColor(hexToHsl(e.target.value))}
+                className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
+              />
+            </div>
+
+            {/* Background color */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Màu nền</span>
+              <input
+                type="color"
+                value={hslToHex(currentBackgroundColor)}
+                onChange={e => setUserBackgroundColor(hexToHsl(e.target.value))}
+                className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
+              />
+            </div>
+
+            {/* Reset */}
+            <Button variant="outline" size="sm" onClick={resetToSystemDefaults} className="gap-1">
+              <RotateCcw size={14} /> Đặt lại mặc định
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Change Password */}
       <div className="glow-border rounded-2xl p-6">
