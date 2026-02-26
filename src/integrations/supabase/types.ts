@@ -72,25 +72,67 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          custom_background_color: string | null
+          custom_primary_color: string | null
           email: string
           full_name: string
           id: string
+          theme_mode: string | null
           updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          custom_background_color?: string | null
+          custom_primary_color?: string | null
           email?: string
           full_name?: string
           id: string
+          theme_mode?: string | null
           updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          custom_background_color?: string | null
+          custom_primary_color?: string | null
           email?: string
           full_name?: string
           id?: string
+          theme_mode?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      system_settings: {
+        Row: {
+          accent_color: string
+          allow_user_theme: boolean
+          background_color: string
+          border_radius: string
+          default_mode: string
+          id: string
+          primary_color: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          allow_user_theme?: boolean
+          background_color?: string
+          border_radius?: string
+          default_mode?: string
+          id?: string
+          primary_color?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          allow_user_theme?: boolean
+          background_color?: string
+          border_radius?: string
+          default_mode?: string
+          id?: string
+          primary_color?: string
           updated_at?: string
         }
         Relationships: []
