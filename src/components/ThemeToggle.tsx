@@ -1,16 +1,18 @@
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "@/contexts/ThemeContext";
+import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const ThemeToggle = () => {
-  const { theme, toggleTheme } = useTheme();
+  const { currentMode, toggleMode, allowUserTheme } = useThemeCustomizer();
+
+  if (!allowUserTheme) return null;
 
   return (
     <button
-      onClick={toggleTheme}
+      onClick={toggleMode}
       className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={currentMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {theme === "dark" ? (
+      {currentMode === "dark" ? (
         <Sun size={20} className="text-primary" />
       ) : (
         <Moon size={20} className="text-primary" />
