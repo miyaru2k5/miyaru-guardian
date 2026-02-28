@@ -8,6 +8,7 @@ interface GDVCardProps {
   code: string;
   insurance: string;
   isLive: boolean;
+  successRate?: number;
   avatarUrl?: string | null;
   description?: string;
   facebook?: string | null;
@@ -16,7 +17,20 @@ interface GDVCardProps {
   categories?: string[];
 }
 
-const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, description, facebook, zalo, website, categories }: GDVCardProps) => {
+const GDVCard = ({
+  name,
+  service,
+  code,
+  insurance,
+  isLive,
+  successRate,
+  avatarUrl,
+  description,
+  facebook,
+  zalo,
+  website,
+  categories,
+}: GDVCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -35,9 +49,22 @@ const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, descriptio
             <p className="text-sm text-muted-foreground">{service}</p>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${isLive ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-muted text-muted-foreground border border-border"}`}>
-          {isLive ? "LIVE" : "OFFLINE"}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${
+              isLive
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                : "bg-muted text-muted-foreground border border-border"
+            }`}
+          >
+            {isLive ? "LIVE" : "OFFLINE"}
+          </span>
+          {typeof successRate === "number" && (
+            <span className="text-[11px] text-muted-foreground">
+              {successRate}% thành công
+            </span>
+          )}
+        </div>
       </div>
 
       {categories && categories.length > 0 && (

@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Filter } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { Search as SearchIcon } from "lucide-react";
 import GDVCard from "./GDVCard";
+import SearchBar from "./SearchBar";
+import FilterDropdown, { type FilterOption } from "./FilterDropdown";
 
 interface Trader {
   id: string;
@@ -11,6 +12,9 @@ interface Trader {
   code: string;
   insurance_fund: number;
   status: string;
+   // success_rate is used for display under LIVE badge
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  success_rate: number;
   avatar_url: string | null;
   description: string | null;
   facebook: string | null;
@@ -29,13 +33,19 @@ const GDVSection = () => {
   const [traderCats, setTraderCats] = useState<Record<string, string[]>>({});
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("all");
+  const [insuranceFund, setInsuranceFund] = useState<{
+    total_fund: number;
+    currently_insured: number;
+    max_percentage: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [tRes, cRes, tcRes] = await Promise.all([
-        supabase.from("traders").select("*").eq("status", "LIVE").order("created_at", { ascending: false }),
+      const [tRes, cRes, tcRes, iRes] = await Promise.all([
+        supabase.from("traders").select("*").eq("status", "LIVE").order("created_at", { ascending: true }),
         supabase.from("categories").select("*").order("name"),
         supabase.from("trader_categories").select("*"),
+        supabase.from("insurance_fund").select("*").limit(1).maybeSingle(),
       ]);
       setTraders((tRes.data as any[]) || []);
       setCategories((cRes.data as any[]) || []);
@@ -45,6 +55,9 @@ const GDVSection = () => {
         map[tc.trader_id].push(tc.category_id);
       });
       setTraderCats(map);
+      if (iRes.data) {
+        setInsuranceFund(iRes.data as any);
+      }
     };
     fetchAll();
   }, []);
@@ -53,6 +66,22 @@ const GDVSection = () => {
     const catIds = traderCats[traderId] || [];
     return categories.filter(c => catIds.includes(c.id)).map(c => c.name);
   };
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const handleFilterChange = useCallback((value: string) => {
+    setFilterCat(value);
+  }, []);
+
+  const filterOptions: FilterOption[] = useMemo(
+    () => [
+      { value: "all", label: "Tất cả danh mục" },
+      ...categories.map(c => ({ value: c.id, label: c.name })),
+    ],
+    [categories],
+  );
 
   const filtered = useMemo(() => {
     return traders.filter(t => {
@@ -72,23 +101,54 @@ const GDVSection = () => {
           <p className="text-muted-foreground max-w-xl mx-auto">
             Các giao dịch viên đã được xác thực và có quỹ bảo hiểm
           </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1 max-w-md">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm GDV..." className="pl-10 rounded-full" />
-          </div>
-          {categories.length > 0 && (
-            <div className="relative">
-              <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-              <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
-                className="pl-9 pr-4 py-2 rounded-full text-sm border border-border bg-background text-foreground appearance-none cursor-pointer min-w-[160px]">
-                <option value="all">Tất cả danh mục</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+          {insuranceFund && (
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto text-left">
+              <div className="p-4 rounded-2xl bg-card/60 border border-border">
+                <p className="text-xs text-muted-foreground mb-1">Tổng quỹ bảo hiểm</p>
+                <p className="text-sm font-semibold text-primary">
+                  {Number(insuranceFund.total_fund || 0).toLocaleString("vi-VN")}đ
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-card/60 border border-border">
+                <p className="text-xs text-muted-foreground mb-1">Đang bảo chứng</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {Number(insuranceFund.currently_insured || 0).toLocaleString("vi-VN")}đ
+                </p>
+              </div>
+              <div className="p-4 rounded-2xl bg-card/60 border border-border">
+                <p className="text-xs text-muted-foreground mb-1">Tỷ lệ tối đa / hiện tại</p>
+                <p className="text-sm font-semibold text-foreground">
+                  Tối đa {Number(insuranceFund.max_percentage || 0).toFixed(1)}% -{" "}
+                  {(
+                    (Number(insuranceFund.currently_insured || 0) /
+                      Math.max(Number(insuranceFund.total_fund || 1), 1)) *
+                    100
+                  ).toFixed(1)}
+                  %
+                </p>
+              </div>
             </div>
           )}
+        </div>
+
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+            <div className="flex-1 w-full">
+              <SearchBar
+                onSearchChange={handleSearchChange}
+                placeholder="Tìm kiếm giao dịch viên..."
+              />
+            </div>
+            {filterOptions.length > 1 && (
+              <div className="w-full md:w-auto shrink-0">
+                <FilterDropdown
+                  options={filterOptions}
+                  value={filterCat}
+                  onChange={handleFilterChange}
+                />
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -110,8 +170,17 @@ const GDVSection = () => {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="col-span-full text-center py-12 text-muted-foreground">
-              Không tìm thấy giao dịch viên nào
+            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <SearchIcon size={22} className="text-primary" />
+              </div>
+              <p className="mb-1 text-base font-medium text-foreground">
+                Không tìm thấy giao dịch viên phù hợp
+              </p>
+              <p className="max-w-md text-sm text-muted-foreground">
+                Thử thay đổi từ khóa tìm kiếm hoặc bấm{" "}
+                <span className="font-semibold">"Xóa bộ lọc"</span> để xem tất cả giao dịch viên.
+              </p>
             </div>
           )}
         </div>

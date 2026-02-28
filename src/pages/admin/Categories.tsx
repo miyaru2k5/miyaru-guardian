@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Tag, Edit, Check, X } from "lucide-react";
+import { Plus, Trash2, Tag, Edit, Check, X, Search } from "lucide-react";
 
 interface Category {
   id: string;
@@ -16,6 +16,7 @@ const Categories = () => {
   const [newName, setNewName] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
+  const [search, setSearch] = useState("");
 
   const fetchCategories = async () => {
     const { data } = await supabase.from("categories").select("*").order("created_at", { ascending: false });
@@ -23,6 +24,10 @@ const Categories = () => {
   };
 
   useEffect(() => { fetchCategories(); }, []);
+
+  const filtered = categories.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const addCategory = async () => {
     const name = newName.trim();
@@ -79,13 +84,35 @@ const Categories = () => {
 
         <div className="glow-border rounded-2xl p-6">
           <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-            <Tag size={18} className="text-primary" /> Danh sách ({categories.length})
+            <Tag size={18} className="text-primary" /> Danh sách ({filtered.length})
           </h3>
-          {categories.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4 text-center">Chưa có danh mục nào</p>
+
+          {categories.length > 0 && (
+            <div className="mb-4">
+              <div className="relative">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Tìm kiếm danh mục..."
+                  className="pl-9"
+                />
+              </div>
+            </div>
+          )}
+
+          {filtered.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">
+              {categories.length === 0
+                ? "Chưa có danh mục nào"
+                : "Không tìm thấy danh mục phù hợp"}
+            </p>
           ) : (
             <div className="space-y-2">
-              {categories.map(c => (
+              {filtered.map(c => (
                 <div key={c.id} className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border">
                   {editId === c.id ? (
                     <>

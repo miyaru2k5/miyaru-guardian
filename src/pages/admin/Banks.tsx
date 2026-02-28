@@ -13,6 +13,8 @@ const bankSchema = z.object({
   bank_name: z.string().min(1, "Bắt buộc").max(100),
   account_number: z.string().min(1, "Bắt buộc").max(50),
   account_holder: z.string().min(1, "Bắt buộc").max(100),
+  logo_url: z.string().max(500).optional(),
+  qr_image_url: z.string().max(500).optional(),
 });
 
 const Banks = () => {
@@ -32,12 +34,20 @@ const Banks = () => {
   useEffect(() => { fetchBanks(); }, []);
 
   const onSubmit = async (data: z.infer<typeof bankSchema>) => {
+    const payload = {
+      bank_name: data.bank_name,
+      account_number: data.account_number,
+      account_holder: data.account_holder,
+      logo_url: data.logo_url || null,
+      qr_image_url: data.qr_image_url || null,
+    };
+
     if (editBank) {
-      const { error } = await supabase.from("bank_accounts").update(data).eq("id", editBank.id);
+      const { error } = await supabase.from("bank_accounts").update(payload).eq("id", editBank.id);
       if (error) { toast({ title: "Lỗi", description: error.message, variant: "destructive" }); return; }
       toast({ title: "Đã cập nhật" });
     } else {
-      const { error } = await supabase.from("bank_accounts").insert([{ bank_name: data.bank_name, account_number: data.account_number, account_holder: data.account_holder }]);
+      const { error } = await supabase.from("bank_accounts").insert([payload]);
       if (error) { toast({ title: "Lỗi", description: error.message, variant: "destructive" }); return; }
       toast({ title: "Đã thêm ngân hàng" });
     }
@@ -67,7 +77,14 @@ const Banks = () => {
           <h1 className="text-2xl font-bold text-foreground">Ngân hàng</h1>
           <p className="text-muted-foreground text-sm">Quản lý tài khoản ngân hàng</p>
         </div>
-        <Button onClick={() => { setEditBank(null); reset({ bank_name: "", account_number: "", account_holder: "" }); setDialogOpen(true); }} className="btn-glow gap-2">
+        <Button
+          onClick={() => {
+            setEditBank(null);
+            reset({ bank_name: "", account_number: "", account_holder: "", logo_url: "", qr_image_url: "" });
+            setDialogOpen(true);
+          }}
+          className="btn-glow gap-2"
+        >
           <Plus size={16} /> Thêm
         </Button>
       </div>
@@ -76,7 +93,16 @@ const Banks = () => {
         {banks.map(b => (
           <div key={b.id} className={`glow-border rounded-2xl p-5 card-hover ${!b.is_visible ? "opacity-50" : ""}`}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-foreground">{b.bank_name}</h3>
+              <div className="flex items-center gap-3">
+                {b.logo_url && (
+                  <img
+                    src={b.logo_url}
+                    alt={b.bank_name}
+                    className="w-8 h-8 rounded-md object-contain bg-card border border-border"
+                  />
+                )}
+                <h3 className="text-lg font-bold text-foreground">{b.bank_name}</h3>
+              </div>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${b.is_visible ? "bg-emerald-500/20 text-emerald-400" : "bg-muted text-muted-foreground"}`}>
                 {b.is_visible ? "Hiện" : "Ẩn"}
               </span>
@@ -91,11 +117,36 @@ const Banks = () => {
               </div>
               <div className="flex justify-between"><span className="text-muted-foreground">Chủ TK</span><span className="font-medium text-foreground">{b.account_holder}</span></div>
             </div>
+            {b.qr_image_url && (
+              <div className="mt-2 flex justify-end">
+                <img
+                  src={b.qr_image_url}
+                  alt={`QR ${b.bank_name}`}
+                  className="w-16 h-16 rounded-xl border border-border object-cover bg-card"
+                />
+              </div>
+            )}
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => toggleVisibility(b)} className="flex-1 gap-1">
                 {b.is_visible ? <><EyeOff size={14} /> Ẩn</> : <><Eye size={14} /> Hiện</>}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => { setEditBank(b); reset({ bank_name: b.bank_name, account_number: b.account_number, account_holder: b.account_holder }); setDialogOpen(true); }}><Edit size={14} /></Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setEditBank(b);
+                  reset({
+                    bank_name: b.bank_name,
+                    account_number: b.account_number,
+                    account_holder: b.account_holder,
+                    logo_url: b.logo_url || "",
+                    qr_image_url: b.qr_image_url || "",
+                  });
+                  setDialogOpen(true);
+                }}
+              >
+                <Edit size={14} />
+              </Button>
               <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => deleteBank(b.id)}><Trash2 size={14} /></Button>
             </div>
           </div>
@@ -120,6 +171,14 @@ const Banks = () => {
               <label className="text-sm text-muted-foreground mb-1 block">Chủ tài khoản</label>
               <Input {...register("account_holder")} placeholder="Nhập tên chủ tài khoản" />
               {errors.account_holder && <p className="text-xs text-destructive mt-1">{errors.account_holder.message}</p>}
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Logo ngân hàng (URL)</label>
+              <Input {...register("logo_url")} placeholder="https://..." />
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Ảnh QR chuyển khoản (URL)</label>
+              <Input {...register("qr_image_url")} placeholder="https://..." />
             </div>
             <Button type="submit" className="w-full btn-glow">{editBank ? "Cập nhật" : "Thêm mới"}</Button>
           </form>

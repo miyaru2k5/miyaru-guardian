@@ -4,6 +4,7 @@ const Footer = () => {
   const { systemSettings } = useThemeCustomizer();
   const footer = systemSettings.footer_data;
   const siteName = systemSettings.site_name;
+  const logoUrl = systemSettings.logo_url;
 
   return (
     <footer className="py-12 px-4 border-t border-border bg-card/50 pb-24 md:pb-12">
@@ -12,9 +13,21 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center btn-glow">
-                <span className="text-primary-foreground font-bold text-lg">{siteName.charAt(0)}</span>
-              </div>
+              {logoUrl ? (
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-primary/10 border border-border flex items-center justify-center">
+                  <img
+                    src={logoUrl}
+                    alt={siteName}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center btn-glow">
+                  <span className="text-primary-foreground font-bold text-lg">
+                    {siteName.charAt(0)}
+                  </span>
+                </div>
+              )}
               <span className="text-xl font-bold text-foreground">{siteName}</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">

@@ -1,6 +1,10 @@
 import { Shield, TrendingUp, Clock } from "lucide-react";
+import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const GDTGSection = () => {
+  const { systemSettings } = useThemeCustomizer();
+  const siteName = systemSettings.site_name || "Miyaru";
+
   const stats = [
     { icon: TrendingUp, value: "10K+", label: "Giao dịch thành công", color: "text-primary" },
     { icon: Shield, value: "99%", label: "Tỷ lệ thành công", color: "text-primary" },
@@ -24,7 +28,7 @@ const GDTGSection = () => {
         {/* Title */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Miyaru <span className="text-gradient">GDTG</span>
+            {siteName} <span className="text-gradient">GDTG</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Dịch vụ trung gian đảm bảo giao dịch an toàn tuyệt đối giữa người mua và người bán. 

@@ -1,4 +1,5 @@
 import { Clock, Crown, Percent, Lock } from "lucide-react";
+import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const advantages = [
   {
@@ -24,12 +25,15 @@ const advantages = [
 ];
 
 const AdvantagesSection = () => {
+  const { systemSettings } = useThemeCustomizer();
+  const siteName = systemSettings.site_name || "Miyaru";
+
   return (
     <section className="py-20 px-4">
       <div className="container mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Tại sao chọn <span className="text-gradient">Miyaru?</span>
+            Tại sao chọn <span className="text-gradient">{siteName}?</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
             Những ưu điểm vượt trội khi sử dụng dịch vụ của chúng tôi

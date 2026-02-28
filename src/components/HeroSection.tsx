@@ -1,6 +1,10 @@
 import { Shield, UserCheck, Headphones, Zap, AlertTriangle } from "lucide-react";
+import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const HeroSection = () => {
+  const { systemSettings } = useThemeCustomizer();
+  const siteName = systemSettings.site_name || "Miyaru";
+
   const features = [
     { icon: Shield, text: "Được bảo vệ bởi quỹ bảo hiểm" },
     { icon: UserCheck, text: "Xác thực danh tính rõ ràng" },
@@ -27,7 +31,7 @@ const HeroSection = () => {
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          Giao dịch minh bạch – bảo chứng bởi quỹ Miyaru
+          Giao dịch minh bạch – bảo chứng bởi quỹ {siteName}
         </p>
 
         {/* Features */}

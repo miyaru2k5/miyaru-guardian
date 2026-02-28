@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Users, Shield, Building2, ShieldCheck, Settings, User, LogOut,
-  Menu, X, ChevronLeft, ChevronRight, Tag,
+  Menu, X, ChevronLeft, ChevronRight, Tag, MessageCircle, FileText,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileDropdown from "@/components/ProfileDropdown";
@@ -17,6 +17,8 @@ const menuItems = [
   { icon: Shield, label: "Giao dịch trung gian", path: "/admin/transactions", highlight: true },
   { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
   { icon: ShieldCheck, label: "Quỹ bảo hiểm", path: "/admin/insurance" },
+  { icon: MessageCircle, label: "Facebook Admin", path: "/admin/facebook-contacts" },
+  { icon: FileText, label: "Điều khoản", path: "/admin/terms" },
   { icon: Settings, label: "Cấu hình", path: "/admin/settings" },
   { icon: User, label: "Profile", path: "/admin/profile" },
 ];

@@ -21,6 +21,11 @@ import Insurance from "./pages/admin/Insurance";
 import Profile from "./pages/admin/Profile";
 import AdminSettings from "./pages/admin/AdminSettings";
 import Categories from "./pages/admin/Categories";
+import FacebookContactsPage from "./pages/admin/FacebookContacts";
+import AdminTermsPage from "./pages/admin/TermsAdmin";
+import ContactFacebookPage from "./pages/ContactFacebookPage";
+import UserTermsPage from "./pages/UserTermsPage";
+import { PageViewTracker } from "./components/PageViewTracker";
 
 const queryClient = new QueryClient();
 
@@ -32,8 +37,11 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <PageViewTracker />
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/lien-he" element={<ContactFacebookPage />} />
+              <Route path="/dieu-khoan/:slug" element={<UserTermsPage />} />
               <Route path="/login" element={<RequireGuest><Login /></RequireGuest>} />
               <Route path="/register" element={<RequireGuest><Register /></RequireGuest>} />
               <Route path="/forgot-password" element={<RequireGuest><ForgotPassword /></RequireGuest>} />
@@ -43,6 +51,8 @@ const App = () => (
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="traders" element={<Traders />} />
                 <Route path="categories" element={<Categories />} />
+                <Route path="facebook-contacts" element={<FacebookContactsPage />} />
+                <Route path="terms" element={<AdminTermsPage />} />
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="banks" element={<Banks />} />
                 <Route path="insurance" element={<Insurance />} />

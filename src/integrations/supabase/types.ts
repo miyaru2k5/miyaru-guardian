@@ -22,6 +22,8 @@ export type Database = {
           created_at: string
           id: string
           is_visible: boolean
+          logo_url: string | null
+          qr_image_url: string | null
           updated_at: string
         }
         Insert: {
@@ -31,6 +33,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_visible?: boolean
+          logo_url?: string | null
+          qr_image_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -40,6 +44,8 @@ export type Database = {
           created_at?: string
           id?: string
           is_visible?: boolean
+          logo_url?: string | null
+          qr_image_url?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -59,6 +65,51 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      facebook_contacts: {
+        Row: {
+          id: string
+          title: string
+          branch_name: string
+          platform: string
+          platform_logo_url: string | null
+          platform_avatar_url: string | null
+          contact_url: string
+          support_text: string | null
+          is_active: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          branch_name: string
+          platform: string
+          platform_logo_url?: string | null
+          platform_avatar_url?: string | null
+          contact_url: string
+          support_text?: string | null
+          is_active?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          branch_name?: string
+          platform?: string
+          platform_logo_url?: string | null
+          platform_avatar_url?: string | null
+          contact_url?: string
+          support_text?: string | null
+          is_active?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -82,6 +133,39 @@ export type Database = {
           id?: string
           max_percentage?: number
           total_fund?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      terms_pages: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          content: string
+          is_published: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          content: string
+          is_published?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          content?: string
+          is_published?: boolean
+          display_order?: number
+          created_at?: string
           updated_at?: string
         }
         Relationships: []
@@ -118,6 +202,24 @@ export type Database = {
           full_name?: string
           id?: string
           theme_mode?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      site_analytics: {
+        Row: {
+          id: string
+          total_page_views: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          total_page_views?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          total_page_views?: number
           updated_at?: string
         }
         Relationships: []
@@ -318,6 +420,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      increment_page_views: { Args: Record<PropertyKey, never>; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

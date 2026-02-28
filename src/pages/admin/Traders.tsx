@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Edit, Trash2, Power, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Power } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import SearchBar from "@/components/SearchBar";
+import FilterDropdown, { type FilterOption } from "@/components/FilterDropdown";
 
 const traderSchema = z.object({
   name: z.string().min(1, "Bắt buộc").max(100),
@@ -46,7 +48,7 @@ const Traders = () => {
 
   const fetchAll = async () => {
     const [tRes, cRes, tcRes] = await Promise.all([
-      supabase.from("traders").select("*").order("created_at", { ascending: false }),
+      supabase.from("traders").select("*").order("created_at", { ascending: true }),
       supabase.from("categories").select("*").order("name"),
       supabase.from("trader_categories").select("*"),
     ]);
@@ -67,6 +69,7 @@ const Traders = () => {
       name: data.name, code: data.code, avatar_url: data.avatar_url || null,
       service: data.service || "", description: data.description || "",
       insurance_fund: data.insurance_fund, success_rate: data.success_rate,
+      status: editTrader?.status || "LIVE",
       facebook: data.facebook || null, zalo: data.zalo || null, website: data.website || null,
     };
     let traderId = editTrader?.id;
@@ -133,11 +136,33 @@ const Traders = () => {
     return categories.filter(c => catIds.includes(c.id)).map(c => c.name);
   };
 
-  const filtered = traders.filter(t => {
-    const matchSearch = t.name.toLowerCase().includes(search.toLowerCase()) || t.code.toLowerCase().includes(search.toLowerCase());
-    const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
-    return matchSearch && matchCat;
-  });
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const handleFilterChange = useCallback((value: string) => {
+    setFilterCat(value);
+  }, []);
+
+  const filterOptions: FilterOption[] = useMemo(
+    () => [
+      { value: "all", label: "Tất cả danh mục" },
+      ...categories.map(c => ({ value: c.id, label: c.name })),
+    ],
+    [categories],
+  );
+
+  const filtered = useMemo(
+    () =>
+      traders.filter(t => {
+        const matchSearch =
+          t.name.toLowerCase().includes(search.toLowerCase()) ||
+          t.code.toLowerCase().includes(search.toLowerCase());
+        const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
+        return matchSearch && matchCat;
+      }),
+    [traders, search, filterCat, traderCats],
+  );
 
   return (
     <div className="space-y-6">
@@ -149,21 +174,24 @@ const Traders = () => {
         <Button onClick={openNew} className="btn-glow gap-2"><Plus size={16} /> Thêm GDV</Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm..." className="pl-10" />
-        </div>
-        {categories.length > 0 && (
-          <div className="relative">
-            <Filter size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
-              className="pl-9 pr-4 py-2 rounded-xl text-sm border border-border bg-background text-foreground appearance-none cursor-pointer min-w-[160px]">
-              <option value="all">Tất cả danh mục</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
+      <div className="mb-4">
+        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+          <div className="flex-1 w-full">
+            <SearchBar
+              onSearchChange={handleSearchChange}
+              placeholder="Tìm kiếm giao dịch viên..."
+            />
           </div>
-        )}
+          {filterOptions.length > 1 && (
+            <div className="w-full md:w-auto shrink-0">
+              <FilterDropdown
+                options={filterOptions}
+                value={filterCat}
+                onChange={handleFilterChange}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,7 +213,18 @@ const Traders = () => {
                     <p className="text-xs text-muted-foreground">{t.service || t.code}</p>
                   </div>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "status-live" : "status-offline"}`}>{t.status}</span>
+                <div className="flex flex-col items-end gap-1">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      t.status === "LIVE" ? "status-live" : "status-offline"
+                    }`}
+                  >
+                    {t.status}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {Number(t.success_rate)}% thành công
+                  </span>
+                </div>
               </div>
               {catNames.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-3">
@@ -195,9 +234,16 @@ const Traders = () => {
                 </div>
               )}
               <div className="space-y-2 mb-4 text-sm">
-                <div className="flex justify-between"><span className="text-muted-foreground">Mã GDV</span><span className="font-medium text-foreground">{t.code}</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">Quỹ BH</span><span className="font-semibold text-primary">{Number(t.insurance_fund).toLocaleString("vi-VN")}đ</span></div>
-                <div className="flex justify-between"><span className="text-muted-foreground">% Thành công</span><span className="text-foreground">{Number(t.success_rate)}%</span></div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Mã GDV</span>
+                  <span className="font-medium text-foreground">{t.code}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Quỹ BH</span>
+                  <span className="font-semibold text-primary">
+                    {Number(t.insurance_fund).toLocaleString("vi-VN")}đ
+                  </span>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => toggleStatus(t)} className="flex-1 gap-1"><Power size={14} />{t.status === "LIVE" ? "Tắt" : "Bật"}</Button>
