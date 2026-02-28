@@ -35,6 +35,7 @@ interface ThemeCustomizerContextType {
   setUserPrimaryColor: (color: string) => void;
   setUserBackgroundColor: (color: string) => void;
   resetToSystemDefaults: () => void;
+  forceDarkMode: () => void;
   updateSystemSettings: (settings: Partial<SystemSettings>) => Promise<void>;
   refetchSystemSettings: () => Promise<void>;
 }
@@ -64,10 +65,11 @@ const LIGHT_BG = "0 0% 98%";
 
 const ThemeCustomizerContext = createContext<ThemeCustomizerContextType | undefined>(undefined);
 
-function applyThemeToDOM(mode: "dark" | "light", primary: string, bg: string, accent: string, radius: string) {
+function applyThemeToDOM(mode: "dark" | "light", primary: string, _bg: string, accent: string, radius: string) {
   const root = document.documentElement;
   root.classList.remove("light", "dark");
   root.classList.add(mode);
+  root.setAttribute("data-theme", mode);
 
   root.style.setProperty("--primary", primary);
   root.style.setProperty("--accent", accent);
@@ -75,7 +77,7 @@ function applyThemeToDOM(mode: "dark" | "light", primary: string, bg: string, ac
   root.style.setProperty("--radius", radius);
 
   if (mode === "dark") {
-    root.style.setProperty("--background", bg || DARK_BG);
+    root.style.setProperty("--background", DARK_BG);
     root.style.setProperty("--foreground", "0 0% 98%");
     root.style.setProperty("--card", "240 10% 8%");
     root.style.setProperty("--card-foreground", "0 0% 98%");
@@ -92,7 +94,7 @@ function applyThemeToDOM(mode: "dark" | "light", primary: string, bg: string, ac
     root.style.setProperty("--border", "240 10% 18%");
     root.style.setProperty("--input", "240 10% 18%");
   } else {
-    root.style.setProperty("--background", bg || LIGHT_BG);
+    root.style.setProperty("--background", LIGHT_BG);
     root.style.setProperty("--foreground", "240 10% 10%");
     root.style.setProperty("--card", "0 0% 100%");
     root.style.setProperty("--card-foreground", "240 10% 10%");
@@ -161,12 +163,21 @@ export function hslToHex(hslStr: string): string {
   return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 }
 
+function getInitialThemeFromStorage() {
+  if (typeof window === "undefined") return { mode: null as string | null, primary: null as string | null, bg: null as string | null };
+  return {
+    mode: localStorage.getItem("miyaru-theme-mode"),
+    primary: localStorage.getItem("miyaru-primary-color"),
+    bg: localStorage.getItem("miyaru-bg-color"),
+  };
+}
+
 export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
   const [systemSettings, setSystemSettings] = useState<SystemSettings>(DEFAULT_SETTINGS);
-  const [userMode, setUserMode] = useState<string | null>(null);
-  const [userPrimary, setUserPrimary] = useState<string | null>(null);
-  const [userBg, setUserBg] = useState<string | null>(null);
+  const [userMode, setUserMode] = useState<string | null>(() => getInitialThemeFromStorage().mode);
+  const [userPrimary, setUserPrimary] = useState<string | null>(() => getInitialThemeFromStorage().primary);
+  const [userBg, setUserBg] = useState<string | null>(() => getInitialThemeFromStorage().bg);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchSystemSettings = useCallback(async () => {
@@ -206,9 +217,9 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
       .eq("id", user.id)
       .maybeSingle();
     if (data) {
-      setUserMode(data.theme_mode);
-      setUserPrimary(data.custom_primary_color);
-      setUserBg(data.custom_background_color);
+      setUserMode(data.theme_mode ?? localStorage.getItem("miyaru-theme-mode"));
+      setUserPrimary(data.custom_primary_color ?? localStorage.getItem("miyaru-primary-color"));
+      setUserBg(data.custom_background_color ?? localStorage.getItem("miyaru-bg-color"));
     }
   }, [user]);
 
@@ -217,17 +228,16 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
   }, [fetchSystemSettings, fetchUserTheme]);
 
   const allowUserTheme = systemSettings.allow_user_theme;
-  const currentMode = ((allowUserTheme && userMode) || systemSettings.default_mode) as "dark" | "light";
+  const systemDefault = systemSettings.default_mode === "light" ? "light" : "dark";
+  const currentMode = ((allowUserTheme && userMode) || systemDefault) as "dark" | "light";
   const currentPrimaryColor = (allowUserTheme && userPrimary) || systemSettings.primary_color;
   const currentBackgroundColor = (allowUserTheme && userBg) || systemSettings.background_color;
   const currentAccentColor = systemSettings.accent_color;
   const currentBorderRadius = systemSettings.border_radius;
 
   useEffect(() => {
-    if (!isLoading) {
-      applyThemeToDOM(currentMode, currentPrimaryColor, currentBackgroundColor, currentAccentColor, currentBorderRadius);
-    }
-  }, [currentMode, currentPrimaryColor, currentBackgroundColor, currentAccentColor, currentBorderRadius, isLoading]);
+    applyThemeToDOM(currentMode, currentPrimaryColor, currentBackgroundColor, currentAccentColor, currentBorderRadius);
+  }, [currentMode, currentPrimaryColor, currentBackgroundColor, currentAccentColor, currentBorderRadius]);
 
   const toggleMode = useCallback(() => {
     const newMode = currentMode === "dark" ? "light" : "dark";
@@ -268,6 +278,20 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
     }
   }, [user]);
 
+  const forceDarkMode = useCallback(() => {
+    setUserMode("dark");
+    setUserPrimary(null);
+    setUserBg(null);
+    localStorage.setItem("miyaru-theme-mode", "dark");
+    localStorage.removeItem("miyaru-primary-color");
+    localStorage.removeItem("miyaru-bg-color");
+    if (user) {
+      supabase.from("profiles").update({
+        theme_mode: "dark", custom_primary_color: null, custom_background_color: null,
+      }).eq("id", user.id).then(() => {});
+    }
+  }, [user]);
+
   const updateSystemSettings = useCallback(async (settings: Partial<SystemSettings>) => {
     const { data: existing } = await supabase.from("system_settings").select("id").limit(1).maybeSingle();
     if (existing) {
@@ -282,7 +306,7 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
       currentMode, currentPrimaryColor, currentBackgroundColor,
       currentAccentColor, currentBorderRadius, allowUserTheme, isLoading,
       toggleMode, setUserPrimaryColor, setUserBackgroundColor,
-      resetToSystemDefaults, updateSystemSettings,
+      resetToSystemDefaults, forceDarkMode, updateSystemSettings,
       refetchSystemSettings: fetchSystemSettings,
     }}>
       {children}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight, ChevronDown, Globe, MessageCircle } from "lucide-react";
+import { ChevronRight, ChevronDown, Globe, MessageCircle, User, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface GDVCardProps {
@@ -8,29 +8,34 @@ interface GDVCardProps {
   code: string;
   insurance: string;
   isLive: boolean;
+  avatarUrl?: string | null;
   description?: string;
   facebook?: string | null;
   zalo?: string | null;
   website?: string | null;
 }
 
-const GDVCard = ({ name, service, code, insurance, isLive, description, facebook, zalo, website }: GDVCardProps) => {
+const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, description, facebook, zalo, website }: GDVCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="glow-border rounded-2xl p-5 card-hover group">
+    <div className="rounded-2xl border border-border bg-card p-5 transition-all hover:shadow-lg hover:border-primary/30">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/20">
-            <span className="text-lg font-bold text-primary">{name.charAt(0)}</span>
-          </div>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-full object-cover border-2 border-primary/30" />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
+              <span className="text-lg font-bold text-primary-foreground">{name.charAt(0)}</span>
+            </div>
+          )}
           <div>
-            <h3 className="font-semibold text-foreground">{name}</h3>
+            <h3 className="font-semibold text-foreground text-lg">{name}</h3>
             <p className="text-sm text-muted-foreground">{service}</p>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium ${isLive ? 'status-live' : 'status-offline'}`}>
-          {isLive ? 'LIVE' : 'OFFLINE'}
+        <span className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${isLive ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-muted text-muted-foreground border border-border"}`}>
+          {isLive ? "LIVE" : "OFFLINE"}
         </span>
       </div>
 
@@ -54,30 +59,47 @@ const GDVCard = ({ name, service, code, insurance, isLive, description, facebook
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
           >
-            <div className="pt-3 pb-2 border-t border-border space-y-3">
-              {description && (
-                <p className="text-sm text-muted-foreground">{description}</p>
+            <div className="pt-4 pb-2 space-y-4 border-t border-border">
+              {(facebook || zalo || website) && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-foreground font-medium">
+                    <User size={16} className="text-muted-foreground" />
+                    <span>Liên hệ</span>
+                  </div>
+                  <div className="space-y-2 pl-6">
+                    {facebook && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <svg className="w-4 h-4 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                        </svg>
+                        <span className="text-muted-foreground">Facebook</span>
+                        <span className="text-primary font-medium truncate">{facebook}</span>
+                      </div>
+                    )}
+                    {zalo && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <MessageCircle size={16} className="text-muted-foreground shrink-0" />
+                        <span className="text-muted-foreground">Zalo / Phone</span>
+                        <span className="text-primary font-medium">{zalo}</span>
+                      </div>
+                    )}
+                    {website && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Globe size={16} className="text-muted-foreground shrink-0" />
+                        <span className="text-muted-foreground">Website</span>
+                        <span className="text-primary font-medium truncate">{website}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
-              <div className="flex flex-wrap gap-2">
-                {facebook && (
-                  <a href={facebook} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors">
-                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                    Facebook
-                  </a>
-                )}
-                {zalo && (
-                  <a href={`https://zalo.me/${zalo}`} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full bg-blue-400/10 text-blue-300 hover:bg-blue-400/20 transition-colors">
-                    <MessageCircle className="w-3.5 h-3.5" /> Zalo
-                  </a>
-                )}
-                {website && (
-                  <a href={website} target="_blank" rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
-                    <Globe className="w-3.5 h-3.5" /> Website
-                  </a>
-                )}
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-foreground font-medium">
+                  <FileText size={16} className="text-muted-foreground" />
+                  <span>Mô tả</span>
+                </div>
+                <p className="text-sm text-muted-foreground pl-6">{description || "Chưa có mô tả"}</p>
               </div>
             </div>
           </motion.div>
@@ -86,10 +108,10 @@ const GDVCard = ({ name, service, code, insurance, isLive, description, facebook
 
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full py-3 px-4 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground font-medium text-sm transition-all flex items-center justify-center gap-2 group-hover:bg-primary group-hover:text-primary-foreground"
+        className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-4"
       >
-        {expanded ? "Thu gọn" : "Chi tiết"}
-        {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
+        {expanded ? "Ấn chi tiết" : "Chi tiết"}
+        {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
       </button>
     </div>
   );

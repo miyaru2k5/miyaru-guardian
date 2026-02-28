@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import AuthLayout from "@/layouts/AuthLayout";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,7 @@ const ResetPassword = () => {
     const { error } = await supabase.auth.updateUser({ password: data.password });
     setLoading(false);
     if (error) {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+      toast({ title: "Lỗi", description: getAuthErrorMessage(error), variant: "destructive" });
     } else {
       toast({ title: "Thành công", description: "Mật khẩu đã được cập nhật." });
       navigate("/login");

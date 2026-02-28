@@ -25,16 +25,22 @@ const AdminLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut, isLoading } = useAuth();
+  const { user, isAdmin, signOut, isLoading } = useAuth();
   const { systemSettings } = useThemeCustomizer();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isLoading) return;
+    if (!user) {
       navigate("/login");
+      return;
     }
-  }, [user, isLoading, navigate]);
+    if (!isAdmin) {
+      navigate("/");
+      return;
+    }
+  }, [user, isAdmin, isLoading, navigate]);
 
-  if (isLoading) {
+  if (isLoading || !user || !isAdmin) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />

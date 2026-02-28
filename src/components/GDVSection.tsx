@@ -11,6 +11,7 @@ interface Trader {
   code: string;
   insurance_fund: number;
   status: string;
+  avatar_url: string | null;
   description: string | null;
   facebook: string | null;
   zalo: string | null;
@@ -74,20 +75,20 @@ const GDVSection = () => {
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1">
+          <div className="relative flex-1 max-w-md">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm GDV..." className="pl-10" />
+            <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Tìm kiếm GDV..." className="pl-10 rounded-full" />
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2">
             {["all", "LIVE", "OFFLINE"].map(s => (
               <button key={s} onClick={() => setFilterStatus(s)}
-                className={`px-3 py-2 rounded-xl text-sm font-medium border transition-colors ${filterStatus === s ? "bg-primary/20 text-primary border-primary/40" : "border-border text-muted-foreground hover:text-foreground"}`}>
+                className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${filterStatus === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:text-foreground hover:border-primary/40"}`}>
                 {s === "all" ? "Tất cả" : s}
               </button>
             ))}
             {categories.length > 0 && (
               <select value={filterCat} onChange={e => setFilterCat(e.target.value)}
-                className="px-3 py-2 rounded-xl text-sm border border-border bg-background text-foreground">
+                className="px-4 py-2 rounded-full text-sm border border-border bg-background text-foreground">
                 <option value="all">Danh mục</option>
                 {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
@@ -102,8 +103,9 @@ const GDVSection = () => {
                 name={t.name}
                 service={t.service || t.code}
                 code={t.code}
-                insurance={`${Number(t.insurance_fund).toLocaleString("vi-VN")}đ`}
+                insurance={`${Number(t.insurance_fund).toLocaleString("vi-VN")}₫`}
                 isLive={t.status === "LIVE"}
+                avatarUrl={t.avatar_url}
                 description={t.description || undefined}
                 facebook={t.facebook}
                 zalo={t.zalo}

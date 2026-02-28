@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { z } from "zod";
 import { useThemeCustomizer, hexToHsl, hslToHex, SystemSettings } from "@/contexts/ThemeCustomizerContext";
 import { useAuth } from "@/lib/auth";
 import { Switch } from "@/components/ui/switch";
@@ -6,11 +7,32 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import {
   RotateCcw, Save, Palette, Monitor, Sun, Moon,
-  Upload, Download, Building2, FileJson,
+  Upload, Download, Building2, FileJson, Plus, Trash2,
 } from "lucide-react";
+
+const footerDataSchema = z.object({
+  brand_name: z.string().min(1, "brand_name bắt buộc").max(200),
+  description: z.string().max(1000).optional().default(""),
+  services: z.array(z.string().max(200)).max(20).optional().default([]),
+  contact: z.object({
+    phone: z.string().max(50),
+    email: z.string().email("Email không hợp lệ").max(255),
+  }),
+  copyright: z.string().max(500).optional().default(""),
+});
+
+const themeImportSchema = z.object({
+  site_name: z.string().max(200).optional(),
+  primary_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  background_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  accent_color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  border_radius: z.string().max(20).optional(),
+  default_mode: z.enum(["dark", "light"]).optional(),
+  allow_user_theme: z.boolean().optional(),
+  footer: footerDataSchema.optional(),
+});
 
 const PRESET_COLORS = [
   { label: "Hồng", hex: "#ec4899" },
@@ -40,8 +62,13 @@ const AdminSettings = () => {
   const [siteName, setSiteName] = useState(systemSettings.site_name);
   const [logoUrl, setLogoUrl] = useState(systemSettings.logo_url || "");
 
-  // Footer
-  const [footerJson, setFooterJson] = useState(JSON.stringify(systemSettings.footer_data, null, 2));
+  // Footer - form state
+  const [footerBrandName, setFooterBrandName] = useState(systemSettings.footer_data?.brand_name ?? "");
+  const [footerDescription, setFooterDescription] = useState(systemSettings.footer_data?.description ?? "");
+  const [footerServices, setFooterServices] = useState<string[]>(systemSettings.footer_data?.services ?? []);
+  const [footerPhone, setFooterPhone] = useState(systemSettings.footer_data?.contact?.phone ?? "");
+  const [footerEmail, setFooterEmail] = useState(systemSettings.footer_data?.contact?.email ?? "");
+  const [footerCopyright, setFooterCopyright] = useState(systemSettings.footer_data?.copyright ?? "");
 
   const [saving, setSaving] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
@@ -55,7 +82,12 @@ const AdminSettings = () => {
     setAllowUser(systemSettings.allow_user_theme);
     setSiteName(systemSettings.site_name);
     setLogoUrl(systemSettings.logo_url || "");
-    setFooterJson(JSON.stringify(systemSettings.footer_data, null, 2));
+    setFooterBrandName(systemSettings.footer_data?.brand_name ?? "");
+    setFooterDescription(systemSettings.footer_data?.description ?? "");
+    setFooterServices(systemSettings.footer_data?.services ?? []);
+    setFooterPhone(systemSettings.footer_data?.contact?.phone ?? "");
+    setFooterEmail(systemSettings.footer_data?.contact?.email ?? "");
+    setFooterCopyright(systemSettings.footer_data?.copyright ?? "");
   }, [systemSettings]);
 
   const handleSaveAppearance = async () => {
@@ -89,16 +121,29 @@ const AdminSettings = () => {
 
   const handleSaveFooter = async () => {
     try {
-      const parsed = JSON.parse(footerJson);
-      if (!parsed.brand_name || !parsed.contact) throw new Error("Invalid schema");
+      const validated = footerDataSchema.parse({
+        brand_name: footerBrandName.trim(),
+        description: footerDescription.trim() || "",
+        services: footerServices.filter(Boolean),
+        contact: { phone: footerPhone.trim(), email: footerEmail.trim() },
+        copyright: footerCopyright.trim() || "",
+      });
       setSaving(true);
-      await updateSystemSettings({ footer_data: parsed } as any);
+      await updateSystemSettings({ footer_data: validated } as any);
       toast({ title: "Thành công", description: "Đã lưu footer" });
-    } catch (e: any) {
-      toast({ title: "JSON không hợp lệ", description: e.message, variant: "destructive" });
+    } catch (e: unknown) {
+      const msg = e instanceof z.ZodError
+        ? e.errors.map((err) => `${err.path.join(".")}: ${err.message}`).join(", ")
+        : e instanceof Error ? e.message : "Dữ liệu không hợp lệ";
+      toast({ title: "Lỗi", description: msg, variant: "destructive" });
     }
     setSaving(false);
   };
+
+  const addFooterService = () => setFooterServices((s) => [...s, ""]);
+  const removeFooterService = (i: number) => setFooterServices((s) => s.filter((_, j) => j !== i));
+  const setFooterServiceAt = (i: number, v: string) =>
+    setFooterServices((s) => s.map((x, j) => (j === i ? v : x)));
 
   const handleExport = () => {
     const exportData = {
@@ -127,21 +172,25 @@ const AdminSettings = () => {
     const reader = new FileReader();
     reader.onload = async (ev) => {
       try {
-        const json = JSON.parse(ev.target?.result as string);
+        const raw = JSON.parse(ev.target?.result as string);
+        const parsed = themeImportSchema.parse(raw);
         const updates: Partial<SystemSettings> = {};
-        if (json.site_name) updates.site_name = json.site_name;
-        if (json.primary_color) updates.primary_color = hexToHsl(json.primary_color);
-        if (json.background_color) updates.background_color = hexToHsl(json.background_color);
-        if (json.accent_color) updates.accent_color = hexToHsl(json.accent_color);
-        if (json.border_radius) updates.border_radius = json.border_radius;
-        if (json.default_mode) updates.default_mode = json.default_mode;
-        if (json.allow_user_theme !== undefined) updates.allow_user_theme = json.allow_user_theme;
-        if (json.footer) (updates as any).footer_data = json.footer;
+        if (parsed.site_name !== undefined) updates.site_name = parsed.site_name;
+        if (parsed.primary_color) updates.primary_color = hexToHsl(parsed.primary_color);
+        if (parsed.background_color) updates.background_color = hexToHsl(parsed.background_color);
+        if (parsed.accent_color) updates.accent_color = hexToHsl(parsed.accent_color);
+        if (parsed.border_radius) updates.border_radius = parsed.border_radius;
+        if (parsed.default_mode) updates.default_mode = parsed.default_mode;
+        if (parsed.allow_user_theme !== undefined) updates.allow_user_theme = parsed.allow_user_theme;
+        if (parsed.footer) (updates as any).footer_data = parsed.footer;
         await updateSystemSettings(updates);
         await refetchSystemSettings();
         toast({ title: "Thành công", description: "Đã import theme" });
-      } catch (err: any) {
-        toast({ title: "Import thất bại", description: err.message, variant: "destructive" });
+      } catch (err: unknown) {
+        const msg = err instanceof z.ZodError
+          ? err.errors.map((e2) => `${e2.path.join(".")}: ${e2.message}`).join(", ")
+          : err instanceof Error ? err.message : "Định dạng không hợp lệ";
+        toast({ title: "Import thất bại", description: msg, variant: "destructive" });
       }
     };
     reader.readAsText(file);
@@ -330,10 +379,56 @@ const AdminSettings = () => {
 
         {/* ===== FOOTER ===== */}
         <TabsContent value="footer" className="space-y-6 mt-6">
-          <div className="glow-border rounded-2xl p-6 space-y-4">
-            <h3 className="text-lg font-bold text-foreground">Footer Data (JSON)</h3>
-            <Textarea value={footerJson} onChange={e => setFooterJson(e.target.value)}
-              className="font-mono text-sm min-h-[250px]" />
+          <div className="glow-border rounded-2xl p-6 bg-card space-y-5">
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <FileJson size={20} className="text-primary" /> Footer Data
+            </h3>
+            <div className="grid gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground block mb-1">Tên thương hiệu</label>
+                <Input value={footerBrandName} onChange={e => setFooterBrandName(e.target.value)} placeholder="Miyaru" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground block mb-1">Mô tả</label>
+                <Input value={footerDescription} onChange={e => setFooterDescription(e.target.value)}
+                  placeholder="Chi phí thấp – Nhanh chóng – Chất lượng." />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground block mb-1">Danh sách dịch vụ</label>
+                <div className="space-y-2">
+                  {footerServices.map((svc, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input value={svc} onChange={e => setFooterServiceAt(i, e.target.value)}
+                        placeholder={`Dịch vụ ${i + 1}`} className="flex-1" />
+                      <Button type="button" variant="outline" size="icon" onClick={() => removeFooterService(i)}
+                        className="shrink-0 text-destructive hover:text-destructive">
+                        <Trash2 size={16} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" onClick={addFooterService} className="gap-1">
+                    <Plus size={14} /> Thêm dịch vụ
+                  </Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1">Điện thoại</label>
+                  <Input value={footerPhone} onChange={e => setFooterPhone(e.target.value)}
+                    placeholder="0357.175.172" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1">Email</label>
+                  <Input type="email" value={footerEmail} onChange={e => setFooterEmail(e.target.value)}
+                    placeholder="contact@miyaru.vn" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground block mb-1">Bản quyền</label>
+                <Input value={footerCopyright} onChange={e => setFooterCopyright(e.target.value)}
+                  placeholder="© 2026 Miyaru Team." />
+              </div>
+            </div>
             <Button onClick={handleSaveFooter} disabled={saving || !isAdmin} className="btn-glow gap-2">
               <Save size={16} /> Lưu Footer
             </Button>

@@ -30,11 +30,13 @@ const Header = () => {
               <span className="text-xl font-bold text-foreground">{systemSettings.site_name}</span>
             </a>
 
-            <nav className="hidden md:flex items-center gap-4">
-              <a href="#gdv" className="px-4 py-2 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors font-medium">Giao dịch viên</a>
-              <a href="#gdtg" className="px-4 py-2 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors font-medium">Giao dịch trung gian</a>
-              <ThemeToggle />
-              <ProfileDropdown />
+            <nav className="hidden md:flex items-center gap-3">
+              <a href="#gdv" className="px-5 py-2.5 rounded-full border border-border text-foreground hover:text-primary hover:border-primary transition-colors font-medium">Giao dịch viên</a>
+              <a href="#gdtg" className="px-5 py-2.5 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors font-medium">Giao dịch trung gian</a>
+              <div className="flex items-center gap-2 ml-2 pl-4 border-l border-border">
+                <ThemeToggle />
+                <ProfileDropdown />
+              </div>
             </nav>
 
             <div className="md:hidden flex items-center gap-2">

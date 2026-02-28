@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ const Profile = () => {
     setUserPrimaryColor,
     setUserBackgroundColor,
     resetToSystemDefaults,
+    forceDarkMode,
   } = useThemeCustomizer();
 
   useEffect(() => {
@@ -49,7 +51,7 @@ const Profile = () => {
     setPwLoading(true);
     const { error } = await supabase.auth.updateUser({ password: pwForm.password });
     setPwLoading(false);
-    if (error) { toast({ title: "Lỗi", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: "Lỗi", description: getAuthErrorMessage(error), variant: "destructive" }); return; }
     toast({ title: "Đã đổi mật khẩu" });
     setPwForm({ password: "", confirmPassword: "" });
   };
@@ -62,7 +64,7 @@ const Profile = () => {
       </div>
 
       {/* Avatar */}
-      <div className="glow-border rounded-2xl p-6">
+      <div className="glow-border rounded-2xl p-6 bg-card">
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border-2 border-primary/30">
@@ -92,7 +94,7 @@ const Profile = () => {
 
       {/* Theme Customizer */}
       {allowUserTheme && (
-        <div className="glow-border rounded-2xl p-6">
+        <div className="glow-border rounded-2xl p-6 bg-card">
           <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
             <Palette size={18} /> Tùy chỉnh giao diện
           </h3>
@@ -127,16 +129,20 @@ const Profile = () => {
               />
             </div>
 
-            {/* Reset */}
-            <Button variant="outline" size="sm" onClick={resetToSystemDefaults} className="gap-1">
-              <RotateCcw size={14} /> Đặt lại mặc định
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={resetToSystemDefaults} className="gap-1">
+                <RotateCcw size={14} /> Đặt lại mặc định
+              </Button>
+              <Button variant="outline" size="sm" onClick={forceDarkMode} className="gap-1">
+                🌙 Cố định chế độ tối
+              </Button>
+            </div>
           </div>
         </div>
       )}
 
       {/* Change Password */}
-      <div className="glow-border rounded-2xl p-6">
+      <div className="glow-border rounded-2xl p-6 bg-card">
         <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2"><Lock size={18} /> Đổi mật khẩu</h3>
         <div className="space-y-4">
           <div>

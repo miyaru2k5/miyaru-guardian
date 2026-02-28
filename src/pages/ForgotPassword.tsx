@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import MainLayout from "@/layouts/MainLayout";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ const ForgotPassword = () => {
     const { error } = await resetPassword(data.email);
     setLoading(false);
     if (error) {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+      toast({ title: "Lỗi", description: getAuthErrorMessage(error), variant: "destructive" });
     } else {
       setSent(true);
     }

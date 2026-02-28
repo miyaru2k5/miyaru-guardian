@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
@@ -44,6 +44,7 @@
     --gradient-card: linear-gradient(145deg, hsl(240, 10%, 10%) 0%, hsl(240, 10%, 6%) 100%);
   }
 
+  html.light,
   .light {
     --background: 0 0% 98%;
     --foreground: 240 10% 10%;
@@ -93,6 +94,34 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', sans-serif;
   }
+
+  /* Input/text luôn dùng foreground - tránh đen trên đen khi light mode */
+  input, textarea, select {
+    color: hsl(var(--foreground));
+  }
+
+  input:disabled, textarea:disabled {
+    color: hsl(var(--muted-foreground));
+    opacity: 0.8;
+  }
+
+  /* Fix autofill: giữ màu chữ đúng theo theme */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: hsl(var(--foreground));
+    box-shadow: 0 0 0 1000px hsl(var(--background)) inset;
+  }
+
+  html.light input:-webkit-autofill,
+  html.light input:-webkit-autofill:hover,
+  html.light input:-webkit-autofill:focus,
+  .light input:-webkit-autofill,
+  .light input:-webkit-autofill:hover,
+  .light input:-webkit-autofill:focus {
+    -webkit-text-fill-color: hsl(240 10% 10%);
+    box-shadow: 0 0 0 1000px hsl(0 0% 98%) inset;
+  }
 }
 
 @layer components {
@@ -103,6 +132,7 @@
     background-clip: padding-box;
   }
 
+  html.light .glow-border,
   .light .glow-border {
     background: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 97%) 100%);
     border: 1px solid hsl(240, 5%, 85%);

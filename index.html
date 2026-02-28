@@ -1,20 +1,31 @@
 <!doctype html>
-<html lang="vi" class="dark">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark" id="meta-color-scheme" />
     <title>Miyaru – Giao dịch trung gian</title>
     <meta name="description" content="Miyaru - Nền tảng giao dịch trung gian uy tín, chi phí thấp, nhanh chóng." />
     <meta property="og:title" content="Miyaru – Giao dịch trung gian" />
     <meta property="og:description" content="Nền tảng giao dịch trung gian uy tín." />
     <meta property="og:type" content="website" />
     <script>
-      // Prevent flash: apply saved theme mode before React mounts
       (function() {
         var mode = localStorage.getItem('miyaru-theme-mode') || 'dark';
-        document.documentElement.classList.add(mode);
+        var root = document.documentElement;
+        root.classList.remove('light', 'dark');
+        root.classList.add(mode);
+        var meta = document.getElementById('meta-color-scheme');
+        if (meta) meta.content = mode;
+        var bg = mode === 'dark' ? '240 10% 4%' : '0 0% 98%';
+        var fg = mode === 'dark' ? '0 0% 98%' : '240 10% 10%';
+        root.style.setProperty('--background', bg);
+        root.style.setProperty('--foreground', fg);
       })();
     </script>
+    <style>
+      html, body { background-color: hsl(var(--background, 240 10% 4%)); color: hsl(var(--foreground, 0 0% 98%)); min-height: 100%; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

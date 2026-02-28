@@ -9,13 +9,13 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleMode}
-      className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
-      aria-label={currentMode === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors border border-border"
+      aria-label={currentMode === "dark" ? "Chế độ tối (bấm để chuyển sáng)" : "Chế độ sáng (bấm để chuyển tối)"}
     >
       {currentMode === "dark" ? (
-        <Sun size={20} className="text-primary" />
-      ) : (
         <Moon size={20} className="text-primary" />
+      ) : (
+        <Sun size={20} className="text-primary" />
       )}
     </button>
   );

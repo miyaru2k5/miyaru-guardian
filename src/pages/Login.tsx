@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import MainLayout from "@/layouts/MainLayout";
@@ -33,7 +34,7 @@ const Login = () => {
     const { error, isAdmin } = await signIn(data.email, data.password);
     setLoading(false);
     if (error) {
-      toast({ title: "Lỗi đăng nhập", description: error.message, variant: "destructive" });
+      toast({ title: "Lỗi đăng nhập", description: getAuthErrorMessage(error), variant: "destructive" });
     } else {
       navigate(isAdmin ? "/admin/dashboard" : "/");
     }

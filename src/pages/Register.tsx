@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
+import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import MainLayout from "@/layouts/MainLayout";
@@ -37,9 +38,12 @@ const Register = () => {
     const { error } = await signUp(data.email, data.password, data.fullName);
     setLoading(false);
     if (error) {
-      toast({ title: "Lỗi đăng ký", description: error.message, variant: "destructive" });
+      toast({ title: "Lỗi đăng ký", description: getAuthErrorMessage(error), variant: "destructive" });
     } else {
-      toast({ title: "Đăng ký thành công", description: "Vui lòng kiểm tra email để xác thực tài khoản." });
+      toast({
+        title: "Đăng ký thành công",
+        description: "Vui lòng kiểm tra email để xác thực tài khoản. Nếu chưa nhận được, kiểm tra thư mục spam.",
+      });
       navigate("/login");
     }
   };
