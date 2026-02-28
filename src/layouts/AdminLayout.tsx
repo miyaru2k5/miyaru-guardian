@@ -8,6 +8,7 @@ import {
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { useAuth } from "@/lib/auth";
+import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
@@ -25,6 +26,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut, isLoading } = useAuth();
+  const { systemSettings } = useThemeCustomizer();
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -47,15 +49,13 @@ const AdminLayout = () => {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      {/* Logo */}
       <div className="p-4 border-b border-border flex items-center gap-2">
         <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center btn-glow flex-shrink-0">
-          <span className="text-primary-foreground font-bold text-lg">M</span>
+          <span className="text-primary-foreground font-bold text-lg">{systemSettings.site_name.charAt(0)}</span>
         </div>
-        {!collapsed && <span className="text-lg font-bold text-foreground whitespace-nowrap">Miyaru Admin</span>}
+        {!collapsed && <span className="text-lg font-bold text-foreground whitespace-nowrap">{systemSettings.site_name} Admin</span>}
       </div>
 
-      {/* Menu */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 scrollbar-thin">
         {menuItems.map((item) => {
           const active = location.pathname === item.path;
@@ -80,12 +80,9 @@ const AdminLayout = () => {
         })}
       </nav>
 
-      {/* Logout */}
       <div className="p-3 border-t border-border">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-        >
+        <button onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors">
           <LogOut size={20} className="flex-shrink-0" />
           {!collapsed && <span>Đăng xuất</span>}
         </button>
@@ -95,19 +92,16 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border h-16">
         <div className="flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-3">
-            {/* Mobile toggle */}
             <button className="md:hidden p-2 text-muted-foreground hover:text-foreground" onClick={() => setSidebarOpen(true)}>
               <Menu size={24} />
             </button>
-            {/* Desktop collapse */}
             <button className="hidden md:flex p-2 text-muted-foreground hover:text-foreground" onClick={() => setCollapsed(!collapsed)}>
               {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
             </button>
-            <span className="text-lg font-semibold text-foreground hidden sm:block">Miyaru Admin Panel</span>
+            <span className="text-lg font-semibold text-foreground hidden sm:block">{systemSettings.site_name} Admin</span>
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -116,28 +110,16 @@ const AdminLayout = () => {
         </div>
       </header>
 
-      {/* Mobile Overlay */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/50 md:hidden"
-              onClick={() => setSidebarOpen(false)}
-            />
-            <motion.aside
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/50 md:hidden" onClick={() => setSidebarOpen(false)} />
+            <motion.aside initial={{ x: -280 }} animate={{ x: 0 }} exit={{ x: -280 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] bg-background border-r border-border md:hidden"
-            >
+              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] bg-background border-r border-border md:hidden">
               <div className="absolute top-4 right-4">
-                <button onClick={() => setSidebarOpen(false)} className="p-1 text-muted-foreground hover:text-foreground">
-                  <X size={20} />
-                </button>
+                <button onClick={() => setSidebarOpen(false)} className="p-1 text-muted-foreground hover:text-foreground"><X size={20} /></button>
               </div>
               <SidebarContent />
             </motion.aside>
@@ -145,12 +127,10 @@ const AdminLayout = () => {
         )}
       </AnimatePresence>
 
-      {/* Desktop Sidebar */}
       <aside className={`hidden md:block fixed top-16 left-0 bottom-0 z-30 bg-background border-r border-border transition-all duration-300 ${collapsed ? "w-[72px]" : "w-[260px]"}`}>
         <SidebarContent />
       </aside>
 
-      {/* Main Content */}
       <main className={`pt-16 transition-all duration-300 ${collapsed ? "md:pl-[72px]" : "md:pl-[260px]"}`}>
         <div className="p-4 md:p-6 max-w-7xl mx-auto">
           <Outlet />

@@ -44,6 +44,24 @@ export type Database = {
         }
         Relationships: []
       }
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       insurance_fund: {
         Row: {
           currently_insured: number
@@ -111,8 +129,11 @@ export type Database = {
           background_color: string
           border_radius: string
           default_mode: string
+          footer_data: Json
           id: string
+          logo_url: string | null
           primary_color: string
+          site_name: string
           updated_at: string
         }
         Insert: {
@@ -121,8 +142,11 @@ export type Database = {
           background_color?: string
           border_radius?: string
           default_mode?: string
+          footer_data?: Json
           id?: string
+          logo_url?: string | null
           primary_color?: string
+          site_name?: string
           updated_at?: string
         }
         Update: {
@@ -131,11 +155,44 @@ export type Database = {
           background_color?: string
           border_radius?: string
           default_mode?: string
+          footer_data?: Json
           id?: string
+          logo_url?: string | null
           primary_color?: string
+          site_name?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      trader_categories: {
+        Row: {
+          category_id: string
+          trader_id: string
+        }
+        Insert: {
+          category_id: string
+          trader_id: string
+        }
+        Update: {
+          category_id?: string
+          trader_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trader_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trader_categories_trader_id_fkey"
+            columns: ["trader_id"]
+            isOneToOne: false
+            referencedRelation: "traders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       traders: {
         Row: {
@@ -143,6 +200,7 @@ export type Database = {
           code: string
           created_at: string
           description: string | null
+          facebook: string | null
           id: string
           insurance_fund: number
           name: string
@@ -150,12 +208,15 @@ export type Database = {
           status: string
           success_rate: number
           updated_at: string
+          website: string | null
+          zalo: string | null
         }
         Insert: {
           avatar_url?: string | null
           code: string
           created_at?: string
           description?: string | null
+          facebook?: string | null
           id?: string
           insurance_fund?: number
           name: string
@@ -163,12 +224,15 @@ export type Database = {
           status?: string
           success_rate?: number
           updated_at?: string
+          website?: string | null
+          zalo?: string | null
         }
         Update: {
           avatar_url?: string | null
           code?: string
           created_at?: string
           description?: string | null
+          facebook?: string | null
           id?: string
           insurance_fund?: number
           name?: string
@@ -176,6 +240,8 @@ export type Database = {
           status?: string
           success_rate?: number
           updated_at?: string
+          website?: string | null
+          zalo?: string | null
         }
         Relationships: []
       }

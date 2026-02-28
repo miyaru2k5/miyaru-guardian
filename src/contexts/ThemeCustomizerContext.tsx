@@ -2,13 +2,24 @@ import { createContext, useContext, useEffect, useState, useCallback } from "rea
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 
-interface SystemSettings {
+interface FooterData {
+  brand_name: string;
+  description: string;
+  services: string[];
+  contact: { phone: string; email: string };
+  copyright: string;
+}
+
+export interface SystemSettings {
   default_mode: string;
   primary_color: string;
   background_color: string;
   accent_color: string;
   border_radius: string;
   allow_user_theme: boolean;
+  site_name: string;
+  logo_url: string | null;
+  footer_data: FooterData;
 }
 
 interface ThemeCustomizerContextType {
@@ -28,6 +39,14 @@ interface ThemeCustomizerContextType {
   refetchSystemSettings: () => Promise<void>;
 }
 
+const DEFAULT_FOOTER: FooterData = {
+  brand_name: "Miyaru",
+  description: "Chi phí thấp – Nhanh chóng – Chất lượng.",
+  services: ["Giao dịch trung gian", "Giao dịch viên"],
+  contact: { phone: "0357.175.172", email: "contact@miyaru.vn" },
+  copyright: "© 2026 Miyaru Team.",
+};
+
 const DEFAULT_SETTINGS: SystemSettings = {
   default_mode: "dark",
   primary_color: "330 100% 55%",
@@ -35,6 +54,9 @@ const DEFAULT_SETTINGS: SystemSettings = {
   accent_color: "330 100% 55%",
   border_radius: "0.75rem",
   allow_user_theme: true,
+  site_name: "Miyaru",
+  logo_url: null,
+  footer_data: DEFAULT_FOOTER,
 };
 
 const DARK_BG = "240 10% 4%";
@@ -42,15 +64,11 @@ const LIGHT_BG = "0 0% 98%";
 
 const ThemeCustomizerContext = createContext<ThemeCustomizerContextType | undefined>(undefined);
 
-// Helper: derive all CSS variables from primary/bg/accent
 function applyThemeToDOM(mode: "dark" | "light", primary: string, bg: string, accent: string, radius: string) {
   const root = document.documentElement;
-
-  // Remove old mode class, add new
   root.classList.remove("light", "dark");
   root.classList.add(mode);
 
-  // Set CSS variables
   root.style.setProperty("--primary", primary);
   root.style.setProperty("--accent", accent);
   root.style.setProperty("--ring", primary);
@@ -93,17 +111,14 @@ function applyThemeToDOM(mode: "dark" | "light", primary: string, bg: string, ac
   }
 }
 
-// Convert hex to HSL string
 export function hexToHsl(hex: string): string {
   hex = hex.replace("#", "");
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
   const b = parseInt(hex.substring(4, 6), 16) / 255;
-
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
   let h = 0, s = 0;
   const l = (max + min) / 2;
-
   if (max !== min) {
     const d = max - min;
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -113,25 +128,21 @@ export function hexToHsl(hex: string): string {
       case b: h = ((r - g) / d + 4) / 6; break;
     }
   }
-
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
-// Convert HSL string to hex
 export function hslToHex(hslStr: string): string {
   const parts = hslStr.match(/[\d.]+/g);
   if (!parts || parts.length < 3) return "#ec4899";
   const h = parseFloat(parts[0]) / 360;
   const s = parseFloat(parts[1]) / 100;
   const l = parseFloat(parts[2]) / 100;
-
   let r: number, g: number, b: number;
   if (s === 0) {
     r = g = b = l;
   } else {
     const hue2rgb = (p: number, q: number, t: number) => {
-      if (t < 0) t += 1;
-      if (t > 1) t -= 1;
+      if (t < 0) t += 1; if (t > 1) t -= 1;
       if (t < 1/6) return p + (q - p) * 6 * t;
       if (t < 1/2) return q;
       if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
@@ -143,7 +154,6 @@ export function hslToHex(hslStr: string): string {
     g = hue2rgb(p, q, h);
     b = hue2rgb(p, q, h - 1/3);
   }
-
   const toHex = (x: number) => {
     const hex = Math.round(x * 255).toString(16);
     return hex.length === 1 ? "0" + hex : hex;
@@ -173,14 +183,15 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
         accent_color: data.accent_color,
         border_radius: data.border_radius,
         allow_user_theme: data.allow_user_theme,
+        site_name: (data as any).site_name || "Miyaru",
+        logo_url: (data as any).logo_url || null,
+        footer_data: (data as any).footer_data || DEFAULT_FOOTER,
       });
     }
   }, []);
 
-  // Fetch user profile theme
   const fetchUserTheme = useCallback(async () => {
     if (!user) {
-      // Check localStorage for non-logged-in users
       const saved = localStorage.getItem("miyaru-theme-mode");
       const savedPrimary = localStorage.getItem("miyaru-primary-color");
       const savedBg = localStorage.getItem("miyaru-bg-color");
@@ -205,7 +216,6 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
     Promise.all([fetchSystemSettings(), fetchUserTheme()]).then(() => setIsLoading(false));
   }, [fetchSystemSettings, fetchUserTheme]);
 
-  // Compute current values
   const allowUserTheme = systemSettings.allow_user_theme;
   const currentMode = ((allowUserTheme && userMode) || systemSettings.default_mode) as "dark" | "light";
   const currentPrimaryColor = (allowUserTheme && userPrimary) || systemSettings.primary_color;
@@ -213,7 +223,6 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
   const currentAccentColor = systemSettings.accent_color;
   const currentBorderRadius = systemSettings.border_radius;
 
-  // Apply theme whenever values change
   useEffect(() => {
     if (!isLoading) {
       applyThemeToDOM(currentMode, currentPrimaryColor, currentBackgroundColor, currentAccentColor, currentBorderRadius);
@@ -254,9 +263,7 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
     localStorage.removeItem("miyaru-bg-color");
     if (user) {
       supabase.from("profiles").update({
-        theme_mode: null,
-        custom_primary_color: null,
-        custom_background_color: null,
+        theme_mode: null, custom_primary_color: null, custom_background_color: null,
       }).eq("id", user.id).then(() => {});
     }
   }, [user]);
@@ -264,7 +271,7 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
   const updateSystemSettings = useCallback(async (settings: Partial<SystemSettings>) => {
     const { data: existing } = await supabase.from("system_settings").select("id").limit(1).maybeSingle();
     if (existing) {
-      await supabase.from("system_settings").update(settings).eq("id", existing.id);
+      await supabase.from("system_settings").update(settings as any).eq("id", existing.id);
     }
     setSystemSettings(prev => ({ ...prev, ...settings }));
   }, []);
@@ -272,18 +279,10 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
   return (
     <ThemeCustomizerContext.Provider value={{
       systemSettings,
-      currentMode,
-      currentPrimaryColor,
-      currentBackgroundColor,
-      currentAccentColor,
-      currentBorderRadius,
-      allowUserTheme,
-      isLoading,
-      toggleMode,
-      setUserPrimaryColor,
-      setUserBackgroundColor,
-      resetToSystemDefaults,
-      updateSystemSettings,
+      currentMode, currentPrimaryColor, currentBackgroundColor,
+      currentAccentColor, currentBorderRadius, allowUserTheme, isLoading,
+      toggleMode, setUserPrimaryColor, setUserBackgroundColor,
+      resetToSystemDefaults, updateSystemSettings,
       refetchSystemSettings: fetchSystemSettings,
     }}>
       {children}

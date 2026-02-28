@@ -4,9 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Edit, Trash2, Power } from "lucide-react";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,6 +16,9 @@ const traderSchema = z.object({
   description: z.string().max(500).optional(),
   insurance_fund: z.coerce.number().min(0),
   success_rate: z.coerce.number().min(0).max(100),
+  facebook: z.string().max(255).optional(),
+  zalo: z.string().max(50).optional(),
+  website: z.string().max(255).optional(),
 });
 
 type TraderForm = z.infer<typeof traderSchema>;
@@ -42,17 +43,22 @@ const Traders = () => {
   useEffect(() => { fetchTraders(); }, []);
 
   const onSubmit = async (data: TraderForm) => {
+    const payload = {
+      name: data.name, code: data.code,
+      service: data.service || "", description: data.description || "",
+      insurance_fund: data.insurance_fund, success_rate: data.success_rate,
+      facebook: data.facebook || null, zalo: data.zalo || null, website: data.website || null,
+    };
     if (editTrader) {
-      const { error } = await supabase.from("traders").update(data).eq("id", editTrader.id);
+      const { error } = await supabase.from("traders").update(payload).eq("id", editTrader.id);
       if (error) { toast({ title: "Lỗi", description: error.message, variant: "destructive" }); return; }
       toast({ title: "Đã cập nhật GDV" });
     } else {
-      const { error } = await supabase.from("traders").insert([{ name: data.name, code: data.code, service: data.service || "", description: data.description || "", insurance_fund: data.insurance_fund, success_rate: data.success_rate }]);
+      const { error } = await supabase.from("traders").insert([payload]);
       if (error) { toast({ title: "Lỗi", description: error.message, variant: "destructive" }); return; }
       toast({ title: "Đã thêm GDV mới" });
     }
-    setDialogOpen(false);
-    setEditTrader(null);
+    setDialogOpen(false); setEditTrader(null);
     reset({ insurance_fund: 0, success_rate: 100 });
     fetchTraders();
   };
@@ -72,13 +78,17 @@ const Traders = () => {
 
   const openEdit = (t: any) => {
     setEditTrader(t);
-    reset({ name: t.name, code: t.code, service: t.service || "", description: t.description || "", insurance_fund: t.insurance_fund, success_rate: Number(t.success_rate) });
+    reset({
+      name: t.name, code: t.code, service: t.service || "", description: t.description || "",
+      insurance_fund: t.insurance_fund, success_rate: Number(t.success_rate),
+      facebook: t.facebook || "", zalo: t.zalo || "", website: t.website || "",
+    });
     setDialogOpen(true);
   };
 
   const openNew = () => {
     setEditTrader(null);
-    reset({ name: "", code: "", service: "", description: "", insurance_fund: 0, success_rate: 100 });
+    reset({ name: "", code: "", service: "", description: "", insurance_fund: 0, success_rate: 100, facebook: "", zalo: "", website: "" });
     setDialogOpen(true);
   };
 
@@ -126,9 +136,7 @@ const Traders = () => {
                   <p className="text-xs text-muted-foreground">{t.service || t.code}</p>
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "status-live" : "status-offline"}`}>
-                {t.status}
-              </span>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "status-live" : "status-offline"}`}>{t.status}</span>
             </div>
             <div className="space-y-2 mb-4 text-sm">
               <div className="flex justify-between"><span className="text-muted-foreground">Mã GDV</span><span className="font-medium text-foreground">{t.code}</span></div>
@@ -145,7 +153,7 @@ const Traders = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editTrader ? "Sửa GDV" : "Thêm GDV mới"}</DialogTitle>
           </DialogHeader>
@@ -156,6 +164,12 @@ const Traders = () => {
             <div><Input {...register("insurance_fund")} type="number" placeholder="Quỹ bảo hiểm" /></div>
             <div><Input {...register("success_rate")} type="number" placeholder="% Thành công" /></div>
             <div><Input {...register("description")} placeholder="Mô tả" /></div>
+            <div className="border-t border-border pt-4 space-y-3">
+              <p className="text-sm font-medium text-muted-foreground">Liên kết</p>
+              <Input {...register("facebook")} placeholder="Facebook URL" />
+              <Input {...register("zalo")} placeholder="Zalo (SĐT)" />
+              <Input {...register("website")} placeholder="Website URL" />
+            </div>
             <Button type="submit" className="w-full btn-glow">{editTrader ? "Cập nhật" : "Thêm mới"}</Button>
           </form>
         </DialogContent>

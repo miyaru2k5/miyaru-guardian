@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { User, LogOut, LogIn, UserPlus, Settings } from "lucide-react";
+import { User, LogOut, LogIn, UserPlus, Settings, LayoutDashboard, Home } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const ProfileDropdown = () => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -42,7 +42,7 @@ const ProfileDropdown = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-12 w-48 bg-popover border border-border rounded-xl shadow-xl overflow-hidden z-50"
+            className="absolute right-0 top-12 w-52 bg-popover border border-border rounded-xl shadow-xl overflow-hidden z-50"
           >
             {user ? (
               <>
@@ -50,10 +50,24 @@ const ProfileDropdown = () => {
                   <p className="text-sm font-medium text-foreground truncate">{user.user_metadata?.full_name || "User"}</p>
                   <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                 </div>
-                <button onClick={() => go("/admin/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                  <Settings size={16} /> Profile
-                </button>
-                <button onClick={async () => { await signOut(); setOpen(false); navigate("/"); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 transition-colors">
+                {isAdmin ? (
+                  <>
+                    <button onClick={() => go("/admin/dashboard")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
+                      <LayoutDashboard size={16} /> Admin Dashboard
+                    </button>
+                    <button onClick={() => go("/")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
+                      <Home size={16} /> Trang chủ
+                    </button>
+                    <button onClick={() => go("/admin/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
+                      <Settings size={16} /> Cài đặt
+                    </button>
+                  </>
+                ) : (
+                  <button onClick={() => go("/admin/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
+                    <User size={16} /> Trang cá nhân
+                  </button>
+                )}
+                <button onClick={async () => { await signOut(); setOpen(false); navigate("/"); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 transition-colors border-t border-border">
                   <LogOut size={16} /> Đăng xuất
                 </button>
               </>
