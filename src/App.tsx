@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AuthConfirm from "./pages/AuthConfirm";
 import AdminLayout from "./layouts/AdminLayout";
 import Dashboard from "./pages/admin/Dashboard";
 import Traders from "./pages/admin/Traders";
@@ -19,12 +20,14 @@ import Transactions from "./pages/admin/Transactions";
 import Banks from "./pages/admin/Banks";
 import Insurance from "./pages/admin/Insurance";
 import Profile from "./pages/admin/Profile";
+import Users from "./pages/admin/Users";
 import AdminSettings from "./pages/admin/AdminSettings";
 import Categories from "./pages/admin/Categories";
 import FacebookContactsPage from "./pages/admin/FacebookContacts";
 import AdminTermsPage from "./pages/admin/TermsAdmin";
 import ContactFacebookPage from "./pages/ContactFacebookPage";
 import UserTermsPage from "./pages/UserTermsPage";
+import UserProfile from "./pages/UserProfile";
 import { PageViewTracker } from "./components/PageViewTracker";
 
 const queryClient = new QueryClient();
@@ -46,6 +49,8 @@ const App = () => (
               <Route path="/register" element={<RequireGuest><Register /></RequireGuest>} />
               <Route path="/forgot-password" element={<RequireGuest><ForgotPassword /></RequireGuest>} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/auth/confirm" element={<AuthConfirm />} />
+              <Route path="/profile" element={<UserProfile />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
@@ -57,6 +62,7 @@ const App = () => (
                 <Route path="banks" element={<Banks />} />
                 <Route path="insurance" element={<Insurance />} />
                 <Route path="profile" element={<Profile />} />
+                <Route path="users" element={<Users />} />
                 <Route path="settings" element={<AdminSettings />} />
               </Route>
               <Route path="*" element={<NotFound />} />

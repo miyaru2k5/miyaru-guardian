@@ -75,7 +75,7 @@ const ProfileDropdown = () => {
                     </button>
                   </>
                 ) : (
-                  <button onClick={() => go("/admin/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
+                  <button onClick={() => go("/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
                     <User size={16} /> Trang cá nhân
                   </button>
                 )}

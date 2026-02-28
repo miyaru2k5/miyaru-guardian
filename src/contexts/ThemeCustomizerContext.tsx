@@ -20,6 +20,8 @@ export interface SystemSettings {
   site_name: string;
   logo_url: string | null;
   footer_data: FooterData;
+  auth_google_enabled: boolean;
+  auth_google_client_id: string | null;
 }
 
 interface ThemeCustomizerContextType {
@@ -58,6 +60,8 @@ const DEFAULT_SETTINGS: SystemSettings = {
   site_name: "Miyaru",
   logo_url: null,
   footer_data: DEFAULT_FOOTER,
+  auth_google_enabled: false,
+  auth_google_client_id: null,
 };
 
 const DARK_BG = "240 10% 4%";
@@ -187,6 +191,7 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
       .limit(1)
       .maybeSingle();
     if (data) {
+      const d = data as any;
       setSystemSettings({
         default_mode: data.default_mode,
         primary_color: data.primary_color,
@@ -194,9 +199,11 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
         accent_color: data.accent_color,
         border_radius: data.border_radius,
         allow_user_theme: data.allow_user_theme,
-        site_name: (data as any).site_name || "Miyaru",
-        logo_url: (data as any).logo_url || null,
-        footer_data: (data as any).footer_data || DEFAULT_FOOTER,
+        site_name: d.site_name || "Miyaru",
+        logo_url: d.logo_url || null,
+        footer_data: d.footer_data || DEFAULT_FOOTER,
+        auth_google_enabled: d.auth_google_enabled ?? false,
+        auth_google_client_id: d.auth_google_client_id ?? null,
       });
     }
   }, []);

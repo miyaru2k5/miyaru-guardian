@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import FacebookContactCard, { FacebookContact } from "./FacebookContactCard";
 import FacebookContactForm from "./FacebookContactForm";
+import SearchBar from "@/components/SearchBar";
 
 const FacebookContactList: React.FC = () => {
   const [contacts, setContacts] = useState<FacebookContact[]>([]);
@@ -30,6 +31,10 @@ const FacebookContactList: React.FC = () => {
 
   useEffect(() => {
     fetchContacts();
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
   }, []);
 
   const filtered = useMemo(() => {
@@ -82,14 +87,12 @@ const FacebookContactList: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 min-w-0 overflow-x-hidden">
       <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
         <div className="flex-1 w-full">
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+          <SearchBar
+            onSearchChange={handleSearchChange}
             placeholder="Tìm kiếm liên hệ Facebook..."
-            className="w-full rounded-full bg-card border border-border px-4 py-2.5 text-sm text-foreground outline-none focus:border-pink-500"
           />
         </div>
         <div className="w-full md:w-auto shrink-0">
@@ -132,7 +135,7 @@ const FacebookContactList: React.FC = () => {
         </p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
         {filtered.map(contact => (
           <FacebookContactCard
             key={contact.id}

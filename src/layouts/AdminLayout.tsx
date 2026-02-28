@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Users, Shield, Building2, ShieldCheck, Settings, User, LogOut,
-  Menu, X, ChevronLeft, ChevronRight, Tag, MessageCircle, FileText,
+  Menu, X, ChevronLeft, ChevronRight, Tag, MessageCircle, FileText, UserCog,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileDropdown from "@/components/ProfileDropdown";
@@ -19,6 +19,7 @@ const menuItems = [
   { icon: ShieldCheck, label: "Quỹ bảo hiểm", path: "/admin/insurance" },
   { icon: MessageCircle, label: "Facebook Admin", path: "/admin/facebook-contacts" },
   { icon: FileText, label: "Điều khoản", path: "/admin/terms" },
+  { icon: UserCog, label: "Quản lý User", path: "/admin/users" },
   { icon: Settings, label: "Cấu hình", path: "/admin/settings" },
   { icon: User, label: "Profile", path: "/admin/profile" },
 ];
@@ -144,8 +145,8 @@ const AdminLayout = () => {
         <SidebarContent />
       </aside>
 
-      <main className={`pt-16 transition-all duration-300 ${collapsed ? "md:pl-[72px]" : "md:pl-[260px]"}`}>
-        <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <main className={`pt-16 transition-all duration-300 overflow-x-hidden ${collapsed ? "md:pl-[72px]" : "md:pl-[260px]"}`}>
+        <div className="p-4 md:p-6 max-w-7xl mx-auto min-w-0">
           <Outlet />
         </div>
       </main>

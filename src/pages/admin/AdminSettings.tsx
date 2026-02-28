@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   RotateCcw, Save, Palette, Monitor, Sun, Moon,
-  Building2, FileJson, Plus, Trash2,
+  Building2, FileJson, Plus, Trash2, LogIn,
 } from "lucide-react";
 
 const footerDataSchema = z.object({
@@ -60,6 +60,10 @@ const AdminSettings = () => {
   const [footerEmail, setFooterEmail] = useState(systemSettings.footer_data?.contact?.email ?? "");
   const [footerCopyright, setFooterCopyright] = useState(systemSettings.footer_data?.copyright ?? "");
 
+  // Auth - Google login
+  const [authGoogleEnabled, setAuthGoogleEnabled] = useState(systemSettings.auth_google_enabled ?? false);
+  const [authGoogleClientId, setAuthGoogleClientId] = useState(systemSettings.auth_google_client_id ?? "");
+
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -77,6 +81,8 @@ const AdminSettings = () => {
     setFooterPhone(systemSettings.footer_data?.contact?.phone ?? "");
     setFooterEmail(systemSettings.footer_data?.contact?.email ?? "");
     setFooterCopyright(systemSettings.footer_data?.copyright ?? "");
+    setAuthGoogleEnabled(systemSettings.auth_google_enabled ?? false);
+    setAuthGoogleClientId(systemSettings.auth_google_client_id ?? "");
   }, [systemSettings]);
 
   const handleSaveAppearance = async () => {
@@ -134,6 +140,20 @@ const AdminSettings = () => {
   const setFooterServiceAt = (i: number, v: string) =>
     setFooterServices((s) => s.map((x, j) => (j === i ? v : x)));
 
+  const handleSaveAuth = async () => {
+    setSaving(true);
+    try {
+      await updateSystemSettings({
+        auth_google_enabled: authGoogleEnabled,
+        auth_google_client_id: authGoogleClientId.trim() || null,
+      } as any);
+      toast({ title: "Thành công", description: "Đã lưu cấu hình đăng nhập" });
+    } catch {
+      toast({ title: "Lỗi", description: "Không thể lưu", variant: "destructive" });
+    }
+    setSaving(false);
+  };
+
   const handleReset = () => {
     setPrimaryHex("#ec4899");
     setBgHex("#0a0a0f");
@@ -151,10 +171,11 @@ const AdminSettings = () => {
       </div>
 
       <Tabs defaultValue="appearance" className="w-full">
-        <TabsList className="w-full grid grid-cols-3">
+        <TabsList className="w-full grid grid-cols-2 sm:grid-cols-4">
           <TabsTrigger value="appearance" className="gap-1"><Palette size={14} /> Giao diện</TabsTrigger>
           <TabsTrigger value="branding" className="gap-1"><Building2 size={14} /> Branding</TabsTrigger>
           <TabsTrigger value="footer" className="gap-1"><FileJson size={14} /> Footer</TabsTrigger>
+          <TabsTrigger value="auth" className="gap-1"><LogIn size={14} /> Đăng nhập</TabsTrigger>
         </TabsList>
 
         {/* ===== APPEARANCE ===== */}
@@ -388,6 +409,39 @@ const AdminSettings = () => {
             </div>
             <Button onClick={handleSaveFooter} disabled={saving || !isAdmin} className="btn-glow gap-2">
               <Save size={16} /> Lưu Footer
+            </Button>
+          </div>
+        </TabsContent>
+
+        {/* ===== AUTH / ĐĂNG NHẬP ===== */}
+        <TabsContent value="auth" className="mt-6">
+          <div className="glow-border rounded-2xl p-6 space-y-5">
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <LogIn size={20} className="text-primary" /> Cấu hình đăng nhập Google
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Bật đăng nhập bằng Google sẽ hiển thị nút &quot;Đăng nhập với Google&quot; trên trang Login và Đăng ký. Cấu hình OAuth (Client ID / Secret) thực tế tại Supabase Dashboard → Auth → Providers → Google.
+            </p>
+            <div className="space-y-4 max-w-xl">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-secondary/50 border border-border">
+                <div>
+                  <p className="text-foreground font-medium">Bật đăng nhập Google</p>
+                  <p className="text-sm text-muted-foreground">Hiển thị nút đăng nhập với Google trên Login & Đăng ký</p>
+                </div>
+                <Switch checked={authGoogleEnabled} onCheckedChange={setAuthGoogleEnabled} />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground block mb-1">Google OAuth Client ID (tham chiếu)</label>
+                <Input
+                  value={authGoogleClientId}
+                  onChange={e => setAuthGoogleClientId(e.target.value)}
+                  placeholder="xxx.apps.googleusercontent.com"
+                />
+                <p className="text-xs text-muted-foreground mt-1">Lưu để tham chiếu; cấu hình đầy đủ tại Supabase Dashboard.</p>
+              </div>
+            </div>
+            <Button onClick={handleSaveAuth} disabled={saving || !isAdmin} className="btn-glow gap-2">
+              <Save size={16} /> Lưu cấu hình đăng nhập
             </Button>
           </div>
         </TabsContent>

@@ -228,6 +228,8 @@ export type Database = {
         Row: {
           accent_color: string
           allow_user_theme: boolean
+          auth_google_client_id: string | null
+          auth_google_enabled: boolean
           background_color: string
           border_radius: string
           default_mode: string
@@ -241,6 +243,8 @@ export type Database = {
         Insert: {
           accent_color?: string
           allow_user_theme?: boolean
+          auth_google_client_id?: string | null
+          auth_google_enabled?: boolean
           background_color?: string
           border_radius?: string
           default_mode?: string
@@ -254,6 +258,8 @@ export type Database = {
         Update: {
           accent_color?: string
           allow_user_theme?: boolean
+          auth_google_client_id?: string | null
+          auth_google_enabled?: boolean
           background_color?: string
           border_radius?: string
           default_mode?: string

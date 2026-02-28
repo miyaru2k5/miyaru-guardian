@@ -1,4 +1,5 @@
 import React from "react";
+import { Button } from "@/components/ui/button";
 
 export interface FacebookContact {
   id: string;
@@ -27,41 +28,39 @@ const FacebookContactCard: React.FC<Props> = ({
   onToggleActive,
 }) => {
   return (
-    <div className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-card text-foreground p-4 shadow-sm flex flex-col gap-3">
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-full bg-background border border-border flex items-center justify-center overflow-hidden">
-          {contact.platform_avatar_url ? (
-            <img
-              src={contact.platform_avatar_url}
-              alt={contact.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span className="text-lg font-semibold">
-              {contact.title.charAt(0).toUpperCase()}
-            </span>
-          )}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <div>
-              <p className="font-semibold text-sm md:text-base">{contact.title}</p>
-              <p className="text-xs text-muted-foreground">{contact.branch_name}</p>
-            </div>
-            {contact.platform_logo_url && (
+    <div className="glow-border rounded-2xl p-5 card-hover bg-card flex flex-col gap-3 min-w-0 overflow-hidden">
+      <div className="flex items-start justify-between gap-3 min-w-0">
+        <div className="flex items-start gap-3 min-w-0 flex-1">
+          <div className="w-12 h-12 shrink-0 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 border border-primary/20 flex items-center justify-center overflow-hidden">
+            {contact.platform_avatar_url ? (
               <img
-                src={contact.platform_logo_url}
-                alt={contact.platform}
-                className="w-8 h-8 rounded-md object-contain bg-background/60 border border-border"
+                src={contact.platform_avatar_url}
+                alt={contact.title}
+                className="w-full h-full object-cover"
               />
+            ) : (
+              <span className="text-lg font-semibold text-primary">
+                {contact.title.charAt(0).toUpperCase()}
+              </span>
             )}
           </div>
-          {contact.support_text && (
-            <p className="text-xs text-muted-foreground line-clamp-2">
-              {contact.support_text}
-            </p>
-          )}
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm md:text-base truncate">{contact.title}</p>
+            <p className="text-xs text-muted-foreground truncate">{contact.branch_name}</p>
+            {contact.support_text && (
+              <p className="mt-1 text-xs text-muted-foreground line-clamp-2 break-words">
+                {contact.support_text}
+              </p>
+            )}
+          </div>
         </div>
+        {contact.platform_logo_url && (
+          <img
+            src={contact.platform_logo_url}
+            alt={contact.platform}
+            className="w-8 h-8 shrink-0 rounded-md object-contain bg-background/60 border border-border"
+          />
+        )}
       </div>
 
       <div className="flex items-center justify-between text-xs mt-1">
@@ -82,20 +81,24 @@ const FacebookContactCard: React.FC<Props> = ({
       </div>
 
       <div className="flex gap-2 mt-2">
-        <button
+        <Button
           type="button"
+          size="sm"
+          variant="outline"
+          className="flex-1"
           onClick={onEdit}
-          className="flex-1 px-3 py-1.5 rounded-xl border border-border text-xs hover:bg-background/80 transition"
         >
           Sửa
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          size="sm"
+          variant="outline"
+          className="text-destructive hover:bg-destructive/10"
           onClick={onDelete}
-          className="px-3 py-1.5 rounded-xl border border-destructive/50 text-xs text-destructive hover:bg-destructive/10 transition"
         >
           Xóa
-        </button>
+        </Button>
       </div>
     </div>
   );
