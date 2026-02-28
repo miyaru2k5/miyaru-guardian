@@ -3,9 +3,11 @@ import { User, LogOut, LogIn, UserPlus, Settings, LayoutDashboard, Home } from "
 import { useAuth } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProfileDropdown = () => {
   const [open, setOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const { user, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
@@ -18,18 +20,28 @@ const ProfileDropdown = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  useEffect(() => {
+    if (!user) { setAvatarUrl(null); return; }
+    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
+      .then(({ data }) => { if (data?.avatar_url) setAvatarUrl(data.avatar_url); });
+  }, [user]);
+
   const go = (path: string) => { navigate(path); setOpen(false); };
 
   return (
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:border-primary/50 transition-colors"
+        className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:border-primary/50 transition-colors overflow-hidden"
       >
         {user ? (
-          <span className="text-sm font-bold text-primary">
-            {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || "U"}
-          </span>
+          avatarUrl ? (
+            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-sm font-bold text-primary">
+              {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || "U"}
+            </span>
+          )
         ) : (
           <User size={18} className="text-muted-foreground" />
         )}

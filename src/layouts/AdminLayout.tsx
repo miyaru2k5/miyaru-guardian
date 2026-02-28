@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard, Users, Shield, Building2, ShieldCheck, Settings, User, LogOut,
-  Menu, X, ChevronLeft, ChevronRight,
+  Menu, X, ChevronLeft, ChevronRight, Tag,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import ProfileDropdown from "@/components/ProfileDropdown";
@@ -13,6 +13,7 @@ import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
   { icon: Users, label: "Giao dịch viên", path: "/admin/traders", highlight: true },
+  { icon: Tag, label: "Danh mục", path: "/admin/categories" },
   { icon: Shield, label: "Giao dịch trung gian", path: "/admin/transactions", highlight: true },
   { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
   { icon: ShieldCheck, label: "Quỹ bảo hiểm", path: "/admin/insurance" },
@@ -56,9 +57,13 @@ const AdminLayout = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border flex items-center gap-2">
-        <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center btn-glow flex-shrink-0">
-          <span className="text-primary-foreground font-bold text-lg">{systemSettings.site_name.charAt(0)}</span>
-        </div>
+        {systemSettings.logo_url ? (
+          <img src={systemSettings.logo_url} alt={systemSettings.site_name} className="w-10 h-10 rounded-xl object-cover flex-shrink-0" />
+        ) : (
+          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center btn-glow flex-shrink-0">
+            <span className="text-primary-foreground font-bold text-lg">{systemSettings.site_name.charAt(0)}</span>
+          </div>
+        )}
         {!collapsed && <span className="text-lg font-bold text-foreground whitespace-nowrap">{systemSettings.site_name} Admin</span>}
       </div>
 

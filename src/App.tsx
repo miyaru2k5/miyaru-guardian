@@ -20,6 +20,7 @@ import Banks from "./pages/admin/Banks";
 import Insurance from "./pages/admin/Insurance";
 import Profile from "./pages/admin/Profile";
 import AdminSettings from "./pages/admin/AdminSettings";
+import Categories from "./pages/admin/Categories";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<Dashboard />} />
                 <Route path="traders" element={<Traders />} />
+                <Route path="categories" element={<Categories />} />
                 <Route path="transactions" element={<Transactions />} />
                 <Route path="banks" element={<Banks />} />
                 <Route path="insurance" element={<Insurance />} />

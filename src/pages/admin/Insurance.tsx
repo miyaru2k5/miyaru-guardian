@@ -8,7 +8,6 @@ import { ShieldCheck, AlertTriangle } from "lucide-react";
 
 const Insurance = () => {
   const [fund, setFund] = useState<any>(null);
-  const [editing, setEditing] = useState(false);
   const [totalFund, setTotalFund] = useState(0);
   const [insured, setInsured] = useState(0);
 
@@ -33,7 +32,6 @@ const Insurance = () => {
       await supabase.from("insurance_fund").insert({ total_fund: totalFund, currently_insured: insured });
     }
     toast({ title: "Đã cập nhật quỹ bảo hiểm" });
-    setEditing(false);
     fetchFund();
   };
 
@@ -44,33 +42,18 @@ const Insurance = () => {
         <p className="text-muted-foreground text-sm">Quản lý và giám sát quỹ bảo hiểm hệ thống</p>
       </div>
 
-      <div className="glow-border rounded-2xl p-6 max-w-2xl">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6 text-primary" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="glow-border rounded-2xl p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Tổng quan quỹ</h2>
+              <p className="text-sm text-muted-foreground">Rule: Giao dịch ≤ 20% quỹ GDV</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Tổng quan quỹ</h2>
-            <p className="text-sm text-muted-foreground">Rule: Giao dịch ≤ 20% quỹ GDV</p>
-          </div>
-        </div>
 
-        {editing ? (
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Tổng quỹ (VNĐ)</label>
-              <Input type="number" value={totalFund} onChange={e => setTotalFund(Number(e.target.value))} />
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Đang bảo chứng (VNĐ)</label>
-              <Input type="number" value={insured} onChange={e => setInsured(Number(e.target.value))} />
-            </div>
-            <div className="flex gap-3">
-              <Button onClick={save} className="btn-glow">Lưu</Button>
-              <Button variant="outline" onClick={() => setEditing(false)}>Hủy</Button>
-            </div>
-          </div>
-        ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-card border border-border">
@@ -97,10 +80,23 @@ const Insurance = () => {
                 <p className="text-sm text-destructive">Cảnh báo: Tỷ lệ bảo chứng vượt 80% quỹ!</p>
               </div>
             )}
-
-            <Button onClick={() => setEditing(true)} variant="outline">Chỉnh sửa</Button>
           </div>
-        )}
+        </div>
+
+        <div className="glow-border rounded-2xl p-6 h-fit">
+          <h3 className="text-lg font-bold text-foreground mb-4">Chỉnh sửa quỹ</h3>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Tổng quỹ (VNĐ)</label>
+              <Input type="number" value={totalFund} onChange={e => setTotalFund(Number(e.target.value))} />
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Đang bảo chứng (VNĐ)</label>
+              <Input type="number" value={insured} onChange={e => setInsured(Number(e.target.value))} />
+            </div>
+            <Button onClick={save} className="btn-glow w-full">Lưu thay đổi</Button>
+          </div>
+        </div>
       </div>
     </div>
   );

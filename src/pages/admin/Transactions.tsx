@@ -178,12 +178,35 @@ const Transactions = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>Tạo giao dịch mới</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div><Input {...register("transaction_code")} placeholder="Mã giao dịch" />{errors.transaction_code && <p className="text-xs text-destructive mt-1">{errors.transaction_code.message}</p>}</div>
-            <div><Input {...register("buyer_name")} placeholder="Người mua" />{errors.buyer_name && <p className="text-xs text-destructive mt-1">{errors.buyer_name.message}</p>}</div>
-            <div><Input {...register("seller_name")} placeholder="Người bán" />{errors.seller_name && <p className="text-xs text-destructive mt-1">{errors.seller_name.message}</p>}</div>
-            <div><Input {...register("amount")} type="number" placeholder="Số tiền" /></div>
-            <div><Input {...register("fee")} type="number" placeholder="Phí" /></div>
-            <div><Input {...register("notes")} placeholder="Ghi chú" /></div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Mã giao dịch</label>
+              <Input {...register("transaction_code")} placeholder="Nhập mã giao dịch" />
+              {errors.transaction_code && <p className="text-xs text-destructive mt-1">{errors.transaction_code.message}</p>}
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Người mua</label>
+              <Input {...register("buyer_name")} placeholder="Nhập tên người mua" />
+              {errors.buyer_name && <p className="text-xs text-destructive mt-1">{errors.buyer_name.message}</p>}
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Người bán</label>
+              <Input {...register("seller_name")} placeholder="Nhập tên người bán" />
+              {errors.seller_name && <p className="text-xs text-destructive mt-1">{errors.seller_name.message}</p>}
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Số tiền</label>
+                <Input {...register("amount")} type="number" placeholder="0" />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Phí</label>
+                <Input {...register("fee")} type="number" placeholder="0" />
+              </div>
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Ghi chú</label>
+              <Input {...register("notes")} placeholder="Nhập ghi chú (tùy chọn)" />
+            </div>
             <Button type="submit" className="w-full btn-glow">Tạo giao dịch</Button>
           </form>
         </DialogContent>

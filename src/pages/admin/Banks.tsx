@@ -106,9 +106,21 @@ const Banks = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>{editBank ? "Sửa ngân hàng" : "Thêm ngân hàng"}</DialogTitle></DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div><Input {...register("bank_name")} placeholder="Tên ngân hàng" />{errors.bank_name && <p className="text-xs text-destructive mt-1">{errors.bank_name.message}</p>}</div>
-            <div><Input {...register("account_number")} placeholder="Số tài khoản" />{errors.account_number && <p className="text-xs text-destructive mt-1">{errors.account_number.message}</p>}</div>
-            <div><Input {...register("account_holder")} placeholder="Chủ tài khoản" />{errors.account_holder && <p className="text-xs text-destructive mt-1">{errors.account_holder.message}</p>}</div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Tên ngân hàng</label>
+              <Input {...register("bank_name")} placeholder="VD: Vietcombank, MB Bank..." />
+              {errors.bank_name && <p className="text-xs text-destructive mt-1">{errors.bank_name.message}</p>}
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Số tài khoản</label>
+              <Input {...register("account_number")} placeholder="Nhập số tài khoản" />
+              {errors.account_number && <p className="text-xs text-destructive mt-1">{errors.account_number.message}</p>}
+            </div>
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Chủ tài khoản</label>
+              <Input {...register("account_holder")} placeholder="Nhập tên chủ tài khoản" />
+              {errors.account_holder && <p className="text-xs text-destructive mt-1">{errors.account_holder.message}</p>}
+            </div>
             <Button type="submit" className="w-full btn-glow">{editBank ? "Cập nhật" : "Thêm mới"}</Button>
           </form>
         </DialogContent>

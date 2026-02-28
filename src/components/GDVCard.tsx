@@ -13,9 +13,10 @@ interface GDVCardProps {
   facebook?: string | null;
   zalo?: string | null;
   website?: string | null;
+  categories?: string[];
 }
 
-const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, description, facebook, zalo, website }: GDVCardProps) => {
+const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, description, facebook, zalo, website, categories }: GDVCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -38,6 +39,14 @@ const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, descriptio
           {isLive ? "LIVE" : "OFFLINE"}
         </span>
       </div>
+
+      {categories && categories.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {categories.map(cat => (
+            <span key={cat} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">{cat}</span>
+          ))}
+        </div>
+      )}
 
       <div className="space-y-3 mb-4">
         <div className="flex justify-between items-center text-sm">
@@ -68,27 +77,30 @@ const GDVCard = ({ name, service, code, insurance, isLive, avatarUrl, descriptio
                   </div>
                   <div className="space-y-2 pl-6">
                     {facebook && (
-                      <div className="flex items-center gap-2 text-sm">
+                      <a href={`https://facebook.com/${facebook}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
                         <svg className="w-4 h-4 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                         <span className="text-muted-foreground">Facebook</span>
                         <span className="text-primary font-medium truncate">{facebook}</span>
-                      </div>
+                      </a>
                     )}
                     {zalo && (
-                      <div className="flex items-center gap-2 text-sm">
+                      <a href={`https://zalo.me/${zalo}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
                         <MessageCircle size={16} className="text-muted-foreground shrink-0" />
                         <span className="text-muted-foreground">Zalo / Phone</span>
                         <span className="text-primary font-medium">{zalo}</span>
-                      </div>
+                      </a>
                     )}
                     {website && (
-                      <div className="flex items-center gap-2 text-sm">
+                      <a href={website.startsWith("http") ? website : `https://${website}`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
                         <Globe size={16} className="text-muted-foreground shrink-0" />
                         <span className="text-muted-foreground">Website</span>
                         <span className="text-primary font-medium truncate">{website}</span>
-                      </div>
+                      </a>
                     )}
                   </div>
                 </div>
