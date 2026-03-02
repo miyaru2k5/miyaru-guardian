@@ -58,7 +58,7 @@ const Dashboard = () => {
         supabase.from("traders").select("status, insurance_fund"),
         supabase.from("insurance_fund").select("total_fund").limit(1).maybeSingle(),
         supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("site_analytics").select("total_page_views").eq("id", "global").maybeSingle(),
+        (supabase.from as any)("site_analytics").select("total_page_views").eq("id", "global").maybeSingle(),
         supabase.from("bank_accounts").select("id", { count: "exact", head: true }),
         supabase.from("categories").select("id", { count: "exact", head: true }),
         supabase.from("facebook_contacts").select("id", { count: "exact", head: true }),
