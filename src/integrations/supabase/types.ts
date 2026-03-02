@@ -70,45 +70,45 @@ export type Database = {
       }
       facebook_contacts: {
         Row: {
-          id: string
-          title: string
           branch_name: string
-          platform: string
-          platform_logo_url: string | null
-          platform_avatar_url: string | null
           contact_url: string
-          support_text: string | null
-          is_active: boolean
-          display_order: number
           created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          platform: string
+          platform_avatar_url: string | null
+          platform_logo_url: string | null
+          support_text: string | null
+          title: string
           updated_at: string
         }
         Insert: {
-          id?: string
-          title: string
           branch_name: string
-          platform: string
-          platform_logo_url?: string | null
-          platform_avatar_url?: string | null
           contact_url: string
-          support_text?: string | null
-          is_active?: boolean
-          display_order?: number
           created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          platform: string
+          platform_avatar_url?: string | null
+          platform_logo_url?: string | null
+          support_text?: string | null
+          title: string
           updated_at?: string
         }
         Update: {
-          id?: string
-          title?: string
           branch_name?: string
-          platform?: string
-          platform_logo_url?: string | null
-          platform_avatar_url?: string | null
           contact_url?: string
-          support_text?: string | null
-          is_active?: boolean
-          display_order?: number
           created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          platform?: string
+          platform_avatar_url?: string | null
+          platform_logo_url?: string | null
+          support_text?: string | null
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -133,39 +133,6 @@ export type Database = {
           id?: string
           max_percentage?: number
           total_fund?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      terms_pages: {
-        Row: {
-          id: string
-          title: string
-          slug: string
-          content: string
-          is_published: boolean
-          display_order: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          title: string
-          slug: string
-          content: string
-          is_published?: boolean
-          display_order?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          title?: string
-          slug?: string
-          content?: string
-          is_published?: boolean
-          display_order?: number
-          created_at?: string
           updated_at?: string
         }
         Relationships: []
@@ -202,24 +169,6 @@ export type Database = {
           full_name?: string
           id?: string
           theme_mode?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      site_analytics: {
-        Row: {
-          id: string
-          total_page_views: number
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          total_page_views?: number
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          total_page_views?: number
           updated_at?: string
         }
         Relationships: []
@@ -268,6 +217,39 @@ export type Database = {
           logo_url?: string | null
           primary_color?: string
           site_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      terms_pages: {
+        Row: {
+          content: string
+          created_at: string
+          display_order: number
+          id: string
+          is_published: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          slug?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
@@ -426,7 +408,6 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
-      increment_page_views: { Args: Record<PropertyKey, never>; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

@@ -10,17 +10,17 @@ export const PageViewTracker = () => {
   const location = useLocation();
 
   useEffect(() => {
-    supabase
-      .rpc("increment_page_views")
-      .then(({ error }) => {
+    const track = async () => {
+      try {
+        const { error } = await (supabase.rpc as any)("increment_page_views");
         if (error) {
-          // log but don't interrupt the user experience
           console.warn("failed to increment page views", error.message);
         }
-      })
-      .catch(e => {
+      } catch (e) {
         console.error("unexpected error incrementing page views", e);
-      });
+      }
+    };
+    track();
   }, [location.pathname]);
 
   return null;

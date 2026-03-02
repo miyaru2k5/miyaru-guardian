@@ -55,7 +55,11 @@ const FacebookContactForm: React.FC<Props> = ({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
-    const { name, value, type, checked } = e.target;
+    const target = e.target;
+    const name = target.name;
+    const value = target.value;
+    const type = target.type;
+    const checked = target instanceof HTMLInputElement ? target.checked : false;
     setValues(prev => ({
       ...prev,
       [name]:
