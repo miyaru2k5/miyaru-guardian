@@ -57,7 +57,7 @@ const HeroSection = () => {
         >
           <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
           <span className="text-amber-200 text-sm md:text-base">
-            Chỉ nên giao dịch dưới 20% số tiền bảo hiểm của GDV
+            Chỉ nên giao dịch dưới 80% số tiền bảo hiểm của GDV
           </span>
         </div>
       </div>
