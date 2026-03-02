@@ -173,6 +173,24 @@ export type Database = {
         }
         Relationships: []
       }
+      site_analytics: {
+        Row: {
+          id: string
+          total_page_views: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          total_page_views?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          total_page_views?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       system_settings: {
         Row: {
           accent_color: string
@@ -407,6 +425,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_page_views: { Args: never; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
