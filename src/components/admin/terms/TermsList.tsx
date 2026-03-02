@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import TermsForm from "./TermsForm";
 import type { TermsPage } from "@/types/terms";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 const TermsList: React.FC = () => {
   const [items, setItems] = useState<TermsPage[]>([]);
@@ -10,6 +11,7 @@ const TermsList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<TermsPage | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchTerms = async () => {
     setLoading(true);
@@ -53,14 +55,16 @@ const TermsList: React.FC = () => {
     await fetchTerms();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Xóa điều khoản này?")) return;
-    const { error } = await supabase.from("terms_pages").delete().eq("id", id);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const { error } = await supabase.from("terms_pages").delete().eq("id", deleteId);
     if (error) {
       alert(error.message);
+      setDeleteId(null);
       return;
     }
-    setItems(prev => prev.filter(t => t.id !== id));
+    setItems(prev => prev.filter(t => t.id !== deleteId));
+    setDeleteId(null);
   };
 
   const togglePublish = async (term: TermsPage) => {
@@ -168,7 +172,7 @@ const TermsList: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDelete(term.id)}
+                      onClick={() => setDeleteId(term.id)}
                       className="px-3 py-1 rounded-xl border border-destructive/50 text-xs text-destructive hover:bg-destructive/10"
                     >
                       Xóa
@@ -196,6 +200,14 @@ const TermsList: React.FC = () => {
         initial={editing || undefined}
         onClose={() => setFormOpen(false)}
         onSubmit={handleCreateOrUpdate}
+      />
+
+      <ConfirmDeleteDialog
+        open={!!deleteId}
+        title="Xác nhận xóa điều khoản"
+        description="Bạn có chắc chắn muốn xóa điều khoản này?"
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
       />
     </div>
   );
