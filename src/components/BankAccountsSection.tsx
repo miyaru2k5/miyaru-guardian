@@ -14,23 +14,63 @@ interface BankAccount {
 
 const BankAccountsSection = () => {
   const [banks, setBanks] = useState<BankAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchBanks = async () => {
-      const { data } = await supabase
-        .from("bank_accounts")
-        .select("*")
-        .eq("is_visible", true)
-        .order("created_at", { ascending: true });
-      setBanks((data as BankAccount[]) || []);
+      try {
+        setError(null);
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("bank_accounts")
+          .select("*")
+          .eq("is_visible", true)
+          .order("created_at", { ascending: true });
+        if (cancelled) return;
+        if (error) {
+          setError(error.message);
+          setBanks([]);
+        } else {
+          setBanks((data as BankAccount[]) || []);
+        }
+      } catch (e: any) {
+        console.error("BankAccountsSection fetch failed", e);
+        setError(e?.message || "Lỗi khi tải ngân hàng");
+        setBanks([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
 
     fetchBanks();
+    return () => { cancelled = true; };
   }, []);
 
   const copyAccount = (num: string) => {
     navigator.clipboard.writeText(num);
   };
+
+  if (loading) {
+    return (
+      <section className="py-16 px-4">
+        <div className="container mx-auto text-center">
+          <p className="text-muted-foreground">Đang tải danh sách ngân hàng...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="py-16 px-4">
+        <div className="container mx-auto text-center text-destructive">
+          <p>{error}</p>
+        </div>
+      </section>
+    );
+  }
 
   if (banks.length === 0) return null;
 

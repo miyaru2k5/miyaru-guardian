@@ -39,24 +39,35 @@ const GDVSection = () => {
     max_percentage: number;
   } | null>(null);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchAll = async () => {
-      const [tRes, cRes, tcRes, iRes] = await Promise.all([
-        supabase.from("traders").select("*").eq("status", "LIVE").order("created_at", { ascending: true }),
-        supabase.from("categories").select("*").order("name"),
-        supabase.from("trader_categories").select("*"),
-        supabase.from("insurance_fund").select("*").limit(1).maybeSingle(),
-      ]);
-      setTraders((tRes.data as any[]) || []);
-      setCategories((cRes.data as any[]) || []);
-      const map: Record<string, string[]> = {};
-      ((tcRes.data as any[]) || []).forEach((tc: any) => {
-        if (!map[tc.trader_id]) map[tc.trader_id] = [];
-        map[tc.trader_id].push(tc.category_id);
-      });
-      setTraderCats(map);
-      if (iRes.data) {
-        setInsuranceFund(iRes.data as any);
+      try {
+        setError(null);
+        const [tRes, cRes, tcRes, iRes] = await Promise.all([
+          supabase.from("traders").select("*").eq("status", "LIVE").order("created_at", { ascending: true }),
+          supabase.from("categories").select("*").order("name"),
+          supabase.from("trader_categories").select("*"),
+          supabase.from("insurance_fund").select("*").limit(1).maybeSingle(),
+        ]);
+        setTraders((tRes.data as any[]) || []);
+        setCategories((cRes.data as any[]) || []);
+        const map: Record<string, string[]> = {};
+        ((tcRes.data as any[]) || []).forEach((tc: any) => {
+          if (!map[tc.trader_id]) map[tc.trader_id] = [];
+          map[tc.trader_id].push(tc.category_id);
+        });
+        setTraderCats(map);
+        if (iRes.data) {
+          setInsuranceFund(iRes.data as any);
+        }
+      } catch (e: any) {
+        console.error("GDVSection fetch failed", e);
+        setError(e?.message || "Lỗi khi tải dữ liệu");
+      } finally {
+        setLoading(false);
       }
     };
     fetchAll();
@@ -90,6 +101,26 @@ const GDVSection = () => {
       return matchSearch && matchCat;
     });
   }, [traders, search, filterCat, traderCats]);
+
+  if (loading) {
+    return (
+      <section id="gdv" className="py-20 px-4">
+        <div className="container mx-auto text-center">
+          <p className="text-muted-foreground">Đang tải giao dịch viên...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section id="gdv" className="py-20 px-4">
+        <div className="container mx-auto text-center text-destructive">
+          <p>{error}</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="gdv" className="py-20 px-4">
