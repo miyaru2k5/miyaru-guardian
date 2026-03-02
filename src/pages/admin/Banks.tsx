@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 const bankSchema = z.object({
   bank_name: z.string().min(1, "Bắt buộc").max(100),
@@ -21,6 +22,7 @@ const Banks = () => {
   const [banks, setBanks] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editBank, setEditBank] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<z.infer<typeof bankSchema>>({
     resolver: zodResolver(bankSchema),
@@ -59,10 +61,12 @@ const Banks = () => {
     fetchBanks();
   };
 
-  const deleteBank = async (id: string) => {
-    if (!confirm("Xác nhận xóa?")) return;
-    await supabase.from("bank_accounts").delete().eq("id", id);
-    toast({ title: "Đã xóa" }); fetchBanks();
+  const deleteBank = async () => {
+    if (!deleteId) return;
+    await supabase.from("bank_accounts").delete().eq("id", deleteId);
+    toast({ title: "Đã xóa" });
+    setDeleteId(null);
+    fetchBanks();
   };
 
   const copyAccount = (num: string) => {
@@ -147,7 +151,7 @@ const Banks = () => {
               >
                 <Edit size={14} />
               </Button>
-              <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => deleteBank(b.id)}><Trash2 size={14} /></Button>
+              <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => setDeleteId(b.id)}><Trash2 size={14} /></Button>
             </div>
           </div>
         ))}
@@ -184,6 +188,14 @@ const Banks = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={!!deleteId}
+        title="Xác nhận xóa ngân hàng"
+        description="Bạn có chắc chắn muốn xóa ngân hàng này?"
+        onClose={() => setDeleteId(null)}
+        onConfirm={deleteBank}
+      />
     </div>
   );
 };

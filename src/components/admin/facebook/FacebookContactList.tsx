@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import FacebookContactCard, { FacebookContact } from "./FacebookContactCard";
 import FacebookContactForm from "./FacebookContactForm";
 import SearchBar from "@/components/SearchBar";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 
 const FacebookContactList: React.FC = () => {
   const [contacts, setContacts] = useState<FacebookContact[]>([]);
@@ -11,6 +12,7 @@ const FacebookContactList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState<FacebookContact | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchContacts = async () => {
     setLoading(true);
@@ -60,14 +62,16 @@ const FacebookContactList: React.FC = () => {
     await fetchContacts();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Xóa liên hệ này?")) return;
-    const { error } = await supabase.from("facebook_contacts").delete().eq("id", id);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    const { error } = await supabase.from("facebook_contacts").delete().eq("id", deleteId);
     if (error) {
       alert(error.message);
+      setDeleteId(null);
       return;
     }
-    setContacts(prev => prev.filter(c => c.id !== id));
+    setContacts(prev => prev.filter(c => c.id !== deleteId));
+    setDeleteId(null);
   };
 
   const handleToggleActive = async (contact: FacebookContact) => {
@@ -144,7 +148,7 @@ const FacebookContactList: React.FC = () => {
               setEditing(contact);
               setFormOpen(true);
             }}
-            onDelete={() => handleDelete(contact.id)}
+            onDelete={() => setDeleteId(contact.id)}
             onToggleActive={() => handleToggleActive(contact)}
           />
         ))}
@@ -155,6 +159,14 @@ const FacebookContactList: React.FC = () => {
         initial={editing || undefined}
         onClose={() => setFormOpen(false)}
         onSubmit={handleCreateOrUpdate}
+      />
+
+      <ConfirmDeleteDialog
+        open={!!deleteId}
+        title="Xác nhận xóa liên hệ"
+        description="Bạn có chắc chắn muốn xóa liên hệ này?"
+        onClose={() => setDeleteId(null)}
+        onConfirm={handleDelete}
       />
     </div>
   );

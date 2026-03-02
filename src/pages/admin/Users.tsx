@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Edit, Trash2, Mail, User as UserIcon, ImageIcon } from "lucide-react";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,6 +37,7 @@ const Users = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<UserWithRole | null>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
@@ -93,15 +95,16 @@ const Users = () => {
     fetchAll();
   };
 
-  const deleteUser = async (u: UserWithRole) => {
-    if (!confirm(`Xác nhận xóa user "${u.full_name}" (${u.email})? Họ sẽ không còn profile và vai trò.`)) return;
-    await supabase.from("user_roles").delete().eq("user_id", u.id);
-    const { error } = await supabase.from("profiles").delete().eq("id", u.id);
+  const deleteUser = async () => {
+    if (!deleteTarget) return;
+    await supabase.from("user_roles").delete().eq("user_id", deleteTarget.id);
+    const { error } = await supabase.from("profiles").delete().eq("id", deleteTarget.id);
     if (error) {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
       return;
     }
     toast({ title: "Đã xóa user" });
+    setDeleteTarget(null);
     fetchAll();
   };
 
@@ -267,7 +270,7 @@ const Users = () => {
                 size="sm"
                 variant="outline"
                 className="text-destructive hover:bg-destructive/10"
-                onClick={() => deleteUser(u)}
+                onClick={() => setDeleteTarget(u)}
               >
                 <Trash2 size={14} />
               </Button>
@@ -361,6 +364,14 @@ const Users = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={!!deleteTarget}
+        title="Xác nhận xóa user"
+        description={deleteTarget ? `Xóa user "${deleteTarget.full_name}" (${deleteTarget.email})? Họ sẽ không còn profile và vai trò.` : ""}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={deleteUser}
+      />
     </div>
   );
 };

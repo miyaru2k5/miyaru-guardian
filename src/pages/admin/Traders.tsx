@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Edit, Trash2, Power } from "lucide-react";
+import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,6 +41,7 @@ const Traders = () => {
   const [editTrader, setEditTrader] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<TraderForm>({
     resolver: zodResolver(traderSchema),
@@ -101,11 +103,12 @@ const Traders = () => {
     fetchAll();
   };
 
-  const deleteTrader = async (id: string) => {
-    if (!confirm("Xác nhận xóa GDV này?")) return;
-    await supabase.from("trader_categories").delete().eq("trader_id", id);
-    await supabase.from("traders").delete().eq("id", id);
+  const deleteTrader = async () => {
+    if (!deleteId) return;
+    await supabase.from("trader_categories").delete().eq("trader_id", deleteId);
+    await supabase.from("traders").delete().eq("id", deleteId);
     toast({ title: "Đã xóa GDV" });
+    setDeleteId(null);
     fetchAll();
   };
 
@@ -248,7 +251,7 @@ const Traders = () => {
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => toggleStatus(t)} className="flex-1 gap-1"><Power size={14} />{t.status === "LIVE" ? "Tắt" : "Bật"}</Button>
                 <Button size="sm" variant="outline" onClick={() => openEdit(t)}><Edit size={14} /></Button>
-                <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => deleteTrader(t.id)}><Trash2 size={14} /></Button>
+                <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => setDeleteId(t.id)}><Trash2 size={14} /></Button>
               </div>
             </div>
           );
@@ -329,6 +332,14 @@ const Traders = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDeleteDialog
+        open={!!deleteId}
+        title="Xác nhận xóa GDV"
+        description="Bạn có chắc chắn muốn xóa giao dịch viên này?"
+        onClose={() => setDeleteId(null)}
+        onConfirm={deleteTrader}
+      />
     </div>
   );
 };
