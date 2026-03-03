@@ -324,7 +324,7 @@ const Users = () => {
             <DialogTitle>Thêm user</DialogTitle>
           </DialogHeader>
           <p className="text-xs text-muted-foreground mb-4">
-            Cần triển khai Edge Function <code className="bg-secondary px-1 rounded">create-user</code> để thêm user từ admin. Hoặc user tự đăng ký trên trang /register (user đầu tiên = admin).
+            User được tạo từ đây sẽ tự động xác minh email và có thể đăng nhập ngay.
           </p>
           <form onSubmit={addForm.handleSubmit(addUserViaEdgeFunction)} className="space-y-4">
             <div>
