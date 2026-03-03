@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
-import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/layouts/MainLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -106,7 +106,10 @@ const Register = () => {
                 </div>
                 <Button type="button" variant="outline" className="w-full gap-2"
                   onClick={async () => {
-                    const { error } = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
+                    const { error } = await supabase.auth.signInWithOAuth({
+                      provider: "google",
+                      options: { redirectTo: window.location.origin },
+                    });
                     if (error) toast({ title: "Lỗi", description: error.message, variant: "destructive" });
                   }}
                 >
