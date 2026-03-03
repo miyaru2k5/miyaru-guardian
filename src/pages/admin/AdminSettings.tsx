@@ -171,11 +171,11 @@ const AdminSettings = () => {
       </div>
 
       <Tabs defaultValue="appearance" className="w-full">
-        <TabsList className="w-full flex overflow-x-auto no-scrollbar">
-          <TabsTrigger value="appearance" className="gap-1 flex-1 min-w-fit"><Palette size={14} /> Giao diện</TabsTrigger>
-          <TabsTrigger value="branding" className="gap-1 flex-1 min-w-fit"><Building2 size={14} /> Branding</TabsTrigger>
-          <TabsTrigger value="footer" className="gap-1 flex-1 min-w-fit"><FileJson size={14} /> Footer</TabsTrigger>
-          <TabsTrigger value="auth" className="gap-1 flex-1 min-w-fit"><LogIn size={14} /> Đăng nhập</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-2 gap-1 h-auto p-1">
+          <TabsTrigger value="appearance" className="gap-1 text-xs sm:text-sm py-2"><Palette size={14} /> Giao diện</TabsTrigger>
+          <TabsTrigger value="branding" className="gap-1 text-xs sm:text-sm py-2"><Building2 size={14} /> Nhãn hiệu</TabsTrigger>
+          <TabsTrigger value="footer" className="gap-1 text-xs sm:text-sm py-2"><FileJson size={14} /> Chân trang</TabsTrigger>
+          <TabsTrigger value="auth" className="gap-1 text-xs sm:text-sm py-2"><LogIn size={14} /> Đăng nhập</TabsTrigger>
         </TabsList>
 
         {/* ===== APPEARANCE ===== */}
