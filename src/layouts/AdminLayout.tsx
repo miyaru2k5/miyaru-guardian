@@ -67,7 +67,7 @@ const AdminLayout = () => {
             <span className="text-primary-foreground font-bold text-lg">{systemSettings.site_name.charAt(0)}</span>
           </div>
         )}
-        {!collapsed && <span className="text-lg font-bold text-foreground whitespace-nowrap">{systemSettings.site_name} Admin</span>}
+        {!collapsed && <span className="text-lg font-bold text-foreground whitespace-nowrap">{systemSettings.site_name}</span>}
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 scrollbar-thin">
