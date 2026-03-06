@@ -66,8 +66,8 @@ const FacebookContactForm: React.FC<Props> = ({
         type === "checkbox"
           ? checked
           : name === "display_order"
-          ? Number(value) || 0
-          : value,
+            ? Number(value) || 0
+            : value,
     }));
   };
 
@@ -104,80 +104,81 @@ const FacebookContactForm: React.FC<Props> = ({
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Tiêu đề</label>
-              <Input name="title" value={values.title} onChange={handleChange} />
+          <div className="max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Tiêu đề</label>
+                <Input name="title" value={values.title} onChange={handleChange} />
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Chi nhánh</label>
+                <Input name="branch_name" value={values.branch_name} onChange={handleChange} />
+              </div>
             </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Chi nhánh</label>
-              <Input name="branch_name" value={values.branch_name} onChange={handleChange} />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Nền tảng</label>
-              <select
-                name="platform"
-                value={values.platform}
-                onChange={handleChange}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              >
-                <option value="facebook">Facebook</option>
-                <option value="zalo">Zalo</option>
-                <option value="telegram">Telegram</option>
-                <option value="other">Khác</option>
-              </select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Nền tảng</label>
+                <select
+                  name="platform"
+                  value={values.platform}
+                  onChange={handleChange}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="facebook">Facebook</option>
+                  <option value="zalo">Zalo</option>
+                  <option value="telegram">Telegram</option>
+                  <option value="other">Khác</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Thứ tự hiển thị</label>
+                <Input
+                  type="number"
+                  name="display_order"
+                  value={values.display_order}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
+
             <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Thứ tự hiển thị</label>
-              <Input
-                type="number"
-                name="display_order"
-                value={values.display_order}
+              <label className="text-sm text-muted-foreground mb-1 block">Liên kết liên hệ (bắt buộc)</label>
+              <Input name="contact_url" value={values.contact_url} onChange={handleChange} placeholder="https://..." />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Logo nền tảng (URL)</label>
+                <Input name="platform_logo_url" value={values.platform_logo_url} onChange={handleChange} placeholder="https://..." />
+                {values.platform_logo_url && (
+                  <div className="mt-2 w-16 h-16 rounded-lg border border-border bg-background flex items-center justify-center overflow-hidden">
+                    <img src={values.platform_logo_url} alt="Logo preview" className="w-full h-full object-contain" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Avatar admin (URL)</label>
+                <Input name="platform_avatar_url" value={values.platform_avatar_url} onChange={handleChange} placeholder="https://..." />
+                {values.platform_avatar_url && (
+                  <div className="mt-2 w-16 h-16 rounded-full border border-border bg-background flex items-center justify-center overflow-hidden">
+                    <img src={values.platform_avatar_url} alt="Avatar preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm text-muted-foreground mb-1 block">Nội dung hỗ trợ</label>
+              <textarea
+                name="support_text"
+                value={values.support_text}
                 onChange={handleChange}
+                rows={3}
+                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               />
             </div>
           </div>
-
-          <div>
-            <label className="text-sm text-muted-foreground mb-1 block">Liên kết liên hệ (bắt buộc)</label>
-            <Input name="contact_url" value={values.contact_url} onChange={handleChange} placeholder="https://..." />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Logo nền tảng (URL)</label>
-              <Input name="platform_logo_url" value={values.platform_logo_url} onChange={handleChange} placeholder="https://..." />
-              {values.platform_logo_url && (
-                <div className="mt-2 w-16 h-16 rounded-lg border border-border bg-background flex items-center justify-center overflow-hidden">
-                  <img src={values.platform_logo_url} alt="Logo preview" className="w-full h-full object-contain" />
-                </div>
-              )}
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Avatar admin (URL)</label>
-              <Input name="platform_avatar_url" value={values.platform_avatar_url} onChange={handleChange} placeholder="https://..." />
-              {values.platform_avatar_url && (
-                <div className="mt-2 w-16 h-16 rounded-full border border-border bg-background flex items-center justify-center overflow-hidden">
-                  <img src={values.platform_avatar_url} alt="Avatar preview" className="w-full h-full object-cover" />
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm text-muted-foreground mb-1 block">Nội dung hỗ trợ</label>
-            <textarea
-              name="support_text"
-              value={values.support_text}
-              onChange={handleChange}
-              rows={3}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-            />
-          </div>
-
           <div className="flex items-center justify-between pt-2 border-t border-border">
             <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
               <input

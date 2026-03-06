@@ -122,44 +122,117 @@ const TermsList: React.FC = () => {
       )}
 
       {!loading && !error && (
-        <div className="overflow-x-auto rounded-2xl border border-border bg-background/60">
-          <table className="min-w-full text-sm text-foreground">
-            <thead className="bg-background/70">
-              <tr>
-                <th className="px-4 py-2 text-left">Tiêu đề</th>
-                <th className="px-4 py-2 text-left">Slug</th>
-                <th className="px-4 py-2 text-left">Thứ tự</th>
-                <th className="px-4 py-2 text-center">Trạng thái</th>
-                <th className="px-4 py-2 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(term => (
-                <tr
-                  key={term.id}
-                  className="border-t border-border hover:bg-card/80"
-                >
-                  <td className="px-4 py-2">{term.title}</td>
-                  <td className="px-4 py-2 text-xs text-muted-foreground">
-                    /dieu-khoan/{term.slug}
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    {term.display_order}
-                  </td>
-                  <td className="px-4 py-2 text-center">
-                    <button
-                      type="button"
-                      onClick={() => togglePublish(term)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
-                        term.is_published
-                          ? "border-emerald-400 text-emerald-300 bg-emerald-500/10"
-                          : "border-muted text-muted-foreground bg-background/60"
-                      }`}
+        <>
+          {/* Desktop / large screens: table layout */}
+          <div className="hidden md:block overflow-x-auto rounded-2xl border border-border bg-background/60">
+            <table className="min-w-full text-sm text-foreground">
+              <thead className="bg-background/70">
+                <tr>
+                  <th className="px-4 py-2 text-left">Tiêu đề</th>
+                  <th className="px-4 py-2 text-left">Slug</th>
+                  <th className="px-4 py-2 text-left">Thứ tự</th>
+                  <th className="px-4 py-2 text-center">Trạng thái</th>
+                  <th className="px-4 py-2 text-right">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(term => (
+                  <tr
+                    key={term.id}
+                    className="border-t border-border hover:bg-card/80"
+                  >
+                    <td className="px-4 py-2">{term.title}</td>
+                    <td className="px-4 py-2 text-xs text-muted-foreground">
+                      /dieu-khoan/{term.slug}
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      {term.display_order}
+                    </td>
+                    <td className="px-4 py-2 text-center">
+                      <button
+                        type="button"
+                        onClick={() => togglePublish(term)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
+                          term.is_published
+                            ? "border-emerald-400 text-emerald-300 bg-emerald-500/10"
+                            : "border-muted text-muted-foreground bg-background/60"
+                        }`}
+                      >
+                        {term.is_published ? "Đang publish" : "Nháp"}
+                      </button>
+                    </td>
+                    <td className="px-4 py-2 text-right space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditing(term);
+                          setFormOpen(true);
+                        }}
+                        className="px-3 py-1 rounded-xl border border-border text-xs hover:bg-card/70"
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteId(term.id)}
+                        className="px-3 py-1 rounded-xl border border-destructive/50 text-xs text-destructive hover:bg-destructive/10"
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="px-4 py-6 text-center text-muted-foreground"
                     >
-                      {term.is_published ? "Đang publish" : "Nháp"}
-                    </button>
-                  </td>
-                  <td className="px-4 py-2 text-right space-x-2">
+                      Không có điều khoản nào.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile / tablet: card layout */}
+          <div className="md:hidden space-y-3">
+            {filtered.length === 0 ? (
+              <div className="rounded-2xl border border-border bg-background/60 p-6 text-center text-muted-foreground">
+                Không có điều khoản nào.
+              </div>
+            ) : (
+              filtered.map(term => (
+                <div
+                  key={term.id}
+                  className="rounded-2xl border border-border bg-card p-4 space-y-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {term.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        /dieu-khoan/{term.slug}
+                      </p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => togglePublish(term)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border transition ${
+                          term.is_published
+                            ? "border-emerald-400 text-emerald-300 bg-emerald-500/10"
+                            : "border-muted text-muted-foreground bg-background/60"
+                        }`}
+                      >
+                        {term.is_published ? "Đang publish" : "Nháp"}
+                      </button>
+                      <span className="text-xs text-muted-foreground">Thứ tự: {term.display_order}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 justify-end">
                     <button
                       type="button"
                       onClick={() => {
@@ -177,22 +250,12 @@ const TermsList: React.FC = () => {
                     >
                       Xóa
                     </button>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-6 text-center text-muted-foreground"
-                  >
-                    Không có điều khoản nào.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
       )}
 
       <TermsForm

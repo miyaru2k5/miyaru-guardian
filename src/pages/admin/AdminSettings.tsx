@@ -430,7 +430,7 @@ const AdminSettings = () => {
                 </div>
                 <Switch checked={authGoogleEnabled} onCheckedChange={setAuthGoogleEnabled} />
               </div>
-              <div>
+              {/* <div>
                 <label className="text-sm text-muted-foreground block mb-1">Google OAuth Client ID (tham chiếu)</label>
                 <Input
                   value={authGoogleClientId}
@@ -438,7 +438,7 @@ const AdminSettings = () => {
                   placeholder="xxx.apps.googleusercontent.com"
                 />
                 <p className="text-xs text-muted-foreground mt-1">Lưu để tham chiếu; cấu hình đầy đủ tại Supabase Dashboard.</p>
-              </div>
+              </div> */}
             </div>
             <Button onClick={handleSaveAuth} disabled={saving || !isAdmin} className="btn-glow gap-2">
               <Save size={16} /> Lưu cấu hình đăng nhập

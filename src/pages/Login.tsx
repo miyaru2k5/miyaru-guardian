@@ -50,7 +50,7 @@ const Login = () => {
           <div className="glow-border rounded-2xl p-8">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-foreground mb-2">Đăng nhập</h1>
-              <p className="text-muted-foreground text-sm">Chào mừng trở lại Miyaru</p>
+              <p className="text-muted-foreground text-sm">Chào mừng trở lại</p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
