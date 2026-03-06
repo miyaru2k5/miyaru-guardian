@@ -218,9 +218,8 @@ const Traders = () => {
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      t.status === "LIVE" ? "status-live" : "status-offline"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "status-live" : "status-offline"
+                      }`}
                   >
                     {t.status}
                   </span>
@@ -259,76 +258,78 @@ const Traders = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editTrader ? "Sửa GDV" : "Thêm GDV mới"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Tên GDV</label>
-              <Input {...register("name")} placeholder="Nhập tên giao dịch viên" />
-              {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Mã GDV</label>
-              <Input {...register("code")} placeholder="VD: GDV#001" />
-              {errors.code && <p className="text-xs text-destructive mt-1">{errors.code.message}</p>}
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Avatar URL</label>
-              <Input {...register("avatar_url")} placeholder="https://..." />
-            </div>
-            {categories.length > 0 && (
+            <div className="sm:max-w-md max-h-[70vh] overflow-y-auto">
               <div>
-                <label className="text-sm text-muted-foreground mb-2 block">Danh mục</label>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map(c => (
-                    <button key={c.id} type="button" onClick={() => toggleCat(c.id)}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
-                        selectedCats.includes(c.id)
-                          ? "bg-primary/20 text-primary border-primary/40"
-                          : "border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
-                      }`}>
-                      {c.name}
-                    </button>
-                  ))}
+                <label className="text-sm text-muted-foreground mb-1 block">Tên GDV</label>
+                <Input {...register("name")} placeholder="Nhập tên giao dịch viên" />
+                {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Mã GDV</label>
+                <Input {...register("code")} placeholder="VD: GDV#001" />
+                {errors.code && <p className="text-xs text-destructive mt-1">{errors.code.message}</p>}
+              </div>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Avatar URL</label>
+                <Input {...register("avatar_url")} placeholder="https://..." />
+              </div>
+              {categories.length > 0 && (
+                <div>
+                  <label className="text-sm text-muted-foreground mb-2 block">Danh mục</label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map(c => (
+                      <button key={c.id} type="button" onClick={() => toggleCat(c.id)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedCats.includes(c.id)
+                            ? "bg-primary/20 text-primary border-primary/40"
+                            : "border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+                          }`}>
+                        {c.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Dịch vụ</label>
+                <Input {...register("service")} placeholder="Nhập tên dịch vụ" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Quỹ bảo hiểm</label>
+                  <Input {...register("insurance_fund")} type="number" placeholder="0" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">% Thành công</label>
+                  <Input {...register("success_rate")} type="number" placeholder="100" />
                 </div>
               </div>
-            )}
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Dịch vụ</label>
-              <Input {...register("service")} placeholder="Nhập tên dịch vụ" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Quỹ bảo hiểm</label>
-                <Input {...register("insurance_fund")} type="number" placeholder="0" />
+                <label className="text-sm text-muted-foreground mb-1 block">Mô tả</label>
+                <Input {...register("description")} placeholder="Nhập mô tả" />
               </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">% Thành công</label>
-                <Input {...register("success_rate")} type="number" placeholder="100" />
-              </div>
-            </div>
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">Mô tả</label>
-              <Input {...register("description")} placeholder="Nhập mô tả" />
-            </div>
-            <div className="border-t border-border pt-4 space-y-4">
-              <p className="text-sm font-medium text-muted-foreground">Liên kết</p>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Facebook UID</label>
-                <Input {...register("facebook")} placeholder="VD: 100012345678" />
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Zalo (SĐT)</label>
-                <Input {...register("zalo")} placeholder="VD: 0357175172" />
-              </div>
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Website</label>
-                <Input {...register("website")} placeholder="VD: miyaru.online" />
+              <div className="border-t border-border pt-4 space-y-4">
+                <p className="text-sm font-medium text-muted-foreground">Liên kết</p>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Facebook UID</label>
+                  <Input {...register("facebook")} placeholder="VD: 100012345678" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Zalo (SĐT)</label>
+                  <Input {...register("zalo")} placeholder="VD: 0357175172" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Website</label>
+                  <Input {...register("website")} placeholder="VD: miyaru.online" />
+                </div>
               </div>
             </div>
             <Button type="submit" className="w-full btn-glow">{editTrader ? "Cập nhật" : "Thêm mới"}</Button>
+
           </form>
         </DialogContent>
       </Dialog>

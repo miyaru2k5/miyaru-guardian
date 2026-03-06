@@ -83,7 +83,7 @@ const TermsForm: React.FC<Props> = ({ open, initial, onClose, onSubmit }) => {
 
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{initial?.title ? "Sửa điều khoản" : "Thêm điều khoản"}</DialogTitle>
         </DialogHeader>
@@ -95,6 +95,7 @@ const TermsForm: React.FC<Props> = ({ open, initial, onClose, onSubmit }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="max-h-[70vh] overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm text-muted-foreground mb-1 block">Tiêu đề</label>
@@ -145,7 +146,7 @@ const TermsForm: React.FC<Props> = ({ open, initial, onClose, onSubmit }) => {
               onChange={content => setValues(prev => ({ ...prev, content }))}
             />
           </div>
-
+ </div>
           <div className="flex justify-end gap-2 pt-2 border-t border-border">
             <Button type="button" variant="outline" onClick={onClose}>
               Hủy
