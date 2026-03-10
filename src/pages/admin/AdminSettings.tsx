@@ -284,9 +284,9 @@ const AdminSettings = () => {
                   }}>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
-                      style={{ backgroundColor: `hsl(${hexToHsl(primaryHex)})`, borderRadius }}>M</div>
+                      style={{ backgroundColor: `hsl(${hexToHsl(primaryHex)})`, borderRadius }}>A</div>
                     <span className="font-bold" style={{ color: defaultMode === "dark" ? "#fafafa" : "#1a1a2e" }}>
-                      {siteName || "Miyaru"} Admin
+                      {siteName || "Admin"} Admin
                     </span>
                   </div>
                   <div className="flex gap-2 mb-3">
@@ -332,7 +332,7 @@ const AdminSettings = () => {
               </h3>
               <div>
                 <label className="text-sm text-muted-foreground block mb-1">Tên website</label>
-                <Input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Miyaru" />
+                <Input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Admin" />
               </div>
               <div>
                 <label className="text-sm text-muted-foreground block mb-1">Logo URL</label>
@@ -361,7 +361,7 @@ const AdminSettings = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-sm text-muted-foreground block mb-1">Tên thương hiệu</label>
-                  <Input value={footerBrandName} onChange={e => setFooterBrandName(e.target.value)} placeholder="Miyaru" />
+                  <Input value={footerBrandName} onChange={e => setFooterBrandName(e.target.value)} placeholder="Admin" />
                 </div>
                 <div>
                   <label className="text-sm text-muted-foreground block mb-1">Mô tả</label>
@@ -397,13 +397,13 @@ const AdminSettings = () => {
                   <div>
                     <label className="text-sm text-muted-foreground block mb-1">Email</label>
                     <Input type="email" value={footerEmail} onChange={e => setFooterEmail(e.target.value)}
-                      placeholder="contact@miyaru.vn" />
+                      placeholder="contact@Admin.vn" />
                   </div>
                 </div>
                 <div>
                   <label className="text-sm text-muted-foreground block mb-1">Bản quyền</label>
                   <Input value={footerCopyright} onChange={e => setFooterCopyright(e.target.value)}
-                    placeholder="© 2026 Miyaru Team." />
+                    placeholder="© 2026 Admin Team." />
                 </div>
               </div>
             </div>

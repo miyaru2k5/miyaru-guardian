@@ -3,7 +3,7 @@ import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const GDTGSection = () => {
   const { systemSettings } = useThemeCustomizer();
-  const siteName = systemSettings.site_name || "Miyaru";
+  const siteName = systemSettings.site_name || "Admin";
 
   const stats = [
     { icon: TrendingUp, value: "10K+", label: "Giao dịch thành công", color: "text-primary" },

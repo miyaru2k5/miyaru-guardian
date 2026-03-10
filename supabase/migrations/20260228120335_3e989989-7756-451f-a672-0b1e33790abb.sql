@@ -1,9 +1,9 @@
 
 -- Add branding columns to system_settings
 ALTER TABLE public.system_settings 
-  ADD COLUMN IF NOT EXISTS site_name text NOT NULL DEFAULT 'Miyaru',
+  ADD COLUMN IF NOT EXISTS site_name text NOT NULL DEFAULT 'Admin',
   ADD COLUMN IF NOT EXISTS logo_url text DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS footer_data jsonb NOT NULL DEFAULT '{"brand_name":"Miyaru","description":"Chi phí thấp – Nhanh chóng – Chất lượng.","services":["Giao dịch trung gian","Giao dịch viên"],"contact":{"phone":"0357.175.172","email":"contact@miyaru.vn"},"copyright":"© 2026 Miyaru Team."}'::jsonb;
+  ADD COLUMN IF NOT EXISTS footer_data jsonb NOT NULL DEFAULT '{"brand_name":"Admin","description":"Chi phí thấp – Nhanh chóng – Chất lượng.","services":["Giao dịch trung gian","Giao dịch viên"],"contact":{"phone":"0357.175.172","email":"contact@Admin.vn"},"copyright":"© 2026 Admin Team."}'::jsonb;
 
 -- Add social links to traders
 ALTER TABLE public.traders

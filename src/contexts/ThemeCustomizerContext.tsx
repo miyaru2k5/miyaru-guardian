@@ -43,11 +43,11 @@ interface ThemeCustomizerContextType {
 }
 
 const DEFAULT_FOOTER: FooterData = {
-  brand_name: "Miyaru",
+  brand_name: "Admin",
   description: "Chi phí thấp – Nhanh chóng – Chất lượng.",
   services: ["Giao dịch trung gian", "Giao dịch viên"],
-  contact: { phone: "0357.175.172", email: "contact@miyaru.vn" },
-  copyright: "© 2026 Miyaru Team.",
+  contact: { phone: "0357.175.172", email: "contact@Admin.vn" },
+  copyright: "© 2026 Admin Team.",
 };
 
 const DEFAULT_SETTINGS: SystemSettings = {
@@ -57,7 +57,7 @@ const DEFAULT_SETTINGS: SystemSettings = {
   accent_color: "330 100% 55%",
   border_radius: "0.75rem",
   allow_user_theme: true,
-  site_name: "Miyaru",
+  site_name: "Admin",
   logo_url: null,
   footer_data: DEFAULT_FOOTER,
   auth_google_enabled: false,

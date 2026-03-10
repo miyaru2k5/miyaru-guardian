@@ -26,7 +26,7 @@ const advantages = [
 
 const AdvantagesSection = () => {
   const { systemSettings } = useThemeCustomizer();
-  const siteName = systemSettings.site_name || "Miyaru";
+  const siteName = systemSettings.site_name || "Admin";
 
   return (
     <section className="py-20 px-4">
