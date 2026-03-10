@@ -1,3 +1,7 @@
+User-agent: *
+Allow: /
+
+# Cho phép các bot mạng xã hội preview
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +14,8 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+# Sitemap
+Sitemap: https://admin.miyaru.online/sitemap.xml
+
+# Host
+Host: https://admin.miyaru.online

@@ -3,7 +3,7 @@ import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const HeroSection = () => {
   const { systemSettings } = useThemeCustomizer();
-  const siteName = systemSettings.site_name || "Miyaru";
+  const siteName = systemSettings.site_name || "Admin";
 
   const features = [
     { icon: Shield, text: "Được bảo vệ bởi quỹ bảo hiểm" },

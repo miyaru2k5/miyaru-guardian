@@ -4,12 +4,12 @@ const steps = [
   {
     icon: Wallet,
     title: "Người mua chuyển tiền",
-    description: "Người mua chuyển tiền vào tài khoản Miyaru",
+    description: "Người mua chuyển tiền vào tài khoản Admin",
   },
   {
     icon: ShieldCheck,
-    title: "Miyaru giữ tiền & xác nhận",
-    description: "Miyaru xác nhận giao dịch và bảo vệ tiền",
+    title: "Admin giữ tiền & xác nhận",
+    description: "Admin xác nhận giao dịch và bảo vệ tiền",
   },
   {
     icon: CheckCircle2,

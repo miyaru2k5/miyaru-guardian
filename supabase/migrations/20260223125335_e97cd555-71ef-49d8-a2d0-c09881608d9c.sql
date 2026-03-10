@@ -64,6 +64,8 @@ CREATE TABLE public.bank_accounts (
   bank_name TEXT NOT NULL,
   account_number TEXT NOT NULL,
   account_holder TEXT NOT NULL,
+  logo_url TEXT,
+  qr_image_url TEXT,
   is_visible BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()

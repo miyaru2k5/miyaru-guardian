@@ -5,14 +5,14 @@ Vào **Supabase Dashboard** → **Authentication** → **Email Templates** → *
 ## Subject (Tiêu đề):
 
 ```
-Xác minh email - Miyaru Guardian
+Xác minh email - Admin Guardian
 ```
 
 ## Body (Nội dung HTML):
 
 ```html
 <h2>Xác nhận đăng ký</h2>
-<p>Cảm ơn bạn đã đăng ký ứng dụng Miyaru Guardian!</p>
+<p>Cảm ơn bạn đã đăng ký ứng dụng Admin Guardian!</p>
 <p>Vui lòng xác minh email của bạn ({{ .Email }}) bằng cách bấm nút bên dưới:</p>
 <p><a href="{{ .ConfirmationURL }}" style="display:inline-block; padding:12px 24px; background-color:#ec4899; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">Xác minh email</a></p>
 <p>Nếu bạn không đăng ký tài khoản này, hãy bỏ qua email này.</p>

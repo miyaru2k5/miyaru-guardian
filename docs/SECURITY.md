@@ -1,4 +1,4 @@
-# Cấu hình bảo mật Miyaru Guardian
+# Cấu hình bảo mật Admin Guardian
 
 ## Mật khẩu & bảng Profiles
 

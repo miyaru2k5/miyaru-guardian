@@ -1,0 +1,22 @@
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Hệ Thống Kiểm Tra Admin",
+  "url": "https://admin.miyaru.online",
+  "description": "Nền tảng kiểm tra và quản lý admin giao dịch trung gian Miyaru.",
+  "inLanguage": "vi-VN",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Miyaru",
+    "url": "https://admin.miyaru.online",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://admin.miyaru.online/seo-preview.png"
+    }
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://admin.miyaru.online/?q={search_term}",
+    "query-input": "required name=search_term"
+  }
+}
