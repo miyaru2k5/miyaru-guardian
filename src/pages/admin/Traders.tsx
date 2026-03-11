@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Edit, Trash2, Power, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Power, Copy } from "lucide-react";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
@@ -11,15 +11,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SearchBar from "@/components/SearchBar";
 import FilterDropdown, { type FilterOption } from "@/components/FilterDropdown";
-import { Textarea } from "@/components/ui/textarea";
+
 const traderSchema = z.object({
-  name: z.string().min(1, "Tên GDV là bắt buộc").max(100),
-  code: z.string().min(1, "Mã GDV là bắt buộc").max(20),
-  avatar_url: z.string().max(500).url({ message: "URL không hợp lệ" }).optional().or(z.literal("")),
+  name: z.string().min(1, "Bắt buộc").max(100),
+  slug: z
+    .string()
+    .min(1, "Slug bắt buộc")
+    .max(120)
+    .regex(/^[a-z0-9-]+$/, "Slug chỉ gồm chữ thường, số và dấu gạch ngang"),
+  code: z.string().min(1, "Bắt buộc").max(20),
+  avatar_url: z.string().max(500).optional(),
   service: z.string().max(100).optional(),
   description: z.string().max(500).optional(),
-  insurance_fund: z.coerce.number().min(0, "Quỹ bảo hiểm >= 0"),
-  success_rate: z.coerce.number().min(0, "% >= 0").max(100, "% <= 100"),
+  insurance_fund: z.coerce.number().min(0),
+  success_rate: z.coerce.number().min(0).max(100),
   facebook: z.string().max(255).optional(),
   zalo: z.string().max(50).optional(),
   website: z.string().max(255).optional(),
@@ -42,15 +47,26 @@ const Traders = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [isFetchingUid, setIsFetchingUid] = useState(false);
 
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<TraderForm>({
+  const copyLink = (slug: string) => {
+    const url = `https://www.teamad.vn/${slug}`;
+
+    navigator.clipboard.writeText(url);
+
+    toast({
+      title: "Đã copy link",
+      description: url,
+    });
+  };
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<TraderForm>({
     resolver: zodResolver(traderSchema),
-    defaultValues: { insurance_fund: 0, success_rate: 100 },
+    defaultValues: {
+      insurance_fund: 0,
+      success_rate: 100,
+      slug: "",
+    },
   });
-
-  const facebookValue = watch("facebook");
-  const avatarUrl = watch("avatar_url");
 
   const fetchAll = async () => {
     const [tRes, cRes, tcRes] = await Promise.all([
@@ -58,8 +74,10 @@ const Traders = () => {
       supabase.from("categories").select("*").order("name"),
       supabase.from("trader_categories").select("*"),
     ]);
+
     setTraders(tRes.data || []);
     setCategories((cRes.data as Category[]) || []);
+
     const map: Record<string, string[]> = {};
     ((tcRes.data as any[]) || []).forEach((tc: any) => {
       if (!map[tc.trader_id]) map[tc.trader_id] = [];
@@ -68,40 +86,14 @@ const Traders = () => {
     setTraderCats(map);
   };
 
-  useEffect(() => { fetchAll(); }, []);
-
-  const fetchFacebookUid = async () => {
-    const url = facebookValue?.trim();
-    if (!url || !url.includes("facebook.com")) {
-      toast({ title: "Cảnh báo", description: "Vui lòng nhập link Facebook hợp lệ", variant: "default" });
-      return;
-    }
-
-    setIsFetchingUid(true);
-    try {
-      const response = await fetch("https://likenhanh.pro/api/get_uid", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-      const data = await response.json();
-
-      if (data.status === "success" && data.uid) {
-        setValue("facebook", data.uid, { shouldValidate: true });
-        toast({ title: "Thành công", description: `Đã lấy UID: ${data.uid}` });
-      } else {
-        toast({ title: "Lỗi", description: data.msg || "Không lấy được UID", variant: "destructive" });
-      }
-    } catch {
-      toast({ title: "Lỗi", description: "Không kết nối được API", variant: "destructive" });
-    } finally {
-      setIsFetchingUid(false);
-    }
-  };
+  useEffect(() => {
+    fetchAll();
+  }, []);
 
   const onSubmit = async (data: TraderForm) => {
     const payload = {
       name: data.name,
+      slug: data.slug,
       code: data.code,
       avatar_url: data.avatar_url || null,
       service: data.service || "",
@@ -115,27 +107,48 @@ const Traders = () => {
     };
 
     let traderId = editTrader?.id;
+
     if (editTrader) {
-      const { error } = await supabase.from("traders").update(payload).eq("id", editTrader.id);
-      if (error) return toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+      const { error } = await supabase
+        .from("traders")
+        .update(payload)
+        .eq("id", editTrader.id);
+
+      if (error) {
+        toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+        return;
+      }
     } else {
-      const { data: inserted, error } = await supabase.from("traders").insert([payload]).select("id").single();
-      if (error) return toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+      const { data: inserted, error } = await supabase
+        .from("traders")
+        .insert([payload])
+        .select("id")
+        .single();
+
+      if (error) {
+        toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+        return;
+      }
       traderId = inserted.id;
     }
 
+    // Xử lý danh mục
     await supabase.from("trader_categories").delete().eq("trader_id", traderId);
+
     if (selectedCats.length > 0) {
-      await supabase.from("trader_categories").insert(
-        selectedCats.map(catId => ({ trader_id: traderId, category_id: catId }))
-      );
+      await supabase
+        .from("trader_categories")
+        .insert(selectedCats.map(catId => ({ trader_id: traderId, category_id: catId })));
     }
 
-    toast({ title: editTrader ? "Đã cập nhật GDV" : "Đã thêm GDV mới" });
+    toast({
+      title: editTrader ? "Đã cập nhật GDV" : "Đã thêm GDV mới",
+    });
+
     setDialogOpen(false);
     setEditTrader(null);
     setSelectedCats([]);
-    reset({ insurance_fund: 0, success_rate: 100 });
+    reset({ insurance_fund: 0, success_rate: 100, slug: "" });
     fetchAll();
   };
 
@@ -159,6 +172,7 @@ const Traders = () => {
     setSelectedCats(traderCats[t.id] || []);
     reset({
       name: t.name,
+      slug: t.slug || "",
       code: t.code,
       avatar_url: t.avatar_url || "",
       service: t.service || "",
@@ -175,12 +189,26 @@ const Traders = () => {
   const openNew = () => {
     setEditTrader(null);
     setSelectedCats([]);
-    reset({ name: "", code: "", avatar_url: "", service: "", description: "", insurance_fund: 0, success_rate: 100, facebook: "", zalo: "", website: "" });
+    reset({
+      name: "",
+      slug: "",
+      code: "",
+      avatar_url: "",
+      service: "",
+      description: "",
+      insurance_fund: 0,
+      success_rate: 100,
+      facebook: "",
+      zalo: "",
+      website: "",
+    });
     setDialogOpen(true);
   };
 
   const toggleCat = (catId: string) => {
-    setSelectedCats(prev => prev.includes(catId) ? prev.filter(c => c !== catId) : [...prev, catId]);
+    setSelectedCats(prev =>
+      prev.includes(catId) ? prev.filter(c => c !== catId) : [...prev, catId]
+    );
   };
 
   const getCatNames = (traderId: string) => {
@@ -188,20 +216,31 @@ const Traders = () => {
     return categories.filter(c => catIds.includes(c.id)).map(c => c.name);
   };
 
-  const handleSearchChange = useCallback((value: string) => setSearch(value), []);
-  const handleFilterChange = useCallback((value: string) => setFilterCat(value), []);
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+  }, []);
+
+  const handleFilterChange = useCallback((value: string) => {
+    setFilterCat(value);
+  }, []);
 
   const filterOptions: FilterOption[] = useMemo(
-    () => [{ value: "all", label: "Tất cả danh mục" }, ...categories.map(c => ({ value: c.id, label: c.name }))],
+    () => [
+      { value: "all", label: "Tất cả danh mục" },
+      ...categories.map(c => ({ value: c.id, label: c.name })),
+    ],
     [categories]
   );
 
   const filtered = useMemo(
-    () => traders.filter(t => {
-      const matchSearch = t.name.toLowerCase().includes(search.toLowerCase()) || t.code.toLowerCase().includes(search.toLowerCase());
-      const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
-      return matchSearch && matchCat;
-    }),
+    () =>
+      traders.filter(t => {
+        const matchSearch =
+          t.name.toLowerCase().includes(search.toLowerCase()) ||
+          t.code.toLowerCase().includes(search.toLowerCase());
+        const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
+        return matchSearch && matchCat;
+      }),
     [traders, search, filterCat, traderCats]
   );
 
@@ -212,7 +251,7 @@ const Traders = () => {
           <h1 className="text-2xl font-bold text-foreground">Giao dịch viên</h1>
           <p className="text-muted-foreground text-sm">Quản lý danh sách GDV</p>
         </div>
-        <Button onClick={openNew} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg">
+        <Button onClick={openNew} className="btn-glow gap-2">
           <Plus size={16} /> Thêm GDV
         </Button>
       </div>
@@ -230,49 +269,60 @@ const Traders = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map(t => {
           const catNames = getCatNames(t.id);
           return (
-            <div key={t.id} className="glow-border rounded-2xl p-6 bg-card shadow-md hover:shadow-xl transition-all">
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-4">
+            <div key={t.id} className="glow-border rounded-2xl p-5 card-hover">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
                   {t.avatar_url ? (
-                    <img src={t.avatar_url} alt={t.name} className="w-14 h-14 rounded-full object-cover border-2 border-primary/30" />
+                    <img
+                      src={t.avatar_url}
+                      alt={t.name}
+                      className="w-12 h-12 rounded-full object-cover border border-primary/20"
+                    />
                   ) : (
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/30">
-                      <span className="text-xl font-bold text-primary">{t.name.charAt(0)}</span>
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/20">
+                      <span className="text-lg font-bold text-primary">{t.name.charAt(0)}</span>
                     </div>
                   )}
                   <div>
-                    <h3 className="font-semibold text-lg text-foreground">{t.name}</h3>
-                    <p className="text-sm text-muted-foreground">{t.service || t.code}</p>
+                    <h3 className="font-semibold text-foreground">{t.name}</h3>
+                    <p className="text-xs text-muted-foreground">{t.service || t.code}</p>
                   </div>
                 </div>
+
                 <div className="flex flex-col items-end gap-1">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "bg-green-600/20 text-green-500" : "bg-red-600/20 text-red-500"}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "status-live" : "status-offline"
+                      }`}
+                  >
                     {t.status}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-[11px] text-muted-foreground">
                     {Number(t.success_rate)}% thành công
                   </span>
                 </div>
               </div>
 
               {catNames.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-1 mb-3">
                   {catNames.map(name => (
-                    <span key={name} className="px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/30">
+                    <span
+                      key={name}
+                      className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
+                    >
                       {name}
                     </span>
                   ))}
                 </div>
               )}
 
-              <div className="space-y-3 mb-5 text-sm">
+              <div className="space-y-2 mb-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mã GDV</span>
-                  <span className="font-medium">{t.code}</span>
+                  <span className="font-medium text-foreground">{t.code}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Quỹ BH</span>
@@ -282,13 +332,39 @@ const Traders = () => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button size="sm" variant="outline" onClick={() => toggleStatus(t)} className="flex-1">
-                  <Power size={14} className="mr-1" />
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => toggleStatus(t)}
+                  className="flex-1 gap-1"
+                >
+                  <Power size={14} />
                   {t.status === "LIVE" ? "Tắt" : "Bật"}
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => openEdit(t)}><Edit size={14} /></Button>
-                <Button size="sm" variant="outline" className="text-destructive hover:bg-destructive/10" onClick={() => setDeleteId(t.id)}>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openEdit(t)}
+                >
+                  <Edit size={14} />
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => copyLink(t.slug)}
+                >
+                  <Copy size={14} />
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:bg-destructive/10"
+                  onClick={() => setDeleteId(t.id)}
+                >
                   <Trash2 size={14} />
                 </Button>
               </div>
@@ -297,162 +373,98 @@ const Traders = () => {
         })}
       </div>
 
-      {/* Dialog form - rộng hơn, có preview avatar */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">{editTrader ? "Sửa GDV" : "Thêm GDV mới"}</DialogTitle>
+            <DialogTitle>{editTrader ? "Sửa GDV" : "Thêm GDV mới"}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="max-h-[75vh] overflow-y-auto pr-2">
-              <div className="space-y-5">
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="sm:max-w-md max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Tên GDV</label>
+                <Input {...register("name")} placeholder="Nhập tên giao dịch viên" />
+                {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Slug URL</label>
+                <Input {...register("slug")} placeholder="vd: admin-gdv" />
+                {errors.slug && <p className="text-xs text-destructive mt-1">{errors.slug.message}</p>}
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Mã GDV</label>
+                <Input {...register("code")} placeholder="VD: GDV#001" />
+                {errors.code && <p className="text-xs text-destructive mt-1">{errors.code.message}</p>}
+              </div>
+
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Avatar URL</label>
+                <Input {...register("avatar_url")} placeholder="https://..." />
+              </div>
+
+              {categories.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">Tên GDV</label>
-                  <Input {...register("name")} placeholder="Nhập Tên GDV" className="focus:ring-primary" />
-                  {errors.name && <p className="text-sm text-destructive mt-1.5">{errors.name.message}</p>}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">Mã GDV</label>
-                  <Input {...register("code")} placeholder="Nhập Mã GDV" className="focus:ring-primary" />
-                  {errors.code && <p className="text-sm text-destructive mt-1.5">{errors.code.message}</p>}
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">
-                    Avatar URL
-                  </label>
-
-                  <div className="relative">
-                    <Input
-                      {...register("avatar_url")}
-                      placeholder="Nhập Avatar URL"
-                      className="focus:ring-primary pr-10"
-                    />
-
-                    {avatarUrl && (
+                  <label className="text-sm text-muted-foreground mb-2 block">Danh mục</label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map(c => (
                       <button
+                        key={c.id}
                         type="button"
-                        onClick={() => setValue("avatar_url", "")}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-destructive"
+                        onClick={() => toggleCat(c.id)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedCats.includes(c.id)
+                            ? "bg-primary/20 text-primary border-primary/40"
+                            : "border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+                          }`}
                       >
-                        ✕
+                        {c.name}
                       </button>
-                    )}
+                    ))}
                   </div>
-
-                  {avatarUrl && (
-                    <div className="mt-3">
-                      <img
-                        src={avatarUrl}
-                        alt="Avatar preview"
-                        className="w-32 h-32 rounded-full object-cover border-2 border-primary/30 mx-auto shadow-md"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "https://via.placeholder.com/128?text=Error";
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {errors.avatar_url && (
-                    <p className="text-sm text-destructive mt-1.5">
-                      {errors.avatar_url.message}
-                    </p>
-                  )}
                 </div>
+              )}
 
-                {categories.length > 0 && (
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">Danh mục</label>
-                    <div className="flex flex-wrap gap-2">
-                      {categories.map(c => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => toggleCat(c.id)}
-                          className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${selectedCats.includes(c.id)
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
-                            }`}
-                        >
-                          {c.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Dịch vụ</label>
+                <Input {...register("service")} placeholder="Nhập tên dịch vụ" />
+              </div>
 
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">Dịch vụ</label>
-                  <Input {...register("service")} placeholder="Nhập tên dịch vụ" className="focus:ring-primary" />
+                  <label className="text-sm text-muted-foreground mb-1 block">Quỹ bảo hiểm</label>
+                  <Input {...register("insurance_fund")} type="number" placeholder="0" />
                 </div>
-
-                <div className="space-y-5">
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Quỹ bảo hiểm (VNĐ)</label>
-                    <Input {...register("insurance_fund")} type="number" placeholder="0" className="focus:ring-primary" />
-                    {errors.insurance_fund && <p className="text-sm text-destructive mt-1.5">{errors.insurance_fund.message}</p>}
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Tỷ lệ thành công (%)</label>
-                    <Input {...register("success_rate")} type="number" placeholder="100" className="focus:ring-primary" />
-                    {errors.success_rate && <p className="text-sm text-destructive mt-1.5">{errors.success_rate.message}</p>}
-                  </div>
-                </div>
-
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-1.5 block">
-                    Mô tả
-                  </label>
-
-                  <Textarea
-                    {...register("description")}
-                    placeholder="Nhập mô tả ngắn gọn"
-                    className="focus:ring-primary min-h-[100px]"
-                  />
+                  <label className="text-sm text-muted-foreground mb-1 block">% Thành công</label>
+                  <Input {...register("success_rate")} type="number" placeholder="100" />
                 </div>
+              </div>
 
-                <div className="border-t border-border pt-6 space-y-5">
-                  <p className="text-base font-semibold text-foreground">Liên kết</p>
+              <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Mô tả</label>
+                <Input {...register("description")} placeholder="Nhập mô tả" />
+              </div>
 
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Facebook UID</label>
-                    <div className="flex items-center gap-3">
-                      <Input
-                        {...register("facebook")}
-                        placeholder="Nhập link FB hoặc UID"
-                        className="flex-1 focus:ring-primary"
-                      />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={fetchFacebookUid}
-                        disabled={isFetchingUid || !facebookValue?.trim()}
-                      >
-                        {isFetchingUid ? <Loader2 className="h-4 w-4 animate-spin" /> : "Get UID"}
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1.5">Nhập link profile/page → nhấn Get để lấy UID</p>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Zalo (SĐT)</label>
-                    <Input {...register("zalo")} placeholder="Nhập Zalo / SĐT" className="focus:ring-primary" />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1.5 block">Website</label>
-                    <Input {...register("website")} placeholder="Nhập URL website" className="focus:ring-primary" />
-                  </div>
+              <div className="border-t border-border pt-4 space-y-4">
+                <p className="text-sm font-medium text-muted-foreground">Liên kết</p>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Facebook URL</label>
+                  <Input {...register("facebook")} placeholder="Nhập URL Facebook" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Zalo (SĐT)</label>
+                  <Input {...register("zalo")} placeholder="Nhập số điện thoại Zalo" />
+                </div>
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">Website</label>
+                  <Input {...register("website")} placeholder="Nhập địa chỉ website" />
                 </div>
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg py-6 text-base font-medium">
-              {editTrader ? "Cập nhật GDV" : "Thêm GDV mới"}
+            <Button type="submit" className="w-full btn-glow">
+              {editTrader ? "Cập nhật" : "Thêm mới"}
             </Button>
           </form>
         </DialogContent>
@@ -461,7 +473,7 @@ const Traders = () => {
       <ConfirmDeleteDialog
         open={!!deleteId}
         title="Xác nhận xóa GDV"
-        description="Bạn có chắc chắn muốn xóa giao dịch viên này? Hành động không thể hoàn tác."
+        description="Bạn có chắc chắn muốn xóa giao dịch viên này?"
         onClose={() => setDeleteId(null)}
         onConfirm={deleteTrader}
       />
