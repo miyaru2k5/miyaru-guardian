@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Search as SearchIcon } from "lucide-react";
@@ -13,7 +15,6 @@ interface Trader {
   insurance_fund: number;
   status: string;
    // success_rate is used for display under LIVE badge
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   success_rate: number;
   avatar_url: string | null;
   description: string | null;
@@ -210,7 +211,7 @@ const GDVSection = () => {
               </p>
               <p className="max-w-md text-sm text-muted-foreground">
                 Thử thay đổi từ khóa tìm kiếm hoặc bấm{" "}
-                <span className="font-semibold">"Xóa bộ lọc"</span> để xem tất cả giao dịch viên.
+                <span className="font-semibold">&quot;Xóa bộ lọc&quot;</span> để xem tất cả giao dịch viên.
               </p>
             </div>
           )}

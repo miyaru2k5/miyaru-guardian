@@ -1,3 +1,5 @@
+"use client";
+
 import { Shield, TrendingUp, Clock } from "lucide-react";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 

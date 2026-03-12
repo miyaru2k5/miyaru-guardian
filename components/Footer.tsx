@@ -1,3 +1,5 @@
+"use client";
+
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const Footer = () => {

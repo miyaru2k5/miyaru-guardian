@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const SESSION_COOKIE_NAME = "miyaru-session";
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isProtected =
     pathname === "/profile" ||

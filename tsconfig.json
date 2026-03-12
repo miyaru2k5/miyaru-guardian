@@ -1,19 +1,55 @@
 {
-  "extends": "next/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",
     "paths": {
-      "@/components/*": ["components/*"],
-      "@/layouts/*": ["layouts/*"],
-      "@/contexts/*": ["contexts/*"],
-      "@/hooks/*": ["hooks/*"],
-      "@/lib/*": ["lib/*"],
-      "@/types/*": ["types/*"],
-      "next/*": ["node_modules/next/*"]
+      "@/components/*": [
+        "components/*"
+      ],
+      "@/layouts/*": [
+        "layouts/*"
+      ],
+      "@/contexts/*": [
+        "contexts/*"
+      ],
+      "@/hooks/*": [
+        "hooks/*"
+      ],
+      "@/lib/*": [
+        "lib/*"
+      ],
+      "@/types/*": [
+        "types/*"
+      ],
+      "next/*": [
+        "node_modules/next/*"
+      ]
     },
     "esModuleInterop": true,
-    "types": ["next", "next/image-types/global"]
+    "types": [
+      "next",
+      "next/image-types/global"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noEmit": true,
+    "incremental": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "target": "ES2017"
   },
   "include": [
     "next-env.d.ts",
@@ -24,7 +60,11 @@
     "hooks/**/*",
     "lib/**/*",
     "types/**/*",
-    "middleware.ts"
+    "middleware.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

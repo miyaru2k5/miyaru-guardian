@@ -1,3 +1,5 @@
+"use client";
+
 import { Shield, UserCheck, Headphones, Zap, AlertTriangle } from "lucide-react";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 

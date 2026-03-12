@@ -1,7 +1,4 @@
 const nextConfig = {
-  eslint: {
-    dirs: ["app", "components", "lib", "hooks", "contexts", "types", "integrations"],
-  },
   async rewrites() {
     return [
       { source: "/lien-he", destination: "/contact-facebook" },
