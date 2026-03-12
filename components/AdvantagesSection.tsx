@@ -1,3 +1,5 @@
+"use client";
+
 import { Clock, Crown, Percent, Lock } from "lucide-react";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
