@@ -1,16 +1,30 @@
 {
-  "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "extends": "next/tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/components/*": ["components/*"],
+      "@/layouts/*": ["layouts/*"],
+      "@/contexts/*": ["contexts/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/lib/*": ["lib/*"],
+      "@/types/*": ["types/*"],
+      "next/*": ["node_modules/next/*"]
     },
-    "noImplicitAny": false,
-    "noUnusedParameters": false,
-    "skipLibCheck": true,
-    "allowJs": true,
-    "noUnusedLocals": false,
-    "strictNullChecks": false
-  }
+    "esModuleInterop": true,
+    "types": ["next", "next/image-types/global"]
+  },
+  "include": [
+    "next-env.d.ts",
+    "app/**/*",
+    "components/**/*",
+    "layouts/**/*",
+    "contexts/**/*",
+    "hooks/**/*",
+    "lib/**/*",
+    "types/**/*",
+    "middleware.ts"
+  ],
+  "exclude": ["node_modules"]
 }
