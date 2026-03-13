@@ -1,12 +1,18 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const ThemeToggle = () => {
   const { currentMode, toggleMode, allowUserTheme } = useThemeCustomizer();
+  const [mounted, setMounted] = useState(false);
 
-  if (!allowUserTheme) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!allowUserTheme || !mounted) return null;
 
   return (
     <button

@@ -72,6 +72,22 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     router.push("/");
   };
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Prevent body scrolling while mobile sidebar is open
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
+
+  useEffect(() => {
+    // Close mobile sidebar when navigating to a new page
+    setSidebarOpen(false);
+  }, [pathname]);
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border flex items-center gap-2">
@@ -135,23 +151,27 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   );
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border h-16">
-        <div className="flex items-center justify-between h-full px-4">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      <header className="sticky top-0 z-40 h-16 border-b border-border bg-background/80 backdrop-blur-lg">
+        <div className="flex h-full items-center justify-between px-4">
           <div className="flex items-center gap-3">
             <button
               className="md:hidden p-2 text-muted-foreground hover:text-foreground"
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
             >
               <Menu size={24} />
             </button>
+
             <button
               className="hidden md:flex p-2 text-muted-foreground hover:text-foreground"
               onClick={() => setCollapsed(!collapsed)}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
             </button>
-            <span className="text-lg font-semibold text-foreground hidden sm:block">
+
+            <span className="hidden sm:block text-lg font-semibold text-foreground">
               {systemSettings.site_name} Admin
             </span>
           </div>
@@ -161,6 +181,22 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
         </div>
       </header>
+
+      <div className="flex flex-1 overflow-hidden min-h-0">
+        <aside
+          className={`hidden md:flex flex-col border-r border-border bg-background transition-all duration-300 min-h-0 ${
+            collapsed ? "w-20" : "w-64"
+          }`}
+        >
+          <SidebarContent />
+        </aside>
+
+        <main className="flex-1 min-h-0 overflow-auto">
+          <div className="p-4 md:p-6 max-w-[1600px] mx-auto w-full min-w-0">
+            {children}
+          </div>
+        </main>
+      </div>
 
       <AnimatePresence>
         {sidebarOpen && (
@@ -192,22 +228,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           </>
         )}
       </AnimatePresence>
-
-      <aside
-        className={`hidden md:block fixed top-16 left-0 bottom-0 z-30 bg-background border-r border-border transition-all duration-300 ${
-          collapsed ? "w-[72px]" : "w-[260px]"
-        }`}
-      >
-        <SidebarContent />
-      </aside>
-
-      <main
-        className={`pt-16 transition-all duration-300 overflow-x-hidden ${
-          collapsed ? "md:pl-[72px]" : "md:pl-[260px]"
-        }`}
-      >
-        <div className="p-4 md:p-6 max-w-7xl mx-auto min-w-0">{children}</div>
-      </main>
     </div>
   );
 };
