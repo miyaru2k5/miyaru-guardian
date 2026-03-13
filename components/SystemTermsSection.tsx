@@ -49,7 +49,7 @@ const SystemTermsSection: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Điều khoản <span className="text-gradient">hệ thống</span>
+            Điều khoản <span className="text-gradient">Hệ thống</span>
           </h2>
 
           <p className="text-muted-foreground max-w-xl mx-auto">
