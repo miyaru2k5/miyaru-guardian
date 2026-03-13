@@ -126,7 +126,7 @@ const Header = () => {
             }`}
           >
             <Users size={20} />
-            Giao dịch viên
+            GDV
           </Link>
 
           <Link
