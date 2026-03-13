@@ -9,7 +9,7 @@ import AdvantagesSection from "@/components/AdvantagesSection";
 import SystemTermsSection from "@/components/SystemTermsSection";
 
 export const metadata = {
-  title: "Miyaru Guardian",
+  title: "Admin Việt Nam",
   description: "Hệ thống bảo vệ giao dịch trung gian và giao dịch viên.",
 };
 

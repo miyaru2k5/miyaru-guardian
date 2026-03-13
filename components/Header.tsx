@@ -9,7 +9,9 @@ import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"gdv" | "gdtg">("gdv");
-  const { systemSettings } = useThemeCustomizer();
+  const { systemSettings, currentPrimaryColor } = useThemeCustomizer();
+  const primaryColor = currentPrimaryColor || systemSettings.primary_color;
+  const siteNameColor = `hsl(${primaryColor})`;
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -29,7 +31,7 @@ const Header = () => {
                   <span className="text-primary-foreground font-bold text-lg">{systemSettings.site_name.charAt(0)}</span>
                 </div>
               )}
-              <span className="text-xl font-bold text-foreground">{systemSettings.site_name}</span>
+              <span className="text-xl font-bold" style={{ color: siteNameColor }}>{systemSettings.site_name}</span>
             </a>
 
             <nav className="hidden md:flex items-center gap-3">
@@ -78,3 +80,5 @@ const Header = () => {
 };
 
 export default Header;
+
+

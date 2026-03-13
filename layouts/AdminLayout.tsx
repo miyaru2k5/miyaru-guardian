@@ -156,7 +156,7 @@ const SidebarContent = () => {
           </button>
 
           <span className="font-semibold text-lg">
-            {systemSettings.site_name} Admin
+            {systemSettings.site_name}
           </span>
 
         </div>
