@@ -52,16 +52,20 @@ const HeroSection = () => {
           ))}
         </div>
 
-        {/* Warning Box */}
-        <div 
-          className="inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-amber-500/10 border border-amber-500/30 animate-fade-in-up"
-          style={{ animationDelay: "0.7s" }}
-        >
-          <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
-          <span className="text-amber-200 text-sm md:text-base">
-            Chỉ nên giao dịch dưới 80% số tiền bảo hiểm của GDV
-          </span>
-        </div>
+{/* Warning Box */}
+<div
+  className="inline-flex items-center gap-3 px-6 py-4 rounded-xl 
+  bg-amber-50 dark:bg-amber-500/10 
+  border border-amber-200 dark:border-amber-500/30 
+  animate-fade-in-up"
+  style={{ animationDelay: "0.7s" }}
+>
+  <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+  
+  <span className="text-amber-700 dark:text-amber-300 text-sm md:text-base font-medium">
+    Chỉ nên giao dịch dưới <b>80%</b> số tiền bảo hiểm của GDV
+  </span>
+</div>
       </div>
     </section>
   );
