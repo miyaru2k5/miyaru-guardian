@@ -44,10 +44,10 @@ const InitialLoader = () => {
           src="/loading.gif"
           width={140}
           height={140}
-          alt="Đang tải Miyaru Guardian"
+          alt="Đang tải..."
           priority
         />
-        <p className="text-sm text-muted-foreground">Đang tải Miyaru Guardian…</p>
+        <p className="text-sm text-muted-foreground">Đang tải...</p>
       </div>
     </div>
   );
