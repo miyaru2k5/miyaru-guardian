@@ -3,14 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Users, Home, FileText, User, Newspaper } from "lucide-react";
+
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
+
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 import { useAuth } from "@/lib/auth";
 
 const Header = () => {
   const pathname = usePathname();
-
   const { user } = useAuth();
   const { systemSettings, currentPrimaryColor } = useThemeCustomizer();
 
@@ -21,7 +22,7 @@ const Header = () => {
 
   return (
     <>
-      {/* TOP HEADER */}
+      {/* ================= HEADER ================= */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -43,69 +44,50 @@ const Header = () => {
               )}
 
               <span
-                className="text-xl font-bold"
+                className="text-lg font-bold"
                 style={{ color: siteNameColor }}
               >
                 {systemSettings.site_name}
               </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-3">
+            {/* DESKTOP NAV */}
+            <nav className="hidden md:flex items-center gap-2">
 
-              {/* Trang chủ */}
-              <Link
+              <NavItem
                 href="/"
-                className={`px-5 py-2.5 rounded-full border font-medium transition-colors flex items-center gap-2
-    ${pathname === "/"
-                    ? "bg-primary text-white border-primary"
-                    : "border-border text-foreground hover:text-primary hover:border-primary"
-                  }`}
-              >
-                <Home size={16} />
-                Trang chủ
-              </Link>
+                icon={<Home size={16} />}
+                label="Trang chủ"
+                active={pathname === "/"}
+              />
 
-              {/* Tin tức */}
-              <Link
+              <NavItem
                 href="/bai-viet"
-                className={`px-5 py-2.5 rounded-full border font-medium transition-colors flex items-center gap-2
-    ${isActive("/bai-viet")
-                    ? "bg-primary text-white border-primary"
-                    : "border-border text-foreground hover:text-primary hover:border-primary"
-                  }`}
-              >
-                <Newspaper size={16} />
-                Tin tức
-              </Link>
+                icon={<Newspaper size={16} />}
+                label="Tin tức"
+                active={isActive("/bai-viet")}
+              />
 
-              {/* Giao dịch viên */}
-              <Link
+              {/* GDV nổi bật */}
+              <NavItem
                 href="/giao-dich-vien"
-                className={`px-5 py-2.5 rounded-full border font-medium transition-colors flex items-center gap-2
-    ${isActive("/giao-dich-vien")
-                    ? "bg-primary text-white border-primary"
-                    : "border-border text-foreground hover:text-primary hover:border-primary"
-                  }`}
-              >
-                <Users size={16} />
-                Giao dịch viên
-              </Link>
+                icon={<Users size={16} />}
+                label="Giao dịch viên"
+                active={isActive("/giao-dich-vien")}
+                highlight
+              />
 
-              {/* Điều khoản */}
-              <Link
-                href="/dieu-khoan"
-                className={`px-5 py-2.5 rounded-full border font-medium transition-colors flex items-center gap-2
-    ${isActive("/dieu-khoan")
-                    ? "bg-primary text-white border-primary"
-                    : "border-border text-muted-foreground hover:text-primary hover:border-primary"
-                  }`}
-              >
-                <FileText size={16} />
-                Điều khoản
-              </Link>
+              {/* Ẩn khi màn nhỏ */}
+              <div className="hidden lg:block">
+                <NavItem
+                  href="/dieu-khoan"
+                  icon={<FileText size={16} />}
+                  label="Điều khoản"
+                  active={isActive("/dieu-khoan")}
+                />
+              </div>
 
-              {/* RIGHT ACTION */}
-              <div className="flex items-center gap-2 ml-2 pl-4 border-l border-border">
+              <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border">
                 <ThemeToggle />
                 <ProfileDropdown />
               </div>
@@ -113,81 +95,141 @@ const Header = () => {
             </nav>
 
             {/* MOBILE RIGHT */}
-            <div className="md:hidden flex items-center gap-2">
+            <div className="flex md:hidden items-center gap-2">
               <ThemeToggle />
               <ProfileDropdown />
             </div>
+
           </div>
         </div>
       </header>
 
-      {/* MOBILE BOTTOM NAV */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border">
-        <div className="flex">
+      {/* ================= MOBILE BOTTOM NAV ================= */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border pb-[env(safe-area-inset-bottom)]">
 
-          {/* Trang chủ */}
-          <Link
+        <div className="relative grid grid-cols-5 items-center h-16">
+
+          <MobileItem
             href="/"
-            className={`flex-1 flex flex-col items-center justify-center py-3 text-sm
-            ${pathname === "/" ? "text-primary" : "text-muted-foreground"}`}
-          >
-            <Home size={20} />
-            Trang chủ
-          </Link>
+            icon={<Home size={20} />}
+            label="Trang chủ"
+            active={pathname === "/"}
+          />
 
-          {/* Tin tức */}
-          <Link
+          <MobileItem
             href="/bai-viet"
-            className={`flex-1 flex flex-col items-center justify-center py-3 text-sm
-            ${isActive("/bai-viet") ? "text-primary" : "text-muted-foreground"}`}
-          >
-            <Newspaper size={20} />
-            Tin tức
-          </Link>
+            icon={<Newspaper size={20} />}
+            label="Tin tức"
+            active={isActive("/bai-viet")}
+          />
 
-          {/* Giao dịch viên */}
-          <Link
-            href="/giao-dich-vien"
-            className={`flex-1 flex flex-col items-center justify-center py-3 text-sm
-            ${isActive("/giao-dich-vien")
-                ? "text-primary"
-                : "text-muted-foreground"
-              }`}
-          >
-            <Users size={20} />
-            GDV
-          </Link>
+          {/* GDV CENTER BUTTON */}
+          <div className="relative flex justify-center">
+            <Link
+              href="/giao-dich-vien"
+              className="absolute -top-12 flex flex-col items-center"
+            >
+              <div
+                className={`w-16 h-16 rounded-full shadow-xl border-4 border-background flex flex-col items-center justify-center
+                ${
+                  isActive("/giao-dich-vien")
+                    ? "bg-primary text-white"
+                    : "bg-primary text-white"
+                }`}
+              >
+                <Users size={24} />
+                <span className="text-[10px] font-semibold leading-none">
+                  GDV
+                </span>
+              </div>
+            </Link>
+          </div>
 
-          {/* Điều khoản */}
-          <Link
+          <MobileItem
             href="/dieu-khoan"
-            className={`flex-1 flex flex-col items-center justify-center py-3 text-sm
-            ${isActive("/dieu-khoan")
-                ? "text-primary"
-                : "text-muted-foreground"
-              }`}
-          >
-            <FileText size={20} />
-            Điều khoản
-          </Link>
+            icon={<FileText size={20} />}
+            label="Điều khoản"
+            active={isActive("/dieu-khoan")}
+          />
 
-          {/* Hồ sơ */}
-          <Link
+          <MobileItem
             href={user ? "/profile" : "/login"}
-            className={`flex-1 flex flex-col items-center justify-center py-3 text-sm
-            ${isActive("/profile") || isActive("/login")
-                ? "text-primary"
-                : "text-muted-foreground"
-              }`}
-          >
-            <User size={20} />
-            Hồ sơ
-          </Link>
+            icon={<User size={20} />}
+            label="Hồ sơ"
+            active={isActive("/profile") || isActive("/login")}
+          />
 
         </div>
+
       </nav>
     </>
   );
 };
 
 export default Header;
+
+
+
+/* ================= NAV ITEM ================= */
+
+const NavItem = ({
+  href,
+  icon,
+  label,
+  active,
+  highlight,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  highlight?: boolean;
+}) => {
+  return (
+    <Link
+      href={href}
+      className={`
+        px-4 py-2 rounded-full border flex items-center gap-2 font-medium
+        transition whitespace-nowrap
+
+        ${
+          highlight
+            ? "bg-primary text-white border-primary shadow-md"
+            : active
+            ? "bg-primary text-white border-primary"
+            : "border-border hover:text-primary hover:border-primary"
+        }
+      `}
+    >
+      {icon}
+      {label}
+    </Link>
+  );
+};
+
+
+
+/* ================= MOBILE ITEM ================= */
+
+const MobileItem = ({
+  href,
+  icon,
+  label,
+  active,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+}) => {
+  return (
+    <Link
+      href={href}
+      className={`flex flex-col items-center justify-center text-[11px] gap-1
+      ${active ? "text-primary" : "text-muted-foreground"}`}
+    >
+      {icon}
+      <span className="whitespace-nowrap">{label}</span>
+    </Link>
+  );
+};
