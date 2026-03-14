@@ -1,3 +1,5 @@
+NOTIFY pgrst, 'reload schema';
+
 # Welcome to your Lovable project
 
 ## Project info

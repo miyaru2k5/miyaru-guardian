@@ -175,3 +175,86 @@ CREATE POLICY "Admins can delete banks" ON public.bank_accounts FOR DELETE USING
 CREATE POLICY "Anyone can view insurance fund" ON public.insurance_fund FOR SELECT USING (true);
 CREATE POLICY "Admins can manage insurance fund" ON public.insurance_fund FOR INSERT WITH CHECK (public.is_admin());
 CREATE POLICY "Admins can update insurance fund" ON public.insurance_fund FOR UPDATE USING (public.is_admin());
+
+-- =====================================================
+-- Enable UUID extension
+-- =====================================================
+create extension if not exists "pgcrypto";
+
+-- =====================================================
+-- TABLE: posts
+-- =====================================================
+create table if not exists public.posts (
+  id uuid primary key default gen_random_uuid(),
+
+  -- SEO URL
+  slug text unique not null,
+
+  -- nội dung Tin tức
+  title text not null,
+  excerpt text,
+
+  -- SEO
+  meta_title text,
+  meta_description text,
+  meta_keywords text,
+
+  -- Open Graph
+  og_title text,
+  og_description text,
+  og_image text,
+
+  -- ảnh cover
+  cover_image text,
+
+  -- tác giả
+  author_name text,
+  author_avatar text,
+
+  -- phân loại
+  category text,
+  tags text[],
+
+  -- SEO extra
+  reading_time int,
+  views int default 0,
+
+  -- trạng thái
+  published boolean default true,
+
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+-- =====================================================
+-- TABLE: post_images (1 post có nhiều section/image)
+-- =====================================================
+create table if not exists public.post_images (
+  id uuid primary key default gen_random_uuid(),
+
+  post_id uuid not null references public.posts(id) on delete cascade,
+
+  -- nội dung section
+  title text,
+  content text,
+
+  -- image
+  image_url text not null,
+  alt_text text,
+  caption text,
+
+  -- thứ tự hiển thị
+  image_order int default 0,
+
+  created_at timestamptz default now()
+);
+
+-- =====================================================
+-- INDEXES (tối ưu query + SEO)
+-- =====================================================
+create index if not exists idx_posts_slug on public.posts(slug);
+create index if not exists idx_posts_created on public.posts(created_at desc);
+create index if not exists idx_posts_category on public.posts(category);
+create index if not exists idx_posts_tags on public.posts using gin(tags);
+
+create index if not exists idx_post_images_post_id on public.post_images(post_id);

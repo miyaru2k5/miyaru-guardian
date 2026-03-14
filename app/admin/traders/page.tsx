@@ -51,7 +51,7 @@ const Traders = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const copyLink = (slug: string) => {
-    const url = `https://www.teamad.vn/${slug}`;
+    const url = `https://admin.miyaru.online/traders/${slug}`;
 
     navigator.clipboard.writeText(url);
 
