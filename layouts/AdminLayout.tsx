@@ -19,6 +19,7 @@ import {
   Tag,
   MessageCircle,
   FileText,
+  Newspaper,
   UserCog,
 } from "lucide-react";
 
@@ -33,11 +34,12 @@ const menuItems = [
   { icon: Tag, label: "Danh mục", path: "/admin/categories" },
   { icon: Shield, label: "Giao dịch trung gian", path: "/admin/transactions" },
   { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
-  { icon: ShieldCheck, label: "Quỹ bảo hiểm", path: "/admin/insurance" },
+  { icon: ShieldCheck, label: "Quản lý bảo hiểm", path: "/admin/insurance" },
   { icon: MessageCircle, label: "Facebook Admin", path: "/admin/facebook" },
   { icon: FileText, label: "Điều khoản", path: "/admin/terms" },
+  { icon: Newspaper, label: "Tin tức", path: "/admin/posts" },
   { icon: UserCog, label: "Quản lý User", path: "/admin/users" },
-  { icon: Settings, label: "Cấu hình", path: "/admin/settings" },
+  { icon: Settings, label: "Cài đặt", path: "/admin/settings" },
   { icon: User, label: "Profile", path: "/admin/profile" },
 ];
 

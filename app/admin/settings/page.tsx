@@ -288,7 +288,7 @@ const AdminSettings = () => {
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
                       style={{ backgroundColor: `hsl(${hexToHsl(primaryHex)})`, borderRadius }}>A</div>
                     <span className="font-bold" style={{ color: defaultMode === "dark" ? "#fafafa" : "#1a1a2e" }}>
-                      {siteName || "Admin"} Admin
+                      {siteName || "Admin"}
                     </span>
                   </div>
                   <div className="flex gap-2 mb-3">

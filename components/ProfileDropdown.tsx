@@ -12,6 +12,7 @@ import {
   Users,
   FileText,
   LayoutDashboard,
+  Newspaper,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
@@ -61,7 +62,6 @@ const ProfileDropdown = () => {
 
   return (
     <div ref={ref} className="relative">
-
       {/* BUTTON */}
       <button
         onClick={() => setOpen(!open)}
@@ -91,22 +91,23 @@ const ProfileDropdown = () => {
             transition={{ duration: 0.15 }}
             className="absolute right-0 top-12 w-60 bg-popover border border-border rounded-xl shadow-xl overflow-hidden z-50"
           >
-
             {/* ===== HỆ ===== */}
-
             <div className="px-4 py-2 text-xs font-semibold text-muted-foreground border-b border-border">
               Hệ thống
             </div>
-                {/* ADMIN */}
-                {isAdmin && (
-                  <button
-                    onClick={() => go("/admin/dashboard")}
-                    className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
-                  >
-                    <LayoutDashboard size={16} />
-                    Quản trị hệ thống
-                  </button>
-                )}
+
+            {/* ADMIN */}
+            {isAdmin && (
+              <button
+                onClick={() => go("/admin/dashboard")}
+                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
+              >
+                <LayoutDashboard size={16} />
+                Quản trị hệ thống
+              </button>
+            )}
+
+            {/* Trang chủ */}
             <button
               onClick={() => go("/")}
               className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
@@ -115,6 +116,16 @@ const ProfileDropdown = () => {
               Trang chủ
             </button>
 
+            {/* Tin tức */}
+            <button
+              onClick={() => go("/bai-viet")}
+              className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
+            >
+              <Newspaper size={16} />
+              Tin tức
+            </button>
+
+            {/* Giao dịch viên */}
             <button
               onClick={() => go("/giao-dich-vien")}
               className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
@@ -123,6 +134,7 @@ const ProfileDropdown = () => {
               Giao dịch viên
             </button>
 
+            {/* Điều khoản */}
             <button
               onClick={() => go("/dieu-khoan")}
               className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
@@ -132,7 +144,6 @@ const ProfileDropdown = () => {
             </button>
 
             {/* ===== HỒ SƠ ===== */}
-
             <div className="px-4 py-2 text-xs font-semibold text-muted-foreground border-y border-border mt-1">
               Hồ sơ
             </div>
@@ -147,8 +158,6 @@ const ProfileDropdown = () => {
                     {user.email}
                   </p>
                 </div>
-
-
 
                 <button
                   onClick={() => go("/profile")}
@@ -189,7 +198,6 @@ const ProfileDropdown = () => {
                 </button>
               </>
             )}
-
           </motion.div>
         )}
       </AnimatePresence>
