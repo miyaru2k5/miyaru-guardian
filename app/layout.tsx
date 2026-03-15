@@ -5,7 +5,7 @@ import Providers from "./providers";
 import InitialLoader from "@/components/InitialLoader";
 
 export const metadata = {
-  title: "Miyaru Guardian",
+  title: "Admin Việt Nam",
   description: "Secure trading platform managed through Supabase",
 };
 
