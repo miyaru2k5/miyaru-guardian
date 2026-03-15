@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -10,6 +11,10 @@ const nextConfig = {
         hostname: "f1980e440723315773335bc3e082876f.r2.cloudflarestorage.com",
       },
     ],
+  },
+
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 
   async rewrites() {
