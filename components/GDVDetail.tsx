@@ -72,6 +72,9 @@ const GDVDetail = () => {
 
             setTrader(rawTrader);
 
+            // Set browser tab title
+            document.title = `Quỹ bảo hiểm: ${Number(rawTrader.insurance_fund).toLocaleString("vi-VN")}đ - ${rawTrader.name}`;
+
             const { data: tcData } = await supabase
                 .from("trader_categories")
                 .select("category_id")
@@ -90,6 +93,11 @@ const GDVDetail = () => {
         };
 
         fetchTrader();
+
+        // Reset title on unmount
+        return () => {
+            document.title = "Miyaru Guardian";
+        };
     }, [slug]);
 
     const copyPageLink = () => {
@@ -150,7 +158,6 @@ const GDVDetail = () => {
                         Quay lại danh sách
                     </button>
 
-                    {/* ── LAYOUT: stack mobile / 2-col tablet+ ── */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                         {/* ── LEFT / MAIN ── */}
@@ -158,7 +165,6 @@ const GDVDetail = () => {
 
                             {/* Hero card */}
                             <div className="glow-border rounded-3xl p-5 md:p-7">
-                                {/* Avatar + name row */}
                                 <div className="flex items-start gap-4 mb-5">
                                     {trader.avatar_url ? (
                                         <img
@@ -175,7 +181,6 @@ const GDVDetail = () => {
                                     )}
 
                                     <div className="flex-1 min-w-0 pt-0.5">
-                                        {/* Name + verified */}
                                         <div className="flex flex-wrap items-center gap-2 mb-1">
                                             <h1 className="text-xl md:text-2xl font-bold text-foreground leading-tight">
                                                 {trader.name}
@@ -186,8 +191,9 @@ const GDVDetail = () => {
                                                 className="w-5 h-5 object-contain shrink-0"
                                             />
                                             <span
-                                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0 ${isLive ? "status-live" : "status-offline"
-                                                    }`}
+                                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0 ${
+                                                    isLive ? "status-live" : "status-offline"
+                                                }`}
                                             >
                                                 {trader.status}
                                             </span>
@@ -197,7 +203,6 @@ const GDVDetail = () => {
                                             <p className="text-sm text-muted-foreground mb-2">{trader.service}</p>
                                         )}
 
-                                        {/* Categories */}
                                         {categories.length > 0 && (
                                             <div className="flex flex-wrap gap-1">
                                                 {categories.map(c => (
@@ -213,7 +218,6 @@ const GDVDetail = () => {
                                     </div>
                                 </div>
 
-                                {/* Mã GDV */}
                                 <div className="flex items-center gap-2 text-sm py-3 border-t border-border">
                                     <Hash size={13} className="text-muted-foreground shrink-0" />
                                     <span className="text-muted-foreground">Mã GDV:</span>
@@ -221,7 +225,7 @@ const GDVDetail = () => {
                                 </div>
                             </div>
 
-                            {/* ── Mô tả (từ CSDL) ── */}
+                            {/* Mô tả */}
                             {trader.description && (
                                 <div className="glow-border rounded-3xl p-5 md:p-7">
                                     <div className="flex items-center gap-2 mb-4">
@@ -232,13 +236,9 @@ const GDVDetail = () => {
                                             Giới thiệu
                                         </h2>
                                     </div>
-                                    {/* Render từng đoạn văn nếu có xuống dòng */}
                                     <div className="space-y-3">
                                         {trader.description.split("\n").filter(Boolean).map((para, idx) => (
-                                            <p
-                                                key={idx}
-                                                className="text-sm md:text-base text-muted-foreground leading-relaxed"
-                                            >
+                                            <p key={idx} className="text-sm md:text-base text-muted-foreground leading-relaxed">
                                                 {para}
                                             </p>
                                         ))}
@@ -246,14 +246,13 @@ const GDVDetail = () => {
                                 </div>
                             )}
 
-                            {/* ── Liên hệ (mobile: inline, tablet+: cũng inline) ── */}
+                            {/* Liên hệ */}
                             {(trader.facebook || trader.zalo || trader.website) && (
                                 <div className="glow-border rounded-3xl p-5 md:p-7">
                                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                                         Liên hệ
                                     </p>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-2">
-                                        {/* Messenger */}
                                         {trader.facebook && (
                                             <a
                                                 href={`https://m.me/${trader.facebook.replace(/\D/g, "")}`}
@@ -264,9 +263,7 @@ const GDVDetail = () => {
                                                 <MessageSquare size={16} className="text-indigo-500 shrink-0" />
                                                 <div className="min-w-0">
                                                     <p className="text-xs text-muted-foreground">Messenger</p>
-                                                    <p className="text-foreground font-medium truncate text-sm">
-                                                        Chat Messenger
-                                                    </p>
+                                                    <p className="text-foreground font-medium text-sm">Chat Messenger</p>
                                                 </div>
                                             </a>
                                         )}
@@ -290,9 +287,6 @@ const GDVDetail = () => {
                                                 </div>
                                             </a>
                                         )}
-
-
-
                                         {trader.zalo && (
                                             <a
                                                 href={`https://zalo.me/${trader.zalo.replace(/\D/g, "")}`}
@@ -307,7 +301,6 @@ const GDVDetail = () => {
                                                 </div>
                                             </a>
                                         )}
-
                                         {trader.website && (
                                             <a
                                                 href={
@@ -335,14 +328,11 @@ const GDVDetail = () => {
 
                         {/* ── RIGHT / SIDEBAR ── */}
                         <div className="space-y-5">
-
-                            {/* Stats */}
                             <div className="glow-border rounded-3xl p-5 md:p-6 space-y-4">
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                     Thống kê
                                 </p>
 
-                                {/* Quỹ bảo hiểm */}
                                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/20">
                                     <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                                         <ShieldCheck size={18} className="text-primary" />
@@ -355,7 +345,6 @@ const GDVDetail = () => {
                                     </div>
                                 </div>
 
-                                {/* Tỷ lệ thành công */}
                                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-card/60 border border-border">
                                     <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                                         <TrendingUp size={18} className="text-primary" />
@@ -368,7 +357,6 @@ const GDVDetail = () => {
                                     </div>
                                 </div>
 
-                                {/* Progress bar */}
                                 <div>
                                     <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
                                         <span>Độ tin cậy</span>
@@ -383,7 +371,6 @@ const GDVDetail = () => {
                                 </div>
                             </div>
 
-                            {/* Copy link */}
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -403,7 +390,6 @@ const GDVDetail = () => {
                                 )}
                             </Button>
                         </div>
-
                     </div>
                 </div>
             </div>
