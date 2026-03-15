@@ -29,40 +29,178 @@ import { useAuth } from "@/lib/auth";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/admin/dashboard" },
-  { icon: Users, label: "Giao dịch viên", path: "/admin/traders" },
-  { icon: Tag, label: "Danh mục", path: "/admin/categories" },
-  { icon: Shield, label: "Giao dịch trung gian", path: "/admin/transactions" },
-  { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
-  { icon: ShieldCheck, label: "Quản lý bảo hiểm", path: "/admin/insurance" },
-  { icon: MessageCircle, label: "Facebook Admin", path: "/admin/facebook" },
-  { icon: FileText, label: "Điều khoản", path: "/admin/terms" },
-  { icon: Newspaper, label: "Tin tức", path: "/admin/posts" },
-  { icon: UserCog, label: "Quản lý User", path: "/admin/users" },
-  { icon: Settings, label: "Cài đặt", path: "/admin/settings" },
-  { icon: User, label: "Profile", path: "/admin/profile" },
+  { icon: LayoutDashboard, label: "Dashboard",             path: "/admin/dashboard" },
+  { icon: Users,           label: "Giao dịch viên",        path: "/admin/traders" },
+  { icon: Tag,             label: "Danh mục",              path: "/admin/categories" },
+  { icon: Shield,          label: "Giao dịch trung gian",  path: "/admin/transactions" },
+  { icon: Building2,       label: "Ngân hàng",             path: "/admin/banks" },
+  { icon: ShieldCheck,     label: "Quản lý bảo hiểm",      path: "/admin/insurance" },
+  { icon: MessageCircle,   label: "Facebook Admin",         path: "/admin/facebook" },
+  { icon: FileText,        label: "Điều khoản",            path: "/admin/terms" },
+  { icon: Newspaper,       label: "Tin tức",               path: "/admin/posts" },
+  { icon: UserCog,         label: "Quản lý User",          path: "/admin/users" },
+  { icon: Settings,        label: "Cài đặt",               path: "/admin/settings" },
+  { icon: User,            label: "Profile",               path: "/admin/profile" },
 ];
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const router = useRouter();
+// ── Tooltip khi sidebar collapsed ──────────────────────────────────────────
+const Tooltip = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="relative group/tip">
+    {children}
+    <div className="
+      pointer-events-none absolute left-full top-1/2 -translate-y-1/2 ml-3 z-50
+      px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap
+      bg-popover text-popover-foreground border border-border shadow-md
+      opacity-0 group-hover/tip:opacity-100 scale-95 group-hover/tip:scale-100
+      transition-all duration-150
+    ">
+      {label}
+      <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-border" />
+    </div>
+  </div>
+);
+
+// ── Sidebar content ─────────────────────────────────────────────────────────
+interface SidebarContentProps {
+  collapsed: boolean;
+  onNavigate: () => void;
+  onLogout: () => void;
+}
+
+const SidebarContent = ({ collapsed, onNavigate, onLogout }: SidebarContentProps) => {
+  const router   = useRouter();
   const pathname = usePathname();
+  const { systemSettings } = useThemeCustomizer();
+
+  const handleClick = (path: string) => {
+    router.push(path);
+    onNavigate(); // đóng mobile sidebar
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+
+      {/* Logo */}
+      <div className={`shrink-0 h-16 border-b border-border flex items-center gap-3 px-4 overflow-hidden`}>
+        <img
+          src={systemSettings.logo_url}
+          alt="logo"
+          className="w-9 h-9 rounded-lg object-cover shrink-0"
+        />
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <motion.span
+              key="site-name"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.2 }}
+              className="font-bold text-base truncate overflow-hidden whitespace-nowrap"
+            >
+              {systemSettings.site_name}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Menu — scrollable */}
+      <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-2 py-3 space-y-0.5 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+        {menuItems.map((item) => {
+          const active = pathname === item.path;
+          const btn = (
+            <button
+              key={item.path}
+              onClick={() => handleClick(item.path)}
+              className={`
+                w-full flex items-center gap-3 rounded-xl text-sm font-medium
+                transition-all duration-150 outline-none
+                ${collapsed ? "justify-center px-0 py-3" : "px-3 py-2.5"}
+                ${active
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
+                }
+              `}
+            >
+              <item.icon size={19} className="shrink-0" />
+              <AnimatePresence initial={false}>
+                {!collapsed && (
+                  <motion.span
+                    key={`label-${item.path}`}
+                    initial={{ opacity: 0, width: 0 }}
+                    animate={{ opacity: 1, width: "auto" }}
+                    exit={{ opacity: 0, width: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className="truncate overflow-hidden whitespace-nowrap"
+                  >
+                    {item.label}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+
+              {/* Active indicator */}
+              {active && !collapsed && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+              )}
+            </button>
+          );
+
+          return collapsed
+            ? <Tooltip key={item.path} label={item.label}>{btn}</Tooltip>
+            : <div key={item.path}>{btn}</div>;
+        })}
+      </nav>
+
+      {/* Logout */}
+      <div className="shrink-0 border-t border-border px-2 py-3">
+        {collapsed ? (
+          <Tooltip label="Đăng xuất">
+            <button
+              onClick={onLogout}
+              className="w-full flex justify-center items-center py-3 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut size={19} />
+            </button>
+          </Tooltip>
+        ) : (
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
+          >
+            <LogOut size={19} className="shrink-0" />
+            <span>Đăng xuất</span>
+          </button>
+        )}
+      </div>
+
+    </div>
+  );
+};
+
+// ── AdminLayout ─────────────────────────────────────────────────────────────
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed]     = useState(false);
 
   const { user, isAdmin, signOut, isLoading } = useAuth();
   const { systemSettings } = useThemeCustomizer();
 
+  // Close mobile sidebar on route change
+  const pathname = usePathname();
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
+
   useEffect(() => {
     if (isLoading) return;
-
-    if (!user) router.replace("/login");
+    if (!user)    router.replace("/login");
     if (!isAdmin) router.replace("/");
   }, [user, isAdmin, isLoading]);
+
+  // Block body scroll when mobile sidebar open
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [sidebarOpen]);
 
   const handleLogout = async () => {
     await signOut();
@@ -77,150 +215,111 @@ export default function AdminLayout({
     );
   }
 
-const SidebarContent = () => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-screen overflow-hidden bg-background" style={{ height: "100dvh" }}>
 
-      {/* HEADER */}
-      <div className="p-4 border-b border-border flex items-center gap-3">
-        <img
-          src={systemSettings.logo_url}
-          className="w-10 h-10 rounded-lg"
+      {/* ── DESKTOP SIDEBAR (cố định, không scroll cùng content) ── */}
+      <aside
+        className={`
+          hidden md:flex flex-col shrink-0
+          h-full overflow-hidden
+          border-r border-border bg-background
+          transition-[width] duration-300 ease-in-out
+          ${collapsed ? "w-[68px]" : "w-64"}
+        `}
+      >
+        <SidebarContent
+          collapsed={collapsed}
+          onNavigate={() => {}}
+          onLogout={handleLogout}
         />
+      </aside>
 
-        {!collapsed && (
-          <span className="font-bold text-lg">
-            {systemSettings.site_name}
-          </span>
-        )}
-      </div>
+      {/* ── RIGHT COLUMN: header + content ── */}
+      <div className="flex flex-col flex-1 min-w-0 min-h-0">
 
-      {/* MENU */}
-      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        {/* HEADER — sticky, không di chuyển */}
+        <header className="shrink-0 h-16 border-b border-border bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 z-40 relative">
 
-        {menuItems.map((item) => {
-          const active = pathname === item.path;
-
-          return (
+          <div className="flex items-center gap-3">
+            {/* Mobile: hamburger */}
             <button
-              key={item.path}
-              onClick={() => router.push(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${
-                active
-                  ? "bg-primary/20 text-primary"
-                  : "text-muted-foreground hover:bg-accent/50"
-              }`}
+              className="md:hidden p-1.5 rounded-lg hover:bg-accent/60 transition-colors"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Mở menu"
             >
-              <item.icon size={20} />
-
-              {!collapsed && <span>{item.label}</span>}
+              <Menu size={22} />
             </button>
-          );
-        })}
 
-      </div>
+            {/* Desktop: collapse toggle */}
+            <button
+              className="hidden md:flex p-1.5 rounded-lg hover:bg-accent/60 transition-colors"
+              onClick={() => setCollapsed(v => !v)}
+              aria-label={collapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
+            >
+              {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
 
-      {/* LOGOUT */}
-      <div className="border-t border-border p-3 mt-auto">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 text-red-500 rounded-xl hover:bg-red-500/10"
-        >
-          <LogOut size={20} />
-          {!collapsed && "Đăng xuất"}
-        </button>
-      </div>
+            <span className="font-semibold text-base hidden sm:block">
+              {systemSettings.site_name}
+            </span>
+          </div>
 
-    </div>
-  );
-};
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <ProfileDropdown />
+          </div>
+        </header>
 
-  return (
-    <div className="flex flex-col h-screen bg-background">
-
-      {/* HEADER */}
-      <header className="h-16 border-b border-border flex items-center justify-between px-4">
-
-        <div className="flex items-center gap-3">
-
-          <button
-            className="md:hidden"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu size={24} />
-          </button>
-
-          <button
-            className="hidden md:block"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? <ChevronRight /> : <ChevronLeft />}
-          </button>
-
-          <span className="font-semibold text-lg">
-            {systemSettings.site_name}
-          </span>
-
-        </div>
-
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <ProfileDropdown />
-        </div>
-
-      </header>
-
-      {/* BODY */}
-      <div className="flex flex-1 overflow-hidden">
-
-        {/* DESKTOP SIDEBAR */}
-        <aside
-          className={`hidden md:flex flex-col border-r border-border bg-background transition-all duration-300 ${
-            collapsed ? "w-20" : "w-64"
-          }`}
-        >
-          <SidebarContent />
-        </aside>
-
-        {/* MAIN */}
-        <main className="flex-1 overflow-auto p-6">
-          {children}
+        {/* MAIN — chỉ khu vực này scroll */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
+          <div className="p-4 md:p-6">
+            {children}
+          </div>
         </main>
-
       </div>
 
-      {/* MOBILE SIDEBAR */}
+      {/* ── MOBILE SIDEBAR overlay ── */}
       <AnimatePresence>
-
         {sidebarOpen && (
           <>
+            {/* Backdrop */}
             <motion.div
+              key="backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="fixed inset-0 bg-black/50 z-40 md:hidden"
               onClick={() => setSidebarOpen(false)}
             />
 
+            {/* Drawer */}
             <motion.aside
-              initial={{ x: -280 }}
+              key="drawer"
+              initial={{ x: -300 }}
               animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed left-0 top-0 bottom-0 w-[280px] bg-background border-r border-border z-50 md:hidden"
+              exit={{ x: -300 }}
+              transition={{ type: "spring", stiffness: 320, damping: 32 }}
+              className="fixed left-0 top-0 bottom-0 w-72 bg-background border-r border-border z-50 md:hidden flex flex-col"
             >
-              <div className="absolute right-4 top-4">
-                <button onClick={() => setSidebarOpen(false)}>
-                  <X size={20} />
-                </button>
-              </div>
+              {/* Close button */}
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="absolute right-3 top-3.5 p-1.5 rounded-lg hover:bg-accent/60 transition-colors z-10"
+                aria-label="Đóng menu"
+              >
+                <X size={18} />
+              </button>
 
-              <SidebarContent />
-
+              <SidebarContent
+                collapsed={false}
+                onNavigate={() => setSidebarOpen(false)}
+                onLogout={handleLogout}
+              />
             </motion.aside>
           </>
         )}
-
       </AnimatePresence>
 
     </div>
