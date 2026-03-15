@@ -14,6 +14,7 @@ import { z } from "zod";
 import SearchBar from "@/components/SearchBar";
 import FilterDropdown, { type FilterOption } from "@/components/FilterDropdown";
 import { Upload } from "lucide-react";
+import { getFbUid } from "@/lib/getFbUid";
 
 const traderSchema = z.object({
   name: z.string().min(1, "Bắt buộc").max(100),
@@ -52,9 +53,36 @@ const Traders = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [gettingUid, setGettingUid] = useState(false);
+
+  const handleGetFacebookUID = async (url: string) => {
+    if (!url) return;
+
+    try {
+      setGettingUid(true);
+
+      const uid = await getFbUid(url);
+
+      // ghi UID vào field facebook
+      setValue("facebook", uid);
+
+      toast({
+        title: "Đã lấy UID Facebook",
+        description: uid,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Không lấy được UID",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setGettingUid(false);
+    }
+  };
 
   const copyLink = (slug: string) => {
-    const url = `https://admin.miyaru.online/traders/${slug}`;
+    const url = `https://admin.miyaru.online/${slug}`;
 
     navigator.clipboard.writeText(url);
 
@@ -108,7 +136,13 @@ const Traders = () => {
     uploadAvatar(e.target.files[0]);
   };
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<TraderForm>({
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<TraderForm>({
     resolver: zodResolver(traderSchema),
     defaultValues: {
       insurance_fund: 0,
@@ -546,7 +580,24 @@ const Traders = () => {
                 <p className="text-sm font-medium text-muted-foreground">Liên kết</p>
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Facebook URL</label>
-                  <Input {...register("facebook")} placeholder="Nhập URL Facebook" />
+                  <div className="flex gap-2">
+                    <Input
+                      {...register("facebook")}
+                      placeholder="https://facebook.com/username"
+                    />
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={(e) => {
+                        const input = (e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement);
+                        if (input?.value) handleGetFacebookUID(input.value);
+                      }}
+                      disabled={gettingUid}
+                    >
+                      {gettingUid ? "..." : "Lấy UID"}
+                    </Button>
+                  </div>
                 </div>
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block">Zalo (SĐT)</label>

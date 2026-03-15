@@ -74,7 +74,7 @@ const Header = () => {
                 icon={<Users size={16} />}
                 label="Giao dịch viên"
                 active={isActive("/giao-dich-vien")}
-                highlight
+                
               />
 
               {/* Ẩn khi màn nhỏ */}

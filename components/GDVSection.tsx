@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { Search as SearchIcon } from "lucide-react";
 import GDVCard from "./GDVCard";
@@ -10,11 +11,11 @@ import FilterDropdown, { type FilterOption } from "./FilterDropdown";
 interface Trader {
   id: string;
   name: string;
+  slug: string;
   service: string | null;
   code: string;
   insurance_fund: number;
   status: string;
-   // success_rate is used for display under LIVE badge
   success_rate: number;
   avatar_url: string | null;
   description: string | null;
@@ -39,7 +40,6 @@ const GDVSection = () => {
     currently_insured: number;
     max_percentage: number;
   } | null>(null);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +48,11 @@ const GDVSection = () => {
       try {
         setError(null);
         const [tRes, cRes, tcRes, iRes] = await Promise.all([
-          supabase.from("traders").select("*").eq("status", "LIVE").order("created_at", { ascending: true }),
+          supabase
+            .from("traders")
+            .select("*")
+            .eq("status", "LIVE")
+            .order("created_at", { ascending: true }),
           supabase.from("categories").select("*").order("name"),
           supabase.from("trader_categories").select("*"),
           supabase.from("insurance_fund").select("*").limit(1).maybeSingle(),
@@ -61,9 +65,7 @@ const GDVSection = () => {
           map[tc.trader_id].push(tc.category_id);
         });
         setTraderCats(map);
-        if (iRes.data) {
-          setInsuranceFund(iRes.data as any);
-        }
+        if (iRes.data) setInsuranceFund(iRes.data as any);
       } catch (e: any) {
         console.error("GDVSection fetch failed", e);
         setError(e?.message || "Lỗi khi tải dữ liệu");
@@ -79,13 +81,8 @@ const GDVSection = () => {
     return categories.filter(c => catIds.includes(c.id)).map(c => c.name);
   };
 
-  const handleSearchChange = useCallback((value: string) => {
-    setSearch(value);
-  }, []);
-
-  const handleFilterChange = useCallback((value: string) => {
-    setFilterCat(value);
-  }, []);
+  const handleSearchChange = useCallback((value: string) => setSearch(value), []);
+  const handleFilterChange = useCallback((value: string) => setFilterCat(value), []);
 
   const filterOptions: FilterOption[] = useMemo(
     () => [
@@ -95,13 +92,18 @@ const GDVSection = () => {
     [categories],
   );
 
-  const filtered = useMemo(() => {
-    return traders.filter(t => {
-      const matchSearch = t.name.toLowerCase().includes(search.toLowerCase()) || t.code.toLowerCase().includes(search.toLowerCase());
-      const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
-      return matchSearch && matchCat;
-    });
-  }, [traders, search, filterCat, traderCats]);
+  const filtered = useMemo(
+    () =>
+      traders.filter(t => {
+        const matchSearch =
+          t.name.toLowerCase().includes(search.toLowerCase()) ||
+          t.code.toLowerCase().includes(search.toLowerCase());
+        const matchCat =
+          filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
+        return matchSearch && matchCat;
+      }),
+    [traders, search, filterCat, traderCats],
+  );
 
   if (loading) {
     return (
@@ -126,6 +128,7 @@ const GDVSection = () => {
   return (
     <section id="gdv" className="py-20 px-4">
       <div className="container mx-auto">
+        {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Danh sách <span className="text-gradient">Giao dịch viên</span>
@@ -163,6 +166,7 @@ const GDVSection = () => {
           )}
         </div>
 
+        {/* Search & Filter */}
         <div className="mb-8">
           <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
             <div className="flex-1 w-full">
@@ -183,15 +187,23 @@ const GDVSection = () => {
           </div>
         </div>
 
+        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((t, i) => (
-            <div key={t.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 0.05}s` }}>
+            // Link bọc ngoài — GDVCard tự stopPropagation khi cần
+            <Link
+              key={t.id}
+              href={`/${t.slug}`}
+              className="block animate-fade-in-up"
+              style={{ animationDelay: `${i * 0.05}s` }}
+            >
               <GDVCard
                 name={t.name}
                 service={t.service || t.code}
                 code={t.code}
                 insurance={`${Number(t.insurance_fund).toLocaleString("vi-VN")}₫`}
                 isLive={true}
+                successRate={Number(t.success_rate)}
                 avatarUrl={t.avatar_url}
                 description={t.description || undefined}
                 facebook={t.facebook}
@@ -199,8 +211,9 @@ const GDVSection = () => {
                 website={t.website}
                 categories={getCatNames(t.id)}
               />
-            </div>
+            </Link>
           ))}
+
           {filtered.length === 0 && (
             <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -211,7 +224,8 @@ const GDVSection = () => {
               </p>
               <p className="max-w-md text-sm text-muted-foreground">
                 Thử thay đổi từ khóa tìm kiếm hoặc bấm{" "}
-                <span className="font-semibold">&quot;Xóa bộ lọc&quot;</span> để xem tất cả giao dịch viên.
+                <span className="font-semibold">&quot;Xóa bộ lọc&quot;</span> để xem tất cả giao
+                dịch viên.
               </p>
             </div>
           )}
