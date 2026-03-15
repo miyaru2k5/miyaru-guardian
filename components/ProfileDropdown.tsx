@@ -13,6 +13,7 @@ import {
   FileText,
   LayoutDashboard,
   Newspaper,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { motion, AnimatePresence } from "framer-motion";
@@ -133,7 +134,14 @@ const ProfileDropdown = () => {
               <Users size={16} />
               Giao dịch viên
             </button>
-
+            {/* Liên hệ */}
+            <button
+              onClick={() => go("/contact")}
+              className="w-full px-4 py-2.5 flex items-center gap-2 text-sm hover:bg-accent/50"
+            >
+              <MessageCircle size={16} />
+              Liên hệ
+            </button>
             {/* Điều khoản */}
             <button
               onClick={() => go("/dieu-khoan")}

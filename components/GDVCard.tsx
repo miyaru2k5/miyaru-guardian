@@ -33,30 +33,39 @@ const GDVCard = ({
 }: GDVCardProps) => {
   const [expanded, setExpanded] = useState(false);
 
+  // Ngăn click bubble lên <Link> bọc ngoài
+  const stopProp = (e: React.MouseEvent) => e.stopPropagation();
+  const toggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setExpanded(v => !v);
+  };
+
   return (
     <div className="rounded-2xl border border-border bg-card p-5 transition-all hover:shadow-lg hover:border-primary/30">
+      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={name} className="w-12 h-12 rounded-full object-cover border-2 border-primary/30" />
+            <img
+              src={avatarUrl}
+              alt={name}
+              className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
+            />
           ) : (
             <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
               <span className="text-lg font-bold text-primary-foreground">{name.charAt(0)}</span>
             </div>
           )}
           <div>
-            {/* Name + tick.gif */}
             <div className="flex items-center gap-1.5">
               <h3 className="font-semibold text-foreground text-lg leading-tight">{name}</h3>
-              <img
-                src="/tick.gif"
-                alt="verified"
-                className="w-4 h-4 object-contain shrink-0"
-              />
+              <img src="/tick.gif" alt="verified" className="w-4 h-4 object-contain shrink-0" />
             </div>
             <p className="text-sm text-muted-foreground">{service}</p>
           </div>
         </div>
+
         <div className="flex flex-col items-end gap-1">
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${
@@ -68,21 +77,26 @@ const GDVCard = ({
             {isLive ? "LIVE" : "OFFLINE"}
           </span>
           {typeof successRate === "number" && (
-            <span className="text-[11px] text-muted-foreground">
-              {successRate}% thành công
-            </span>
+            <span className="text-[11px] text-muted-foreground">{successRate}% thành công</span>
           )}
         </div>
       </div>
 
+      {/* Categories */}
       {categories && categories.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {categories.map(cat => (
-            <span key={cat} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">{cat}</span>
+            <span
+              key={cat}
+              className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
+            >
+              {cat}
+            </span>
           ))}
         </div>
       )}
 
+      {/* Stats */}
       <div className="space-y-3 mb-4">
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">Mã GDV</span>
@@ -94,6 +108,7 @@ const GDVCard = ({
         </div>
       </div>
 
+      {/* Expandable detail — stopPropagation trên mọi link bên trong */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -102,6 +117,7 @@ const GDVCard = ({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
             className="overflow-hidden"
+            onClick={stopProp}
           >
             <div className="pt-4 pb-2 space-y-4 border-t border-border">
               {(facebook || zalo || website) && (
@@ -112,8 +128,17 @@ const GDVCard = ({
                   </div>
                   <div className="space-y-2 pl-6">
                     {facebook && (
-                      <a href={`https://facebook.com/${facebook}`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
+                      <a
+                        href={
+                          facebook.startsWith("http")
+                            ? facebook
+                            : `https://www.facebook.com/${facebook}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={stopProp}
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                      >
                         <svg className="w-4 h-4 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
@@ -122,16 +147,26 @@ const GDVCard = ({
                       </a>
                     )}
                     {zalo && (
-                      <a href={`https://zalo.me/${zalo}`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
+                      <a
+                        href={`https://zalo.me/${zalo.replace(/\D/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={stopProp}
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                      >
                         <MessageCircle size={16} className="text-muted-foreground shrink-0" />
                         <span className="text-muted-foreground">Zalo / Phone</span>
                         <span className="text-primary font-medium">{zalo}</span>
                       </a>
                     )}
                     {website && (
-                      <a href={website.startsWith("http") ? website : `https://${website}`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity">
+                      <a
+                        href={website.startsWith("http") ? website : `https://${website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={stopProp}
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                      >
                         <Globe size={16} className="text-muted-foreground shrink-0" />
                         <span className="text-muted-foreground">Website</span>
                         <span className="text-primary font-medium truncate">{website}</span>
@@ -146,15 +181,18 @@ const GDVCard = ({
                   <FileText size={16} className="text-muted-foreground" />
                   <span>Mô tả</span>
                 </div>
-                <p className="text-sm text-muted-foreground pl-6">{description || "Chưa có mô tả"}</p>
+                <p className="text-sm text-muted-foreground pl-6">
+                  {description || "Chưa có mô tả"}
+                </p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Toggle button — stopPropagation để không navigate */}
       <button
-        onClick={() => setExpanded(!expanded)}
+        onClick={toggleExpand}
         className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-4"
       >
         {expanded ? "Ẩn chi tiết" : "Chi tiết"}

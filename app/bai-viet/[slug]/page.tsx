@@ -53,62 +53,58 @@ interface TocItem {
 
 /* -------------------------------- */
 /* SECTION ACCENT CONFIG            */
+/* Dùng primary / accent / secondary từ theme hệ thống  */
+/* Xoay vòng bằng opacity để tạo sự đa dạng             */
 /* -------------------------------- */
 
 const SECTION_ACCENTS = [
   {
-    border: "border-blue-400/60",
-    bg: "bg-blue-50 dark:bg-blue-500/10",
-    badge: "bg-blue-500 text-white",
+    border: "border-primary/50",
+    bg: "bg-primary/10",
+    badge: "bg-primary text-primary-foreground",
     icon: <FileText className="h-3.5 w-3.5" />,
-    label: "blue",
-    ring: "ring-blue-400/30",
-    bar: "bg-blue-500",
+    ring: "ring-primary/20",
+    bar: "bg-primary",
   },
   {
-    border: "border-indigo-400/60",
-    bg: "bg-indigo-50 dark:bg-indigo-500/10",
-    badge: "bg-indigo-500 text-white",
+    border: "border-accent/50",
+    bg: "bg-accent/10",
+    badge: "bg-accent text-accent-foreground",
     icon: <Layers className="h-3.5 w-3.5" />,
-    label: "indigo",
-    ring: "ring-indigo-400/30",
-    bar: "bg-indigo-500",
+    ring: "ring-accent/20",
+    bar: "bg-accent",
   },
   {
-    border: "border-cyan-400/60",
-    bg: "bg-cyan-50 dark:bg-cyan-500/10",
-    badge: "bg-cyan-500 text-white",
+    border: "border-primary/40",
+    bg: "bg-primary/[0.07]",
+    badge: "bg-primary/80 text-primary-foreground",
     icon: <AlignLeft className="h-3.5 w-3.5" />,
-    label: "cyan",
-    ring: "ring-cyan-400/30",
-    bar: "bg-cyan-500",
+    ring: "ring-primary/15",
+    bar: "bg-primary/80",
   },
   {
-    border: "border-emerald-400/60",
-    bg: "bg-emerald-50 dark:bg-emerald-500/10",
-    badge: "bg-emerald-500 text-white",
+    border: "border-accent/40",
+    bg: "bg-accent/[0.07]",
+    badge: "bg-accent/80 text-accent-foreground",
     icon: <Sparkles className="h-3.5 w-3.5" />,
-    label: "emerald",
-    ring: "ring-emerald-400/30",
-    bar: "bg-emerald-500",
+    ring: "ring-accent/15",
+    bar: "bg-accent/80",
   },
   {
-    border: "border-amber-400/60",
-    bg: "bg-amber-50 dark:bg-amber-500/10",
-    badge: "bg-amber-500 text-white",
+    border: "border-primary/60",
+    bg: "bg-primary/[0.12]",
+    badge: "bg-primary/90 text-primary-foreground",
     icon: <Star className="h-3.5 w-3.5" />,
-    label: "amber",
-    ring: "ring-amber-400/30",
-    bar: "bg-amber-500",
+    ring: "ring-primary/25",
+    bar: "bg-primary/90",
   },
   {
-    border: "border-rose-400/60",
-    bg: "bg-rose-50 dark:bg-rose-500/10",
-    badge: "bg-rose-500 text-white",
+    border: "border-accent/60",
+    bg: "bg-accent/[0.12]",
+    badge: "bg-accent/90 text-accent-foreground",
     icon: <Zap className="h-3.5 w-3.5" />,
-    label: "rose",
-    ring: "ring-rose-400/30",
-    bar: "bg-rose-500",
+    ring: "ring-accent/25",
+    bar: "bg-accent/90",
   },
 ];
 
@@ -181,7 +177,7 @@ export async function generateMetadata({
   return {
     title: post.meta_title ?? post.title,
     description:
-      post.meta_description ?? post.excerpt ?? "Thông tin từ Miyaru",
+      post.meta_description ?? post.excerpt ?? "Thông tin từ Admin",
     keywords: post.meta_keywords ?? undefined,
     openGraph: {
       title: post.og_title ?? post.title,
@@ -204,14 +200,12 @@ function buildToc(sections?: PostImage[]): TocItem[] {
   if (!sections || sections.length === 0) return [];
 
   return sections
-    .filter(function (s) { return Boolean(s.title); })
-    .sort(function (a, b) { return (a.image_order ?? 0) - (b.image_order ?? 0); })
-    .map(function (s) {
-      return {
-        id: "section-" + s.image_order,
-        title: s.title ?? "Section",
-      };
-    });
+    .filter((s) => Boolean(s.title))
+    .sort((a, b) => (a.image_order ?? 0) - (b.image_order ?? 0))
+    .map((s) => ({
+      id: "section-" + s.image_order,
+      title: s.title ?? "Section",
+    }));
 }
 
 /* -------------------------------- */
@@ -227,24 +221,28 @@ function MetaBar({ post }: { post: Post }) {
 
   return (
     <div className="flex flex-wrap items-center gap-2.5">
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/40 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 shadow-sm dark:bg-blue-500/10 dark:text-blue-400">
+      {/* Author — primary */}
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary shadow-sm">
         <User className="h-3.5 w-3.5" />
         Admin
       </span>
 
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+      {/* Date — secondary/border */}
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
         <CalendarDays className="h-3.5 w-3.5" />
         {dateStr}
       </span>
 
+      {/* Reading time — accent */}
       {post.reading_time && (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-600 shadow-sm dark:bg-emerald-500/10 dark:text-emerald-400">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/40 bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent-foreground shadow-sm">
           <Clock className="h-3.5 w-3.5" />
           {post.reading_time} phút đọc
         </span>
       )}
 
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-orange-400/40 bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-500 shadow-sm dark:bg-orange-500/10">
+      {/* Featured — primary (bold) */}
+      <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 bg-primary/15 px-3 py-1.5 text-xs font-semibold text-primary shadow-sm">
         <Flame className="h-3.5 w-3.5" />
         Nổi bật
       </span>
@@ -280,18 +278,18 @@ function SectionIndexItem({
       {/* Content */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-slate-400">
+          <span className="text-muted-foreground">
             {hasImage
               ? <ImageIcon className="h-3 w-3" />
               : <FileText className="h-3 w-3" />}
           </span>
-          <p className="truncate text-sm font-semibold text-slate-700 dark:text-slate-200">
+          <p className="truncate text-sm font-semibold text-foreground">
             {section.title ?? "Phần " + (index + 1)}
           </p>
         </div>
 
         {section.caption && (
-          <p className="mt-0.5 line-clamp-1 text-xs text-slate-400">
+          <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
             {section.caption}
           </p>
         )}
@@ -321,7 +319,7 @@ function SectionContentCard({
       id={"section-" + section.image_order}
       className={`overflow-hidden rounded-3xl border shadow-md ${accent.border}`}
     >
-      {/* Card header bar */}
+      {/* Card header */}
       <div className={`flex items-center gap-3 px-6 py-4 ${accent.bg}`}>
         <div
           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold shadow-sm ${accent.badge}`}
@@ -331,13 +329,13 @@ function SectionContentCard({
         <div className="flex items-center gap-2">
           <span className="opacity-60">{accent.icon}</span>
           {section.title && (
-            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">
+            <h3 className="text-sm font-bold text-foreground">
               {section.title}
             </h3>
           )}
         </div>
         <div className="ml-auto">
-          <Hash className="h-4 w-4 text-slate-300 dark:text-slate-600" />
+          <Hash className="h-4 w-4 text-muted-foreground/40" />
         </div>
       </div>
 
@@ -359,9 +357,9 @@ function SectionContentCard({
 
       {/* Text content */}
       {section.content && (
-        <div className="px-6 py-5">
+        <div className="bg-card px-6 py-5">
           <div className="prose prose-sm max-w-none dark:prose-invert">
-            <p className="leading-relaxed text-slate-600 dark:text-slate-300">
+            <p className="leading-relaxed text-muted-foreground">
               {section.content}
             </p>
           </div>
@@ -371,7 +369,7 @@ function SectionContentCard({
       {/* Caption */}
       {section.caption && (
         <div className={`border-t px-6 py-3 ${accent.bg} ${accent.border}`}>
-          <p className="text-xs italic text-slate-400">{section.caption}</p>
+          <p className="text-xs italic text-muted-foreground">{section.caption}</p>
         </div>
       )}
     </div>
@@ -389,10 +387,10 @@ function TocListItem({ item, index }: { item: TocItem; index: number }) {
     <li>
       <a
         href={"#" + item.id}
-        className="group flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-slate-600 transition hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/60"
+        className="group flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-muted-foreground transition hover:bg-secondary"
       >
         <span
-          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm ${accent.badge}`}
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold shadow-sm ${accent.badge}`}
         >
           {index + 1}
         </span>
@@ -408,26 +406,26 @@ function TocListItem({ item, index }: { item: TocItem; index: number }) {
 
 function TocSidebar({ toc }: { toc: TocItem[] }) {
   return (
-    <aside className="sticky top-24 hidden w-72 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900 lg:block">
+    <aside className="sticky top-24 hidden w-72 shrink-0 overflow-hidden rounded-2xl border border-border bg-card shadow-lg lg:block">
 
-      {/* Header */}
-      <div className="flex items-center gap-2 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-4 dark:border-slate-800 dark:from-blue-500/10 dark:to-indigo-500/10">
-        <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500 shadow-sm">
-          <List className="h-4 w-4 text-white" />
+      {/* Header — primary gradient */}
+      <div className="flex items-center gap-2 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10 px-5 py-4">
+        <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary shadow-sm">
+          <List className="h-4 w-4 text-primary-foreground" />
         </div>
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+        <p className="text-xs font-bold uppercase tracking-wider text-foreground">
           Mục lục
         </p>
-        <span className="ml-auto rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+        <span className="ml-auto rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary">
           {toc.length}
         </span>
       </div>
 
       {/* Items */}
       <ul className="space-y-0.5 p-3">
-        {toc.map(function (item, i) {
-          return <TocListItem key={item.id} item={item} index={i} />;
-        })}
+        {toc.map((item, i) => (
+          <TocListItem key={item.id} item={item} index={i} />
+        ))}
       </ul>
 
     </aside>
@@ -446,23 +444,24 @@ function ShareSection({
   title: string;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-slate-950 px-6 py-8 shadow-xl sm:px-10">
+    <section className="relative overflow-hidden rounded-3xl bg-card px-6 py-8 shadow-xl ring-1 ring-border sm:px-10">
 
+      {/* Orbs — primary / accent */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-blue-600/25 blur-3xl" />
-        <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent" />
+        <div className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-primary/25 blur-3xl" />
+        <div className="absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-accent/20 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent" />
       </div>
 
       <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-500/20 ring-1 ring-blue-500/30">
-            <Share2 className="h-5 w-5 text-blue-400" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/20 ring-1 ring-primary/30">
+            <Share2 className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <p className="font-bold text-white">Chia sẻ tin tức</p>
-            <p className="text-xs text-slate-400">
+            <p className="font-bold text-foreground">Chia sẻ tin tức</p>
+            <p className="text-xs text-muted-foreground">
               Lan toả thông tin hữu ích đến mọi người
             </p>
           </div>
@@ -484,18 +483,18 @@ function RelatedSection({ posts }: { posts: Post[] }) {
 
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-indigo-500 shadow-sm">
-            <TrendingUp className="h-4 w-4 text-white" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary shadow-sm">
+            <TrendingUp className="h-4 w-4 text-primary-foreground" />
           </div>
-          <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
             Tin tức liên quan
           </h3>
-          <div className="h-px w-16 bg-gradient-to-r from-indigo-200 to-transparent dark:from-indigo-900/50 sm:w-32" />
+          <div className="h-px w-16 bg-gradient-to-r from-primary/30 to-transparent sm:w-32" />
         </div>
 
         <Link
           href="/bai-viet"
-          className="flex items-center gap-1 rounded-full border border-blue-500/30 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600 transition hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20"
+          className="flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary/20"
         >
           Xem tất cả
           <ArrowRight className="h-3 w-3" />
@@ -503,9 +502,9 @@ function RelatedSection({ posts }: { posts: Post[] }) {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map(function (related) {
-          return <BlogCard key={related.id} post={related} />;
-        })}
+        {posts.map((related) => (
+          <BlogCard key={related.id} post={related} />
+        ))}
       </div>
 
     </section>
@@ -528,14 +527,14 @@ export default async function ArticlePage({
   const shareUrl = `${siteUrl}/bai-viet/${post.slug}`;
 
   const sortedSections = post.post_images
-    ? [...post.post_images].sort(function (a, b) {
-        return (a.image_order ?? 0) - (b.image_order ?? 0);
-      })
+    ? [...post.post_images].sort(
+        (a, b) => (a.image_order ?? 0) - (b.image_order ?? 0)
+      )
     : [];
 
   return (
     <MainLayout>
-      <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-28 pt-20 sm:pt-24 lg:pt-28">
+      <main className="mx-auto mt-6 flex max-w-6xl flex-col gap-10 px-4 pb-28 pt-20 sm:pt-24 lg:pt-28">
 
         {/* Meta chips */}
         <MetaBar post={post} />
@@ -545,7 +544,7 @@ export default async function ArticlePage({
 
         {/* Cover image */}
         {post.cover_image && (
-          <figure className="relative h-[320px] overflow-hidden rounded-3xl bg-slate-100 shadow-xl ring-1 ring-slate-200 dark:ring-slate-800 sm:h-[420px] lg:h-[480px]">
+          <figure className="relative h-[320px] overflow-hidden rounded-3xl bg-secondary shadow-xl ring-1 ring-border sm:h-[420px] lg:h-[480px]">
             <Image
               src={post.cover_image}
               alt={post.title}
@@ -566,31 +565,29 @@ export default async function ArticlePage({
 
             {/* Content section label */}
             <div className="mb-6 flex items-center gap-3">
-              <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-500 shadow-sm">
-                <FileText className="h-4 w-4 text-white" />
+              <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary shadow-sm">
+                <FileText className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="text-sm font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+              <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
                 Nội dung chi tiết
               </span>
-              <div className="h-px flex-1 bg-gradient-to-r from-blue-200 to-transparent dark:from-blue-900/50" />
+              <div className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />
             </div>
 
             {/* Render each section as a colored card */}
             {sortedSections.length > 0 ? (
               <div className="flex flex-col gap-6">
-                {sortedSections.map(function (section, i) {
-                  return (
-                    <SectionContentCard
-                      key={section.id}
-                      section={section}
-                      index={i}
-                    />
-                  );
-                })}
+                {sortedSections.map((section, i) => (
+                  <SectionContentCard
+                    key={section.id}
+                    section={section}
+                    index={i}
+                  />
+                ))}
               </div>
             ) : (
               /* Fallback to ArticleContent if no post_images */
-              <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md dark:border-slate-800 dark:bg-slate-900">
+              <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-md">
                 <div className="prose max-w-none p-6 dark:prose-invert sm:p-8">
                   <ArticleContent sections={post.post_images} />
                 </div>
@@ -605,7 +602,7 @@ export default async function ArticlePage({
         </div>
 
         {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent dark:via-slate-800" />
+        <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
         {/* Share */}
         <ShareSection shareUrl={shareUrl} title={post.title} />
