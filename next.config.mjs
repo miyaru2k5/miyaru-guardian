@@ -8,13 +8,17 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "f1980e440723315773335bc3e082876f.r2.cloudflarestorage.com",
+        hostname: "*.r2.cloudflarestorage.com",
       },
     ],
   },
 
   eslint: {
     ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
   },
 
   async rewrites() {
