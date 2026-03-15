@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import SearchBar from "@/components/SearchBar";
 import FilterDropdown, { type FilterOption } from "@/components/FilterDropdown";
+import { Upload } from "lucide-react";
 
 const traderSchema = z.object({
   name: z.string().min(1, "Bắt buộc").max(100),
@@ -49,6 +50,8 @@ const Traders = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const copyLink = (slug: string) => {
     const url = `https://admin.miyaru.online/traders/${slug}`;
@@ -59,6 +62,50 @@ const Traders = () => {
       title: "Đã copy link",
       description: url,
     });
+  };
+
+  const uploadAvatar = async (file: File) => {
+    try {
+      setUploadingAvatar(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      setAvatarPreview(data.url);
+
+      // gán vào form
+      reset({
+        ...((editTrader || {}) as any),
+        avatar_url: data.url,
+      });
+
+      toast({
+        title: "Upload thành công",
+        description: "Avatar đã upload lên R2",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Upload lỗi",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+
+    setUploadingAvatar(false);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    uploadAvatar(e.target.files[0]);
   };
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<TraderForm>({
@@ -172,6 +219,7 @@ const Traders = () => {
   const openEdit = (t: any) => {
     setEditTrader(t);
     setSelectedCats(traderCats[t.id] || []);
+    setAvatarPreview(t.avatar_url || null);
     reset({
       name: t.name,
       slug: t.slug || "",
@@ -191,6 +239,7 @@ const Traders = () => {
   const openNew = () => {
     setEditTrader(null);
     setSelectedCats([]);
+    setAvatarPreview(null);
     reset({
       name: "",
       slug: "",
@@ -400,10 +449,55 @@ const Traders = () => {
                 <Input {...register("code")} placeholder="VD: GDV#001" />
                 {errors.code && <p className="text-xs text-destructive mt-1">{errors.code.message}</p>}
               </div>
+              <div className="space-y-3">
 
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Avatar URL</label>
-                <Input {...register("avatar_url")} placeholder="https://..." />
+                {/* Upload Avatar */}
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                    <Upload size={14} />
+                    Upload Avatar (R2)
+                  </label>
+
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                  />
+
+                  {uploadingAvatar && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Đang upload...
+                    </p>
+                  )}
+                </div>
+
+                {/* Avatar URL */}
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block">
+                    Avatar URL
+                  </label>
+
+                  <Input
+                    {...register("avatar_url")}
+                    placeholder="https://..."
+                  />
+
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Có thể nhập URL ngoài hoặc upload trực tiếp.
+                  </p>
+                </div>
+
+                {/* Preview */}
+                {avatarPreview && (
+                  <div className="flex justify-center">
+                    <img
+                      src={avatarPreview}
+                      className="w-16 h-16 rounded-full object-cover border border-border"
+                      alt="Avatar preview"
+                    />
+                  </div>
+                )}
+
               </div>
 
               {categories.length > 0 && (
@@ -416,8 +510,8 @@ const Traders = () => {
                         type="button"
                         onClick={() => toggleCat(c.id)}
                         className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedCats.includes(c.id)
-                            ? "bg-primary/20 text-primary border-primary/40"
-                            : "border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+                          ? "bg-primary/20 text-primary border-primary/40"
+                          : "border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
                           }`}
                       >
                         {c.name}

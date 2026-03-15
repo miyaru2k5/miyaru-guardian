@@ -5,6 +5,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "sf-static.upanhlaylink.com",
       },
+      {
+        protocol: "https",
+        hostname: "f1980e440723315773335bc3e082876f.r2.cloudflarestorage.com",
+      },
     ],
   },
 

@@ -45,7 +45,15 @@ const GDVCard = ({
             </div>
           )}
           <div>
-            <h3 className="font-semibold text-foreground text-lg">{name}</h3>
+            {/* Name + tick.gif */}
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-semibold text-foreground text-lg leading-tight">{name}</h3>
+              <img
+                src="/tick.gif"
+                alt="verified"
+                className="w-4 h-4 object-contain shrink-0"
+              />
+            </div>
             <p className="text-sm text-muted-foreground">{service}</p>
           </div>
         </div>
@@ -149,7 +157,7 @@ const GDVCard = ({
         onClick={() => setExpanded(!expanded)}
         className="w-full py-3 px-4 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-4"
       >
-        {expanded ? "Ấn chi tiết" : "Chi tiết"}
+        {expanded ? "Ẩn chi tiết" : "Chi tiết"}
         {expanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
       </button>
     </div>

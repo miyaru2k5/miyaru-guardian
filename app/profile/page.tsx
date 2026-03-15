@@ -8,19 +8,40 @@ import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Lock, Palette, RotateCcw, ImageIcon } from "lucide-react";
+import {
+  User,
+  Mail,
+  Lock,
+  Palette,
+  RotateCcw,
+  ImageIcon,
+  Upload,
+} from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
-import { useThemeCustomizer, hslToHex, hexToHsl } from "@/contexts/ThemeCustomizerContext";
+import {
+  useThemeCustomizer,
+  hslToHex,
+  hexToHsl,
+} from "@/contexts/ThemeCustomizerContext";
 
 const ProfilePage = () => {
   const router = useRouter();
   const { user, isLoading } = useAuth();
+
   const [profile, setProfile] = useState<any>(null);
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
+
   const [loading, setLoading] = useState(false);
-  const [pwForm, setPwForm] = useState({ password: "", confirmPassword: "" });
+
+  const [pwForm, setPwForm] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+
   const [pwLoading, setPwLoading] = useState(false);
+
   const {
     allowUserTheme,
     currentMode,
@@ -35,6 +56,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (isLoading) return;
+
     if (!user) {
       router.replace("/login");
       return;
@@ -43,50 +65,135 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (!user) return;
+
     const fetch = async () => {
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
       if (data) {
         setProfile(data);
-        setFullName(data.full_name);
+        setFullName(data.full_name || "");
         setAvatarUrl(data.avatar_url || "");
       }
     };
+
     fetch();
   }, [user]);
 
+  const uploadAvatar = async (file: File) => {
+    try {
+      setUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      setAvatarUrl(data.url);
+
+      toast({
+        title: "Upload thành công",
+        description: "Ảnh đã được lưu trên R2",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Upload lỗi",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileChange = (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    uploadAvatar(file);
+  };
+
   const updateProfile = async () => {
     if (!user) return;
+
     setLoading(true);
+
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name: fullName, avatar_url: avatarUrl || null })
+      .update({
+        full_name: fullName,
+        avatar_url: avatarUrl || null,
+      })
       .eq("id", user.id);
+
     setLoading(false);
+
     if (error) {
-      toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+      toast({
+        title: "Lỗi",
+        description: error.message,
+        variant: "destructive",
+      });
       return;
     }
-    toast({ title: "Đã cập nhật profile" });
+
+    toast({
+      title: "Đã cập nhật profile",
+    });
   };
 
   const changePassword = async () => {
     if (pwForm.password.length < 6) {
-      toast({ title: "Mật khẩu ít nhất 6 ký tự", variant: "destructive" });
+      toast({
+        title: "Mật khẩu ít nhất 6 ký tự",
+        variant: "destructive",
+      });
       return;
     }
+
     if (pwForm.password !== pwForm.confirmPassword) {
-      toast({ title: "Mật khẩu không khớp", variant: "destructive" });
+      toast({
+        title: "Mật khẩu không khớp",
+        variant: "destructive",
+      });
       return;
     }
+
     setPwLoading(true);
-    const { error } = await supabase.auth.updateUser({ password: pwForm.password });
+
+    const { error } = await supabase.auth.updateUser({
+      password: pwForm.password,
+    });
+
     setPwLoading(false);
+
     if (error) {
-      toast({ title: "Lỗi", description: getAuthErrorMessage(error), variant: "destructive" });
+      toast({
+        title: "Lỗi",
+        description: getAuthErrorMessage(error),
+        variant: "destructive",
+      });
       return;
     }
-    toast({ title: "Đã đổi mật khẩu" });
-    setPwForm({ password: "", confirmPassword: "" });
+
+    toast({
+      title: "Đã đổi mật khẩu",
+    });
+
+    setPwForm({
+      password: "",
+      confirmPassword: "",
+    });
   };
 
   if (isLoading || !user) {
@@ -101,16 +208,25 @@ const ProfilePage = () => {
     <MainLayout>
       <div className="min-h-[calc(100vh-8rem)] pt-24 pb-12">
         <div className="container mx-auto px-4 max-w-4xl">
+
           <div className="space-y-6">
+
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Profile</h1>
-              <p className="text-muted-foreground text-sm">Quản lý thông tin cá nhân</p>
+              <h1 className="text-2xl font-bold">Profile</h1>
+              <p className="text-muted-foreground text-sm">
+                Quản lý thông tin cá nhân
+              </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              {/* PROFILE */}
               <div className="glow-border rounded-2xl p-6 bg-card">
+
                 <div className="flex items-center gap-4 mb-6">
+
                   <div className="relative">
+
                     {avatarUrl ? (
                       <img
                         src={avatarUrl}
@@ -124,122 +240,135 @@ const ProfilePage = () => {
                         </span>
                       </div>
                     )}
+
                   </div>
+
                   <div>
-                    <h2 className="text-lg font-bold text-foreground">{fullName || "User"}</h2>
-                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    <h2 className="text-lg font-bold">
+                      {fullName || "User"}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {user?.email}
+                    </p>
                   </div>
+
                 </div>
 
                 <div className="space-y-4">
+
                   <div>
-                    <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                    <label className="text-sm mb-1 flex items-center gap-1">
                       <User size={14} /> Họ tên
                     </label>
-                    <Input value={fullName} onChange={(event) => setFullName(event.target.value)} />
+
+                    <Input
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
                   </div>
+
+                  {/* AVATAR URL */}
                   <div>
-                    <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                    <label className="text-sm mb-1 flex items-center gap-1">
                       <ImageIcon size={14} /> Avatar URL
                     </label>
+
                     <Input
                       value={avatarUrl}
-                      onChange={(event) => setAvatarUrl(event.target.value)}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
                       placeholder="https://..."
                     />
                   </div>
+
+                  {/* UPLOAD FILE */}
                   <div>
-                    <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                    <label className="text-sm mb-2 flex items-center gap-1">
+                      <Upload size={14} /> Upload Avatar
+                    </label>
+
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+
+                    {uploading && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Đang upload ảnh...
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-sm mb-1 flex items-center gap-1">
                       <Mail size={14} /> Email
                     </label>
-                    <Input value={user?.email || ""} disabled className="opacity-60" />
+
+                    <Input
+                      value={user?.email || ""}
+                      disabled
+                      className="opacity-60"
+                    />
                   </div>
-                  <Button onClick={updateProfile} disabled={loading} className="btn-glow">
+
+                  <Button
+                    onClick={updateProfile}
+                    disabled={loading}
+                    className="btn-glow"
+                  >
                     {loading ? "Đang lưu..." : "Cập nhật"}
                   </Button>
+
                 </div>
+
               </div>
 
+              {/* PASSWORD */}
               <div className="glow-border rounded-2xl p-6 bg-card h-fit">
-                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                   <Lock size={18} /> Đổi mật khẩu
                 </h3>
+
                 <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 block">Mật khẩu mới</label>
-                    <Input
-                      type="password"
-                      value={pwForm.password}
-                      onChange={(event) => setPwForm((prev) => ({ ...prev, password: event.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 block">Xác nhận mật khẩu</label>
-                    <Input
-                      type="password"
-                      value={pwForm.confirmPassword}
-                      onChange={(event) =>
-                        setPwForm((prev) => ({ ...prev, confirmPassword: event.target.value }))
-                      }
-                    />
-                  </div>
-                  <Button onClick={changePassword} disabled={pwLoading} variant="outline">
+
+                  <Input
+                    type="password"
+                    placeholder="Mật khẩu mới"
+                    value={pwForm.password}
+                    onChange={(e) =>
+                      setPwForm((p) => ({ ...p, password: e.target.value }))
+                    }
+                  />
+
+                  <Input
+                    type="password"
+                    placeholder="Xác nhận mật khẩu"
+                    value={pwForm.confirmPassword}
+                    onChange={(e) =>
+                      setPwForm((p) => ({
+                        ...p,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                  />
+
+                  <Button
+                    onClick={changePassword}
+                    disabled={pwLoading}
+                    variant="outline"
+                  >
                     {pwLoading ? "Đang cập nhật..." : "Đổi mật khẩu"}
                   </Button>
+
                 </div>
+
               </div>
+
             </div>
 
-            {allowUserTheme && (
-              <div className="glow-border rounded-2xl p-6 bg-card">
-                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Palette size={18} /> Tùy chỉnh giao diện
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
-                    <span className="text-sm text-muted-foreground">Chế độ hiển thị</span>
-                    <Button variant="outline" size="sm" onClick={toggleMode}>
-                      {currentMode === "dark" ? "🌙 Tối" : "☀️ Sáng"}
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
-                    <span className="text-sm text-muted-foreground">Màu chính</span>
-                    <input
-                      type="color"
-                      value={hslToHex(currentPrimaryColor)}
-                      onChange={(event) => setUserPrimaryColor(hexToHsl(event.target.value))}
-                      className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
-                    <span className="text-sm text-muted-foreground">Màu nền</span>
-                    <input
-                      type="color"
-                      value={hslToHex(currentBackgroundColor)}
-                      onChange={(event) => setUserBackgroundColor(hexToHsl(event.target.value))}
-                      className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={resetToSystemDefaults}
-                      className="gap-1 flex-1"
-                    >
-                      <RotateCcw size={14} /> Mặc định
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={forceDarkMode} className="gap-1 flex-1">
-                      🌙 Tối
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
+
         </div>
       </div>
     </MainLayout>
