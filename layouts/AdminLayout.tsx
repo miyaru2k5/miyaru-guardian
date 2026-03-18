@@ -260,9 +260,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
             </button>
 
-            <span className="font-semibold text-base hidden sm:block">
-              {systemSettings.site_name}
-            </span>
+
           </div>
 
           <div className="flex items-center gap-2">
