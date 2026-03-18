@@ -68,17 +68,13 @@ const GDVCard = ({
 
         <div className="flex flex-col items-end gap-1">
           <span
-            className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${
-              isLive
+            className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${isLive
                 ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                 : "bg-muted text-muted-foreground border border-border"
-            }`}
+              }`}
           >
             {isLive ? "LIVE" : "OFFLINE"}
           </span>
-          {typeof successRate === "number" && (
-            <span className="text-[11px] text-muted-foreground">{successRate}% thành công</span>
-          )}
         </div>
       </div>
 
@@ -128,49 +124,55 @@ const GDVCard = ({
                   </div>
                   <div className="space-y-2 pl-6">
                     {facebook && (
-                      <a
-                        href={
-                          facebook.startsWith("http")
-                            ? facebook
-                            : `https://www.facebook.com/${facebook}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={stopProp}
-                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(
+                            facebook.startsWith("http")
+                              ? facebook
+                              : `https://www.facebook.com/${facebook}`,
+                            "_blank"
+                          );
+                        }}
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity w-full text-left"
                       >
                         <svg className="w-4 h-4 text-muted-foreground shrink-0" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                         <span className="text-muted-foreground">Facebook</span>
                         <span className="text-primary font-medium truncate">{facebook}</span>
-                      </a>
+                      </button>
                     )}
+
                     {zalo && (
-                      <a
-                        href={`https://zalo.me/${zalo.replace(/\D/g, "")}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={stopProp}
-                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`https://zalo.me/${zalo.replace(/\D/g, "")}`, "_blank");
+                        }}
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity w-full text-left"
                       >
                         <MessageCircle size={16} className="text-muted-foreground shrink-0" />
                         <span className="text-muted-foreground">Zalo / Phone</span>
                         <span className="text-primary font-medium">{zalo}</span>
-                      </a>
+                      </button>
                     )}
+
                     {website && (
-                      <a
-                        href={website.startsWith("http") ? website : `https://${website}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={stopProp}
-                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity"
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(
+                            website.startsWith("http") ? website : `https://${website}`,
+                            "_blank"
+                          );
+                        }}
+                        className="flex items-center gap-2 text-sm hover:opacity-80 transition-opacity w-full text-left"
                       >
                         <Globe size={16} className="text-muted-foreground shrink-0" />
                         <span className="text-muted-foreground">Website</span>
                         <span className="text-primary font-medium truncate">{website}</span>
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>
