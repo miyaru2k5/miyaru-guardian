@@ -1,80 +1,235 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
-import { Menu, X, Users, Shield } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Users, Home, FileText, User, Newspaper } from "lucide-react";
+
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
+
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
+import { useAuth } from "@/lib/auth";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"gdv" | "gdtg">("gdv");
-  const { systemSettings } = useThemeCustomizer();
+  const pathname = usePathname();
+  const { user } = useAuth();
+  const { systemSettings, currentPrimaryColor } = useThemeCustomizer();
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
-  };
+  const primaryColor = currentPrimaryColor || systemSettings.primary_color;
+  const siteNameColor = `hsl(${primaryColor})`;
+
+  const isActive = (path: string) => pathname.startsWith(path);
 
   return (
     <>
+      {/* ================= HEADER ================= */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <a href="/" className="flex items-center gap-2">
+
+            {/* LOGO */}
+            <Link href="/" className="flex items-center gap-2">
               {systemSettings.logo_url ? (
-                <img src={systemSettings.logo_url} alt={systemSettings.site_name} className="w-10 h-10 rounded-xl object-cover" />
+                <img
+                  src={systemSettings.logo_url}
+                  alt={systemSettings.site_name}
+                  className="w-10 h-10 rounded-xl object-cover"
+                />
               ) : (
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center btn-glow">
-                  <span className="text-primary-foreground font-bold text-lg">{systemSettings.site_name.charAt(0)}</span>
+                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-lg">
+                    {systemSettings.site_name?.charAt(0)}
+                  </span>
                 </div>
               )}
-              <span className="text-xl font-bold text-foreground">{systemSettings.site_name}</span>
-            </a>
 
-            <nav className="hidden md:flex items-center gap-3">
-              <a href="#gdv" className="px-5 py-2.5 rounded-full border border-border text-foreground hover:text-primary hover:border-primary transition-colors font-medium">Giao dịch viên</a>
-              <a href="#gdtg" className="px-5 py-2.5 rounded-full border border-border text-muted-foreground hover:text-primary hover:border-primary transition-colors font-medium">Giao dịch trung gian</a>
-              <div className="flex items-center gap-2 ml-2 pl-4 border-l border-border">
+              <span
+                className="text-lg font-bold"
+                style={{ color: siteNameColor }}
+              >
+                {systemSettings.site_name}
+              </span>
+            </Link>
+
+            {/* DESKTOP NAV */}
+            <nav className="hidden md:flex items-center gap-2">
+
+              <NavItem
+                href="/"
+                icon={<Home size={16} />}
+                label="Trang chủ"
+                active={pathname === "/"}
+              />
+
+              <NavItem
+                href="/bai-viet"
+                icon={<Newspaper size={16} />}
+                label="Tin tức"
+                active={isActive("/bai-viet")}
+              />
+
+              {/* GDV nổi bật */}
+              <NavItem
+                href="/giao-dich-vien"
+                icon={<Users size={16} />}
+                label="Giao dịch viên"
+                active={isActive("/giao-dich-vien")}
+                
+              />
+
+              {/* Ẩn khi màn nhỏ */}
+              <div className="hidden lg:block">
+                <NavItem
+                  href="/dieu-khoan"
+                  icon={<FileText size={16} />}
+                  label="Điều khoản"
+                  active={isActive("/dieu-khoan")}
+                />
+              </div>
+
+              <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border">
                 <ThemeToggle />
                 <ProfileDropdown />
               </div>
+
             </nav>
 
-            <div className="md:hidden flex items-center gap-2">
+            {/* MOBILE RIGHT */}
+            <div className="flex md:hidden items-center gap-2">
               <ThemeToggle />
               <ProfileDropdown />
-              <button className="p-2 text-muted-foreground hover:text-foreground" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
             </div>
-          </div>
 
-          {isMenuOpen && (
-            <div className="md:hidden py-4 border-t border-border animate-fade-in">
-              <nav className="flex flex-col gap-4">
-                <a href="#gdv" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2 px-4 rounded-full border border-border w-fit" onClick={() => setIsMenuOpen(false)}>Giao dịch viên</a>
-                <a href="#gdtg" className="text-muted-foreground hover:text-primary transition-colors font-medium py-2 px-4 rounded-full border border-border w-fit" onClick={() => setIsMenuOpen(false)}>Giao dịch trung gian</a>
-              </nav>
-            </div>
-          )}
+          </div>
         </div>
       </header>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border">
-        <div className="flex">
-          <button onClick={() => { setActiveTab("gdv"); scrollToSection("gdv"); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 transition-all ${activeTab === "gdv" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}>
-            <Users size={20} /><span className="font-medium">GDV</span>
-          </button>
-          <button onClick={() => { setActiveTab("gdtg"); scrollToSection("gdtg"); }}
-            className={`flex-1 flex items-center justify-center gap-2 py-4 transition-all ${activeTab === "gdtg" ? "bg-primary/20 text-primary" : "text-muted-foreground"}`}>
-            <Shield size={20} /><span className="font-medium">GDTG</span>
-          </button>
+      {/* ================= MOBILE BOTTOM NAV ================= */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border pb-[env(safe-area-inset-bottom)]">
+
+        <div className="relative grid grid-cols-5 items-center h-16">
+
+          <MobileItem
+            href="/"
+            icon={<Home size={20} />}
+            label="Trang chủ"
+            active={pathname === "/"}
+          />
+
+          <MobileItem
+            href="/bai-viet"
+            icon={<Newspaper size={20} />}
+            label="Tin tức"
+            active={isActive("/bai-viet")}
+          />
+
+          {/* GDV CENTER BUTTON */}
+          <div className="relative flex justify-center">
+            <Link
+              href="/giao-dich-vien"
+              className="absolute -top-12 flex flex-col items-center"
+            >
+              <div
+                className={`w-16 h-16 rounded-full shadow-xl border-4 border-background flex flex-col items-center justify-center
+                ${
+                  isActive("/giao-dich-vien")
+                    ? "bg-primary text-white"
+                    : "bg-primary text-white"
+                }`}
+              >
+                <Users size={24} />
+                <span className="text-[10px] font-semibold leading-none">
+                  GDV
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          <MobileItem
+            href="/dieu-khoan"
+            icon={<FileText size={20} />}
+            label="Điều khoản"
+            active={isActive("/dieu-khoan")}
+          />
+
+          <MobileItem
+            href={user ? "/profile" : "/login"}
+            icon={<User size={20} />}
+            label="Hồ sơ"
+            active={isActive("/profile") || isActive("/login")}
+          />
+
         </div>
+
       </nav>
     </>
   );
 };
 
 export default Header;
+
+
+
+/* ================= NAV ITEM ================= */
+
+const NavItem = ({
+  href,
+  icon,
+  label,
+  active,
+  highlight,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+  highlight?: boolean;
+}) => {
+  return (
+    <Link
+      href={href}
+      className={`
+        px-4 py-2 rounded-full border flex items-center gap-2 font-medium
+        transition whitespace-nowrap
+
+        ${
+          highlight
+            ? "bg-primary text-white border-primary shadow-md"
+            : active
+            ? "bg-primary text-white border-primary"
+            : "border-border hover:text-primary hover:border-primary"
+        }
+      `}
+    >
+      {icon}
+      {label}
+    </Link>
+  );
+};
+
+
+
+/* ================= MOBILE ITEM ================= */
+
+const MobileItem = ({
+  href,
+  icon,
+  label,
+  active,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  active: boolean;
+}) => {
+  return (
+    <Link
+      href={href}
+      className={`flex flex-col items-center justify-center text-[11px] gap-1
+      ${active ? "text-primary" : "text-muted-foreground"}`}
+    >
+      {icon}
+      <span className="whitespace-nowrap">{label}</span>
+    </Link>
+  );
+};

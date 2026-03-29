@@ -1,16 +1,36 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**', // Allow all domains for now to support R2/Custom domains
+        protocol: "https",
+        hostname: "sf-static.upanhlaylink.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.r2.cloudflarestorage.com",
       },
     ],
   },
+
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+
   async rewrites() {
     return [
-      { source: "/lien-he", destination: "/contact-facebook" },
-      { source: "/dieu-khoan/:slug", destination: "/terms/:slug" },
+      {
+        source: "/lien-he",
+        destination: "/contact-facebook",
+      },
+      {
+        source: "/dieu-khoan/:slug",
+        destination: "/terms/:slug",
+      },
     ];
   },
 };

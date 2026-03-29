@@ -1,108 +1,148 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, LogOut, LogIn, UserPlus, Settings, LayoutDashboard, Home } from "lucide-react";
+import {
+  Menu, User, LogOut, LogIn, UserPlus,
+  Home, Users, FileText, LayoutDashboard,
+  Newspaper, MessageCircle,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth";
-import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 
 const ProfileDropdown = () => {
-  const [open, setOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
   const { user, isAdmin, signOut } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  useEffect(() => {
     if (!user) { setAvatarUrl(null); return; }
-    supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle()
+    supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", user.id)
+      .maybeSingle()
       .then(({ data }) => { if (data?.avatar_url) setAvatarUrl(data.avatar_url); });
   }, [user]);
 
-  const go = (path: string) => {
-    router.push(path);
-    setOpen(false);
-  };
+  const go = (path: string) => router.push(path);
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:border-primary/50 transition-colors overflow-hidden"
-      >
-        {user ? (
-          avatarUrl ? (
-            <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-sm font-bold text-primary">
-              {user.user_metadata?.full_name?.charAt(0) || user.email?.charAt(0)?.toUpperCase() || "U"}
-            </span>
-          )
-        ) : (
-          <User size={18} className="text-muted-foreground" />
-        )}
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 top-12 w-52 bg-popover border border-border rounded-xl shadow-xl overflow-hidden z-50"
-          >
-            {user ? (
-              <>
-                <div className="px-4 py-3 border-b border-border">
-                  <p className="text-sm font-medium text-foreground truncate">{user.user_metadata?.full_name || "User"}</p>
-                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                </div>
-                {isAdmin ? (
-                  <>
-                    <button onClick={() => go("/admin/dashboard")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                      <LayoutDashboard size={16} /> Admin Dashboard
-                    </button>
-                    <button onClick={() => go("/")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                      <Home size={16} /> Trang chủ
-                    </button>
-                    <button onClick={() => go("/admin/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                      <Settings size={16} /> Cài đặt
-                    </button>
-                  </>
-                ) : (
-                  <button onClick={() => go("/profile")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                    <User size={16} /> Trang cá nhân
-                  </button>
-                )}
-                <button onClick={async () => { await signOut(); setOpen(false); router.push("/"); }} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-destructive hover:bg-destructive/10 transition-colors border-t border-border">
-                  <LogOut size={16} /> Đăng xuất
-                </button>
-              </>
+    <DropdownMenu>
+      {/* ── Trigger ── */}
+      <DropdownMenuTrigger asChild>
+        <button className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:border-primary/50 transition-colors overflow-hidden outline-none">
+          {user ? (
+            avatarUrl ? (
+              <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <>
-                <button onClick={() => go("/login")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                  <LogIn size={16} /> Đăng nhập
-                </button>
-                <button onClick={() => go("/register")} className="w-full px-4 py-2.5 flex items-center gap-2 text-sm text-foreground hover:bg-accent/50 transition-colors">
-                  <UserPlus size={16} /> Đăng ký
-                </button>
-              </>
-            )}
-          </motion.div>
+              <span className="text-sm font-bold text-primary">
+                {user.user_metadata?.full_name?.charAt(0) ||
+                  user.email?.charAt(0)?.toUpperCase() || "U"}
+              </span>
+            )
+          ) : (
+            <Menu size={18} className="text-muted-foreground" />
+          )}
+        </button>
+      </DropdownMenuTrigger>
+
+      {/* ── Content — Radix tự Portal vào body, không bao giờ bị clip ── */}
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-60 rounded-2xl p-0 overflow-hidden"
+      >
+        {/* Hệ thống */}
+        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Hệ thống
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="my-0" />
+
+        {isAdmin && (
+          <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
         )}
-      </AnimatePresence>
-    </div>
+        <Item icon={<Home size={15} />}          label="Trang chủ"      onClick={() => go("/")} />
+        <Item icon={<Newspaper size={15} />}     label="Tin tức"        onClick={() => go("/bai-viet")} />
+        <Item icon={<Users size={15} />}         label="Giao dịch viên" onClick={() => go("/giao-dich-vien")} />
+        <Item icon={<MessageCircle size={15} />} label="Liên hệ"        onClick={() => go("/contact")} />
+        <Item icon={<FileText size={15} />}      label="Điều khoản"     onClick={() => go("/dieu-khoan")} />
+
+        <DropdownMenuSeparator className="my-0" />
+
+        {/* Hồ sơ */}
+        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Hồ sơ
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator className="my-0" />
+
+        {user ? (
+          <>
+            {/* User info */}
+            <div className="px-4 py-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-xs font-bold text-primary">
+                    {user.user_metadata?.full_name?.charAt(0) ||
+                      user.email?.charAt(0)?.toUpperCase() || "U"}
+                  </span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate leading-tight">
+                  {user.user_metadata?.full_name || "User"}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+              </div>
+            </div>
+            <DropdownMenuSeparator className="my-0" />
+
+            <Item icon={<User size={15} />} label="Cài đặt" onClick={() => go("/profile")} />
+            <DropdownMenuSeparator className="my-0" />
+
+            <DropdownMenuItem
+              onClick={async () => { await signOut(); router.push("/"); }}
+              className="px-4 py-2.5 gap-2.5 text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
+            >
+              <LogOut size={15} />
+              Đăng xuất
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <>
+            <Item icon={<LogIn size={15} />}    label="Đăng nhập" onClick={() => go("/login")} />
+            <Item icon={<UserPlus size={15} />} label="Đăng ký"   onClick={() => go("/register")} />
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
+
+const Item = ({
+  icon, label, onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) => (
+  <DropdownMenuItem
+    onClick={onClick}
+    className="px-4 py-2.5 gap-2.5 cursor-pointer"
+  >
+    <span className="text-muted-foreground shrink-0">{icon}</span>
+    {label}
+  </DropdownMenuItem>
+);
 
 export default ProfileDropdown;

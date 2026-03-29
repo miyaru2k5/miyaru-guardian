@@ -8,67 +8,131 @@ import { getAuthErrorMessage } from "@/lib/authErrors";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { User, Mail, Lock, Palette, RotateCcw, ImageIcon } from "lucide-react";
+import { User, Lock, ImageIcon, Upload, Save, KeyRound } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
-import { useThemeCustomizer, hslToHex, hexToHsl } from "@/contexts/ThemeCustomizerContext";
+
+const R2_DOMAIN = process.env.NEXT_PUBLIC_R2_DOMAIN!;
+// → "pub-49d2fd12bb2f4f23a6d3196d2fcf2842.r2.dev"
 
 const ProfilePage = () => {
   const router = useRouter();
   const { user, isLoading } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
+
   const [fullName, setFullName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [pwForm, setPwForm] = useState({ password: "", confirmPassword: "" });
-  const [pwLoading, setPwLoading] = useState(false);
-  const {
-    allowUserTheme,
-    currentMode,
-    currentPrimaryColor,
-    currentBackgroundColor,
-    toggleMode,
-    setUserPrimaryColor,
-    setUserBackgroundColor,
-    resetToSystemDefaults,
-    forceDarkMode,
-  } = useThemeCustomizer();
+  const [oldAvatarUrl, setOldAvatarUrl] = useState("");
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const [pwForm, setPwForm] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+  const [pwLoading, setPwLoading] = useState(false);
+
+  // ================= AUTH =================
   useEffect(() => {
     if (isLoading) return;
-    if (!user) {
-      router.replace("/login");
-      return;
-    }
+    if (!user) router.replace("/login");
   }, [user, isLoading, router]);
 
+  // ================= LOAD PROFILE =================
   useEffect(() => {
     if (!user) return;
-    const fetch = async () => {
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+
+    const fetchProfile = async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
       if (data) {
-        setProfile(data);
-        setFullName(data.full_name);
+        setFullName(data.full_name || "");
         setAvatarUrl(data.avatar_url || "");
+        setOldAvatarUrl(data.avatar_url || "");
       }
     };
-    fetch();
+
+    fetchProfile();
   }, [user]);
 
+  // ================= PREVIEW =================
+  const handleFileChange = (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  // ================= UPLOAD =================
+  const uploadToR2 = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    return data.url;
+  };
+
+  // ================= DELETE =================
+  const deleteFromR2 = async (url: string) => {
+    try {
+      await fetch("/api/upload/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url }),
+      });
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
+  };
+
+  // ================= UPDATE PROFILE =================
   const updateProfile = async () => {
     if (!user) return;
     setLoading(true);
-    const { error } = await supabase
-      .from("profiles")
-      .update({ full_name: fullName, avatar_url: avatarUrl || null })
-      .eq("id", user.id);
-    setLoading(false);
-    if (error) {
+
+    try {
+      let finalAvatar = avatarUrl;
+
+      if (selectedFile) {
+        const newUrl = await uploadToR2(selectedFile);
+        finalAvatar = newUrl;
+
+        // Xóa ảnh cũ nếu là ảnh R2
+        if (oldAvatarUrl && oldAvatarUrl.includes(R2_DOMAIN)) {
+          console.log("Deleting old avatar:", oldAvatarUrl);
+          await deleteFromR2(oldAvatarUrl);
+        }
+      }
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ full_name: fullName, avatar_url: finalAvatar || null })
+        .eq("id", user.id);
+
+      if (error) throw error;
+
+      setAvatarUrl(finalAvatar);
+      setOldAvatarUrl(finalAvatar);
+      setSelectedFile(null);
+      setPreviewUrl("");
+
+      toast({ title: "Đã cập nhật profile" });
+    } catch (error: any) {
       toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-      return;
+    } finally {
+      setLoading(false);
     }
-    toast({ title: "Đã cập nhật profile" });
   };
 
+  // ================= CHANGE PASSWORD =================
   const changePassword = async () => {
     if (pwForm.password.length < 6) {
       toast({ title: "Mật khẩu ít nhất 6 ký tự", variant: "destructive" });
@@ -78,20 +142,23 @@ const ProfilePage = () => {
       toast({ title: "Mật khẩu không khớp", variant: "destructive" });
       return;
     }
+
     setPwLoading(true);
     const { error } = await supabase.auth.updateUser({ password: pwForm.password });
     setPwLoading(false);
+
     if (error) {
       toast({ title: "Lỗi", description: getAuthErrorMessage(error), variant: "destructive" });
       return;
     }
+
     toast({ title: "Đã đổi mật khẩu" });
     setPwForm({ password: "", confirmPassword: "" });
   };
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -99,148 +166,168 @@ const ProfilePage = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-[calc(100vh-8rem)] pt-24 pb-12">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Profile</h1>
-              <p className="text-muted-foreground text-sm">Quản lý thông tin cá nhân</p>
+      <div className="pt-24 pb-12 container max-w-4xl mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-6">
+
+          {/* ===== PROFILE ===== */}
+          <div className="p-6 rounded-2xl bg-card glow-border">
+
+            {/* Avatar + Info */}
+            <div className="flex items-center gap-4 mb-6">
+
+              {/* Avatar với gradient border */}
+              <div className="p-[3px] rounded-full bg-gradient-to-br from-primary to-primary/30 shrink-0">
+                <div className="p-[2px] rounded-full bg-card">
+                  {previewUrl ? (
+                    <img src={previewUrl} className="w-20 h-20 rounded-full object-cover" />
+                  ) : avatarUrl ? (
+                    <img src={avatarUrl} className="w-20 h-20 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-xl font-bold">
+                      {fullName?.charAt(0) || "U"}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                {/* Name + tick.gif */}
+                <div className="flex items-center gap-1.5">
+                  <p className="font-bold">{fullName || "User"}</p>
+                  <img src="/tick.gif" alt="verified" className="w-4 h-4" />
+                </div>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+              </div>
+
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="glow-border rounded-2xl p-6 bg-card">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="relative">
-                    {avatarUrl ? (
-                      <img
-                        src={avatarUrl}
-                        alt={fullName}
-                        className="w-20 h-20 rounded-full object-cover border-2 border-primary/30"
-                      />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border-2 border-primary/30">
-                        <span className="text-3xl font-bold text-primary">
-                          {fullName?.charAt(0) || "U"}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-foreground">{fullName || "User"}</h2>
-                    <p className="text-sm text-muted-foreground">{user?.email}</p>
-                  </div>
-                </div>
+            {/* Form */}
+            <div className="space-y-4">
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                      <User size={14} /> Họ tên
-                    </label>
-                    <Input value={fullName} onChange={(event) => setFullName(event.target.value)} />
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                      <ImageIcon size={14} /> Avatar URL
-                    </label>
-                    <Input
-                      value={avatarUrl}
-                      onChange={(event) => setAvatarUrl(event.target.value)}
-                      placeholder="https://..."
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                      <Mail size={14} /> Email
-                    </label>
-                    <Input value={user?.email || ""} disabled className="opacity-60" />
-                  </div>
-                  <Button onClick={updateProfile} disabled={loading} className="btn-glow">
-                    {loading ? "Đang lưu..." : "Cập nhật"}
-                  </Button>
+              {/* Họ tên */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  Họ và tên
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    className="pl-9"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Nhập họ và tên..."
+                  />
                 </div>
               </div>
 
-              <div className="glow-border rounded-2xl p-6 bg-card h-fit">
-                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Lock size={18} /> Đổi mật khẩu
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 block">Mật khẩu mới</label>
-                    <Input
-                      type="password"
-                      value={pwForm.password}
-                      onChange={(event) => setPwForm((prev) => ({ ...prev, password: event.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm text-muted-foreground mb-1 block">Xác nhận mật khẩu</label>
-                    <Input
-                      type="password"
-                      value={pwForm.confirmPassword}
-                      onChange={(event) =>
-                        setPwForm((prev) => ({ ...prev, confirmPassword: event.target.value }))
-                      }
-                    />
-                  </div>
-                  <Button onClick={changePassword} disabled={pwLoading} variant="outline">
-                    {pwLoading ? "Đang cập nhật..." : "Đổi mật khẩu"}
-                  </Button>
+              {/* Avatar URL */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  Avatar URL
+                </label>
+                <div className="relative">
+                  <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    className="pl-9"
+                    value={avatarUrl}
+                    onChange={(e) => setAvatarUrl(e.target.value)}
+                    placeholder="https://example.com/avatar.png"
+                  />
                 </div>
               </div>
+
+              {/* Upload file */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Upload className="w-3.5 h-3.5" />
+                  Tải ảnh lên
+                </label>
+                <div className="relative">
+                  <Upload className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    className="pl-9"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </div>
+              </div>
+
+              <Button onClick={updateProfile} disabled={loading} className="w-full gap-2">
+                <Save className="w-4 h-4" />
+                {loading ? "Đang lưu..." : "Lưu thay đổi"}
+              </Button>
+
             </div>
-
-            {allowUserTheme && (
-              <div className="glow-border rounded-2xl p-6 bg-card">
-                <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Palette size={18} /> Tùy chỉnh giao diện
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
-                    <span className="text-sm text-muted-foreground">Chế độ hiển thị</span>
-                    <Button variant="outline" size="sm" onClick={toggleMode}>
-                      {currentMode === "dark" ? "🌙 Tối" : "☀️ Sáng"}
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
-                    <span className="text-sm text-muted-foreground">Màu chính</span>
-                    <input
-                      type="color"
-                      value={hslToHex(currentPrimaryColor)}
-                      onChange={(event) => setUserPrimaryColor(hexToHsl(event.target.value))}
-                      className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
-                    <span className="text-sm text-muted-foreground">Màu nền</span>
-                    <input
-                      type="color"
-                      value={hslToHex(currentBackgroundColor)}
-                      onChange={(event) => setUserBackgroundColor(hexToHsl(event.target.value))}
-                      className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={resetToSystemDefaults}
-                      className="gap-1 flex-1"
-                    >
-                      <RotateCcw size={14} /> Mặc định
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={forceDarkMode} className="gap-1 flex-1">
-                      🌙 Tối
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
+
+          {/* ===== PASSWORD ===== */}
+          <div className="p-6 rounded-2xl bg-card glow-border">
+
+            <h3 className="font-bold mb-6 flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-primary" />
+              Đổi mật khẩu
+            </h3>
+
+            <div className="space-y-4">
+
+              {/* Mật khẩu mới */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" />
+                  Mật khẩu mới
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    className="pl-9"
+                    type="password"
+                    placeholder="Nhập mật khẩu mới..."
+                    value={pwForm.password}
+                    onChange={(e) =>
+                      setPwForm((p) => ({ ...p, password: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Xác nhận mật khẩu */}
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5" />
+                  Xác nhận mật khẩu
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    className="pl-9"
+                    type="password"
+                    placeholder="Nhập lại mật khẩu..."
+                    value={pwForm.confirmPassword}
+                    onChange={(e) =>
+                      setPwForm((p) => ({ ...p, confirmPassword: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={changePassword}
+                disabled={pwLoading}
+                variant="outline"
+                className="w-full gap-2"
+              >
+                <KeyRound className="w-4 h-4" />
+                {pwLoading ? "Đang cập nhật..." : "Đổi mật khẩu"}
+              </Button>
+
+            </div>
+          </div>
+
         </div>
+
       </div>
     </MainLayout>
   );

@@ -13,6 +13,7 @@ import {
   RotateCcw, Save, Palette, Monitor, Sun, Moon,
   Building2, FileJson, Plus, Trash2, LogIn,
 } from "lucide-react";
+import { Upload } from "lucide-react";
 
 const footerDataSchema = z.object({
   brand_name: z.string().min(1, "brand_name bắt buộc").max(200),
@@ -53,6 +54,7 @@ const AdminSettings = () => {
   // Branding
   const [siteName, setSiteName] = useState(systemSettings.site_name);
   const [logoUrl, setLogoUrl] = useState(systemSettings.logo_url || "");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   // Footer - form state
   const [footerBrandName, setFooterBrandName] = useState(systemSettings.footer_data?.brand_name ?? "");
@@ -164,7 +166,45 @@ const AdminSettings = () => {
     setDefaultMode("dark");
     setAllowUser(true);
   };
+  const uploadLogo = async (file: File) => {
+    try {
+      setUploadingLogo(true);
 
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Upload failed");
+      }
+
+      setLogoUrl(data.url);
+
+      toast({
+        title: "Upload thành công",
+        description: "Logo đã upload lên R2",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Upload lỗi",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+
+    setUploadingLogo(false);
+  };
+
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    uploadLogo(e.target.files[0]);
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -288,7 +328,7 @@ const AdminSettings = () => {
                     <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
                       style={{ backgroundColor: `hsl(${hexToHsl(primaryHex)})`, borderRadius }}>A</div>
                     <span className="font-bold" style={{ color: defaultMode === "dark" ? "#fafafa" : "#1a1a2e" }}>
-                      {siteName || "Admin"} Admin
+                      {siteName || "Admin"}
                     </span>
                   </div>
                   <div className="flex gap-2 mb-3">
@@ -336,9 +376,45 @@ const AdminSettings = () => {
                 <label className="text-sm text-muted-foreground block mb-1">Tên website</label>
                 <Input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Admin" />
               </div>
-              <div>
-                <label className="text-sm text-muted-foreground block mb-1">Logo URL</label>
-                <Input value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="https://..." />
+              <div className="space-y-4">
+
+                {/* Upload logo */}
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1 flex items-center gap-1">
+                    <Upload size={14} />
+                    Upload Logo (Cloudflare R2)
+                  </label>
+
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoFileChange}
+                  />
+
+                  {uploadingLogo && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Đang upload...
+                    </p>
+                  )}
+                </div>
+
+                {/* Logo URL */}
+                <div>
+                  <label className="text-sm text-muted-foreground block mb-1">
+                    Logo URL
+                  </label>
+
+                  <Input
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
+
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Có thể nhập URL ngoài hoặc upload trực tiếp.
+                  </p>
+                </div>
+
               </div>
               <Button onClick={handleSaveBranding} disabled={saving || !isAdmin} className="btn-glow gap-2">
                 <Save size={16} /> Lưu Branding
