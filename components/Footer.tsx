@@ -44,6 +44,17 @@ const Footer = () => {
           {/* Dịch vụ - chỉ PC */}
           <div className="space-y-4 hidden lg:block">
             <h4 className="text-foreground font-semibold italic">
+              Sản phẩm
+            </h4>
+            <nav className="flex flex-col gap-2">
+                <a href="/check-uy-tin" className="text-sm text-muted-foreground hover:text-primary transition-colors">Check Uy Tín</a>
+                <a href="/to-cao-scam" className="text-sm text-muted-foreground hover:text-primary transition-colors">Tố Cáo Scam</a>
+            </nav>
+          </div>
+
+          {/* Dịch vụ - chỉ PC */}
+          <div className="space-y-4 hidden lg:block">
+            <h4 className="text-foreground font-semibold italic">
               Dịch vụ
             </h4>
             <nav className="flex flex-col gap-2">
