@@ -15,6 +15,9 @@
       "@/hooks/*": [
         "hooks/*"
       ],
+      "@/utils/*": [
+        "utils/*"
+      ],
       "@/lib/*": [
         "lib/*"
       ],
@@ -58,6 +61,7 @@
     "layouts/**/*",
     "contexts/**/*",
     "hooks/**/*",
+    "utils/**/*",
     "lib/**/*",
     "types/**/*",
     "middleware.ts",
