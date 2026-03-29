@@ -1,49 +1,70 @@
 import { useState } from 'react';
 import imageCompression from 'browser-image-compression';
 
+type CompressionOptions = {
+  maxSizeMB?: number;
+  maxWidthOrHeight?: number;
+  useWebWorker?: boolean;
+  fileType?: string;
+};
+
+const defaultOptions: CompressionOptions = {
+  maxSizeMB: 1,
+  maxWidthOrHeight: 1920,
+  useWebWorker: true,
+  fileType: 'image/webp'
+};
+
 export function useImageUpload() {
   const [isUploading, setIsUploading] = useState(false);
 
-  const uploadImages = async (files: File[]): Promise<string[]> => {
+  const uploadImages = async (
+    files: File[],
+    options: CompressionOptions = defaultOptions
+  ): Promise<string[]> => {
     setIsUploading(true);
-    const uploadedUrls: string[] = [];
 
-    for (const file of files) {
-      try {
-        const compressedFile = await imageCompression(file, {
-          maxSizeMB: 1,
-          maxWidthOrHeight: 1920,
-          useWebWorker: true,
-          fileType: 'image/webp'
-        });
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const compressedFile = await imageCompression(file, options);
+        const contentType = options.fileType || 'image/webp';
 
         // Get Presigned URL
-        const res = await fetch('/api/upload/presigned', {
+        const presignedRes = await fetch('/api/upload/presigned', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            filename: compressedFile.name.replace(/\.[^/.]+$/, "") + ".webp",
-            contentType: 'image/webp'
-          })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contentType })
         });
-        const { url, key } = await res.json();
+
+        if (!presignedRes.ok) {
+          const errorBody = await presignedRes.json().catch(() => ({ error: 'Failed to get presigned URL' }));
+          throw new Error(`Failed to get presigned URL: ${presignedRes.status} ${presignedRes.statusText} - ${errorBody.error}`);
+        }
+        const { url, key } = await presignedRes.json();
 
         // Upload to R2
-        await fetch(url, {
+        const uploadRes = await fetch(url, {
           method: 'PUT',
           body: compressedFile,
-          headers: { 'Content-Type': 'image/webp' }
+          headers: { 'Content-Type': contentType }
         });
 
-        uploadedUrls.push(`${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`);
-      } catch (err) {
-        console.error('Upload failed:', err);
-      }
+        if (!uploadRes.ok) {
+          throw new Error(`Upload to R2 failed: ${uploadRes.status} ${uploadRes.statusText}`);
+        }
+
+        return `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      return uploadedUrls;
+
+    } catch (err) {
+      // Re-throw the error to be handled by the calling component
+      throw err;
+    } finally {
+      setIsUploading(false);
     }
-    setIsUploading(false);
-    return uploadedUrls;
   };
 
   return { uploadImages, isUploading };

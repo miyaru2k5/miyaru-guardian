@@ -7,7 +7,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       <Header />
-      <main>{children}</main>
+      <main className="pt-16 pb-24 md:pb-12">{children}</main>
       <Footer />
     </div>
   );
