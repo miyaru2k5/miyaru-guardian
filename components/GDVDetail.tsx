@@ -33,6 +33,8 @@ interface Trader {
     facebook: string | null;
     zalo: string | null;
     website: string | null;
+    created_at: string;
+    updated_at: string;
 }
 
 interface Category {
@@ -57,12 +59,14 @@ const GDVDetail = () => {
         const fetchTrader = async () => {
             setLoading(true);
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const { data: rawTrader, error: traderError } = await (supabase
-                .from("traders")
-                .select("*")
-                .eq("slug", slug)
-                .maybeSingle() as any) as { data: Trader | null; error: Error | null };
+        // @ts-expect-error - Supabase type inference issue
+        const result = await supabase
+            .from("traders")
+            .select("*")
+            .eq("slug", slug)
+            .maybeSingle();
+        const rawTrader = result.data as Trader | null;
+            const traderError = result.error;
 
             if (traderError || !rawTrader) {
                 setNotFound(true);
