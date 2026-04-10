@@ -419,6 +419,7 @@ export type Database = {
           name: string
           service: string | null
           status: string
+          slug: string
           success_rate: number
           updated_at: string
           website: string | null
@@ -435,6 +436,7 @@ export type Database = {
           name: string
           service?: string | null
           status?: string
+          slug?: string
           success_rate?: number
           updated_at?: string
           website?: string | null
@@ -451,6 +453,7 @@ export type Database = {
           name?: string
           service?: string | null
           status?: string
+          slug?: string
           success_rate?: number
           updated_at?: string
           website?: string | null

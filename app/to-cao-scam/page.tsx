@@ -67,7 +67,7 @@ export default function ReportScamPage() {
     startTransition(async () => {
       try {
         const imageUrls = values.images ? await uploadImages(Array.from(values.images)) : [];
-        
+
         const formData = new FormData();
         Object.entries(values).forEach(([key, value]) => {
           if (key !== 'images') {
@@ -110,10 +110,20 @@ export default function ReportScamPage() {
     setImagePreviews(prev => [...prev, ...newPreviews]);
   }, []);
 
+  useEffect(() => {
+    // Cleanup object URLs on unmount
+    return () => {
+      imagePreviews.forEach(URL.revokeObjectURL);
+    };
+  }, [imagePreviews]);
+
   const removeImage = useCallback((index: number) => {
+    const previewToRemove = imagePreviews[index];
+    if (previewToRemove) URL.revokeObjectURL(previewToRemove);
+
     setImageFiles(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
-  }, []);
+  }, [imagePreviews]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -148,7 +158,7 @@ export default function ReportScamPage() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          
+
           {/* Thông tin người lừa đảo */}
           <Card>
             <CardHeader>
@@ -169,7 +179,7 @@ export default function ReportScamPage() {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="type"
@@ -199,9 +209,9 @@ export default function ReportScamPage() {
                   <FormItem>
                     <FormLabel>Số tiền lừa đảo (VND) *</FormLabel>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="1000000" 
+                      <Input
+                        type="number"
+                        placeholder="1000000"
                         {...field}
                         onChange={e => field.onChange(Number(e.target.value))}
                       />
@@ -218,10 +228,10 @@ export default function ReportScamPage() {
                   <FormItem>
                     <FormLabel>Mô tả chi tiết *</FormLabel>
                     <FormControl>
-                      <Textarea 
-                        placeholder="Mô tả chi tiết vụ việc..." 
+                      <Textarea
+                        placeholder="Mô tả chi tiết vụ việc..."
                         className="min-h-[100px]"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -312,9 +322,9 @@ export default function ReportScamPage() {
             <CardContent>
               <div className="space-y-4">
                 <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                  <input 
-                    type="file" 
-                    multiple 
+                  <input
+                    type="file"
+                    multiple
                     accept="image/*"
                     className="hidden"
                     id="image-upload"
@@ -328,14 +338,14 @@ export default function ReportScamPage() {
                     <p className="text-xs text-muted-foreground mt-1">PNG, JPG, GIF tối đa 10MB</p>
                   </label>
                 </div>
-                
+
                 {imagePreviews.length > 0 && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border">
-                        <img 
-                          src={preview} 
-                          alt={`Preview ${index + 1}`} 
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
                         <button

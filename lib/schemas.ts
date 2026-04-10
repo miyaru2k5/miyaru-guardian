@@ -13,7 +13,53 @@ export const scamReportSchema = z.object({
   account_number: z.string().min(1, 'Số tài khoản không được để trống'),
   // The 'images' field is handled separately on the client for upload
   // and the URLs are passed to the server action.
-  images: z.any().optional(), 
+  images: z.any().optional(),
 });
 
 export type ScamReportFormValues = z.infer<typeof scamReportSchema>;
+
+export interface ScamReport {
+  id: string;
+  scammer_name: string;
+  total_scam_amount: number;
+  description: string;
+  type: 'tôi bị scam' | 'đăng hộ';
+  original_post_url?: string;
+  reporter_contact_name: string;
+  reporter_contact_zalo: string;
+  status: 'pending' | 'approved' | 'rejected';
+  slug: string;
+  created_at: string;
+  user_id?: string;
+}
+
+export interface ScamBank {
+  id: string;
+  report_id: string;
+  bank_name: string;
+  account_name: string;
+  account_number: string;
+}
+
+export interface ScamMedia {
+  id: string;
+  report_id: string;
+  url: string;
+}
+
+export interface ScamSocial {
+  id: string;
+  report_id: string;
+  platform_name: string;
+  platform_url?: string;
+  username: string;
+  user_url?: string;
+}
+
+export interface ScamWebsite {
+  id: string;
+  report_id: string;
+  website_name?: string;
+  url: string;
+  domain?: string;
+}

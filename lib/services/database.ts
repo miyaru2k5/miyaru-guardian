@@ -59,6 +59,7 @@ export const transactionService = {
 
 export const traderService = {
   list: () => supabase.from("traders").select("*").order("created_at", { ascending: true }),
+  listTraderCategories: () => supabase.from("trader_categories").select("*"),
   getWithCategories: async (traderId: string) => {
     const { data: trader } = await supabase.from("traders").select("*").eq("id", traderId).single();
     if (!trader) return null;
