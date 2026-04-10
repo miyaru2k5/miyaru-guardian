@@ -15,11 +15,17 @@
       "@/hooks/*": [
         "hooks/*"
       ],
+      "@/utils/*": [
+        "utils/*"
+      ],
       "@/lib/*": [
         "lib/*"
       ],
       "@/types/*": [
         "types/*"
+      ],
+      "@/app/*": [
+        "app/*"
       ],
       "next/*": [
         "node_modules/next/*"
@@ -58,6 +64,7 @@
     "layouts/**/*",
     "contexts/**/*",
     "hooks/**/*",
+    "utils/**/*",
     "lib/**/*",
     "types/**/*",
     "middleware.ts",
