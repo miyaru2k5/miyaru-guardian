@@ -57,7 +57,6 @@ const GDVDetail = () => {
         const fetchTrader = async () => {
             setLoading(true);
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { data: rawTrader, error: traderError } = await (supabase
                 .from("traders")
                 .select("*")

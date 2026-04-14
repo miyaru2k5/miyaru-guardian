@@ -8,15 +8,16 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 // ── generateMetadata: chạy server-side, tạo OG tags cho preview ──────────────
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const { data: trader } = await supabase
     .from("traders")
     .select("name, insurance_fund, description, avatar_url, slug")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .maybeSingle();
 
   if (!trader) {
