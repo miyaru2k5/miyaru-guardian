@@ -196,7 +196,7 @@ const GDVSection = () => {
               </p>
               <p className="max-w-md text-sm text-muted-foreground">
                 Thử thay đổi từ khóa tìm kiếm hoặc bấm{" "}
-                <span className="font-semibold">"Xóa bộ lọc"</span>
+                <span className="font-semibold">{"Xóa bộ lọc"}</span>
               </p>
             </div>
           )}
