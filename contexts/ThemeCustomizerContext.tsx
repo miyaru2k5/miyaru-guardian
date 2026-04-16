@@ -59,7 +59,7 @@ const DEFAULT_SETTINGS: SystemSettings = {
   accent_color: "330 100% 55%",
   border_radius: "0.75rem",
   allow_user_theme: true,
-  site_name: "𝐀𝐝𝐦𝐢𝐧 𝐌𝐢𝐲𝐚𝐫𝐮",
+  site_name: "",
   logo_url: "/logo.gif",
   footer_data: DEFAULT_FOOTER,
   auth_google_enabled: false,
