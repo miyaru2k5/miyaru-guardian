@@ -373,8 +373,8 @@ const AdminSettings = () => {
                 <Building2 size={20} className="text-primary" /> Branding Settings
               </h3>
               <div>
-                <label className="text-sm text-muted-foreground block mb-1">Tên website</label>
-                <Input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Admin" />
+                <label className="text-sm text-muted-foreground block mb-1">Tên website (nếu có)</label>
+                <Input value={siteName} onChange={e => setSiteName(e.target.value)} placeholder="Nhập tên website" />
               </div>
               <div className="space-y-4">
 
@@ -422,7 +422,7 @@ const AdminSettings = () => {
             </div>
             {logoUrl && (
               <div className="glow-border rounded-2xl p-6 flex flex-col items-center justify-center">
-                <img src={logoUrl} alt="Logo preview" className="w-24 h-24 rounded-2xl object-cover border border-border mb-3" />
+                <img src={logoUrl} alt="Logo preview" className="w-48 h-24 rounded-2xl object-cover border border-border mb-3" />
                 <span className="text-sm text-muted-foreground">Logo Preview</span>
               </div>
             )}

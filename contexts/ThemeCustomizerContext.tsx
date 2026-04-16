@@ -48,7 +48,7 @@ const DEFAULT_FOOTER: FooterData = {
   brand_name: "Admin",
   description: "Chi phí thấp – Nhanh chóng – Chất lượng.",
   services: ["Giao dịch trung gian", "Giao dịch viên"],
-  contact: { phone: "0357.175.172", email: "contact@Admin.vn" },
+  contact: { phone: "0383277782", email: "miyaru2k5@gmai.com" },
   copyright: "© 2026 Admin Team.",
 };
 
@@ -201,7 +201,7 @@ export const ThemeCustomizerProvider = ({ children }: { children: React.ReactNod
         accent_color: data.accent_color,
         border_radius: data.border_radius,
         allow_user_theme: data.allow_user_theme,
-        site_name: d.site_name || "Miyaru",
+        site_name: d.site_name,
         logo_url: d.logo_url || null,
         footer_data: d.footer_data || DEFAULT_FOOTER,
         auth_google_enabled: d.auth_google_enabled ?? false,

@@ -82,7 +82,9 @@ const Traders = () => {
   };
 
   const copyLink = (slug: string) => {
-    const url = `https://admin.miyaru.online/${slug}`;
+    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
+
+    const url = `${baseUrl}/${slug}`;
 
     navigator.clipboard.writeText(url);
 
@@ -479,6 +481,11 @@ const Traders = () => {
               </div>
 
               <div>
+                <label className="text-sm text-muted-foreground mb-1 block">Biệt danh</label>
+                <Input {...register("service")} placeholder="Nhập biệt danh" />
+              </div>
+
+              <div>
                 <label className="text-sm text-muted-foreground mb-1 block">Mã GDV</label>
                 <Input {...register("code")} placeholder="VD: GDV#001" />
                 {errors.code && <p className="text-xs text-destructive mt-1">{errors.code.message}</p>}
@@ -555,10 +562,7 @@ const Traders = () => {
                 </div>
               )}
 
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Dịch vụ</label>
-                <Input {...register("service")} placeholder="Nhập tên dịch vụ" />
-              </div>
+
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

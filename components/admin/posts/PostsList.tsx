@@ -13,6 +13,7 @@ import {
   Image as ImageIcon,
   Search,
   Eye,
+  EyeOff,
   Calendar,
   Tag,
 } from "lucide-react";
@@ -40,7 +41,7 @@ export default function PostsList() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // FETCH POSTS
+  /* FETCH */
   const fetchPosts = useCallback(async () => {
     setLoading(true);
 
@@ -97,7 +98,7 @@ export default function PostsList() {
     fetchPosts();
   }, [fetchPosts]);
 
-  // LOAD EDIT
+  /* LOAD EDIT */
   const loadPostForEditing = async (post: PostListItem) => {
     setLoadingEditId(post.id);
 
@@ -127,10 +128,9 @@ export default function PostsList() {
     }
   };
 
-  // SEARCH
+  /* SEARCH */
   const filteredPosts = useMemo(() => {
     if (!search) return posts;
-
     const query = search.toLowerCase();
 
     return posts.filter((post) =>
@@ -143,7 +143,7 @@ export default function PostsList() {
   const formatDate = (value: string) =>
     new Date(value).toLocaleDateString("vi-VN");
 
-  // CREATE / UPDATE
+  /* CREATE / UPDATE */
   const handleCreateOrUpdate = async (values: PostFormValues) => {
     setSaving(true);
 
@@ -204,7 +204,7 @@ export default function PostsList() {
     }
   };
 
-  // TOGGLE PUBLISH
+  /* TOGGLE */
   const togglePublish = async (post: PostListItem) => {
     await supabase
       .from("posts")
@@ -218,7 +218,7 @@ export default function PostsList() {
     );
   };
 
-  // DELETE
+  /* DELETE */
   const handleDelete = async () => {
     if (!deleteId) return;
 
@@ -236,233 +236,130 @@ export default function PostsList() {
     <div className="space-y-6">
 
       {/* HEADER */}
-
       <div className="flex w-full items-center gap-2">
-
-        {/* SEARCH */}
-<div className="relative flex-1">
-
-  <Search
-    size={16}
-    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-  />
-
-  <input
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    placeholder="Tìm Tin tức..."
-    className="
-      w-full
-      rounded-xl
-      border border-border
-      bg-background
-      text-foreground
-      placeholder:text-muted-foreground
-      pl-9 pr-3 py-2
-      text-sm
-      outline-none
-      transition
-      focus:ring-2
-      focus:ring-primary
-      focus:border-primary
-    "
-  />
-
-</div>
-
-        {/* BUTTON */}
+        <div className="relative flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Tìm Tin tức..."
+            className="w-full rounded-xl border border-border bg-background pl-9 pr-3 py-2 text-sm focus:ring-2 focus:ring-primary"
+          />
+        </div>
 
         <button
           onClick={() => {
             setEditing(null);
             setFormOpen(true);
           }}
-          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm whitespace-nowrap"
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm"
         >
           <Plus size={16} />
-          <span className="hidden sm:inline">Thêm Tin tức</span>
-          <span className="sm:hidden">Thêm</span>
+          Thêm
         </button>
-
       </div>
 
-      {/* MOBILE CARD */}
+      {/* LOADING */}
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="h-32 rounded-2xl bg-card animate-pulse border border-border" />
+          ))}
+        </div>
+      )}
 
-      <div className="space-y-3 md:hidden">
+      {/* GRID */}
+      {!loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-        {filteredPosts.map((post) => (
+          {filteredPosts.map((post) => (
 
-          <div
-            key={post.id}
-            className="border rounded-xl p-4 space-y-2"
-          >
+            <div
+              key={post.id}
+              className={`
+                group relative rounded-2xl border border-border bg-card/60 p-4
+                hover:border-primary/40 transition-all
+                ${!post.published ? "opacity-60 grayscale" : ""}
+              `}
+            >
 
-            <div className="flex justify-between">
+              <div className="space-y-3">
 
-              <div>
-                <p className="font-medium">{post.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  /{post.slug}
-                </p>
-              </div>
-
-              <button
-                onClick={() => togglePublish(post)}
-                className={`px-2 py-1 rounded-full text-xs ${post.published
-                    ? "bg-green-500/10 text-green-600"
-                    : "bg-gray-400/10 text-gray-500"
-                  }`}
-              >
-                {post.published ? "Published" : "Draft"}
-              </button>
-
-            </div>
-
-            <div className="flex flex-wrap gap-3 text-xs">
-
-              <span className="flex items-center gap-1">
-                <Tag size={14} />
-                {post.category || "—"}
-              </span>
-
-              <span className="flex items-center gap-1">
-                <ImageIcon size={14} />
-                {post.sectionsCount ?? 0}
-              </span>
-
-              <span className="flex items-center gap-1">
-                <Eye size={14} />
-                {post.views}
-              </span>
-
-              <span className="flex items-center gap-1">
-                <Calendar size={14} />
-                {formatDate(post.created_at)}
-              </span>
-
-            </div>
-
-            <div className="flex gap-2 pt-2">
-
-              <button
-                onClick={() => loadPostForEditing(post)}
-                className="flex items-center gap-1 border rounded px-2 py-1 text-xs"
-              >
-                <Edit3 size={14} />
-                Sửa
-              </button>
-
-              <button
-                onClick={() => setDeleteId(post.id)}
-                className="flex items-center gap-1 border border-red-400 text-red-500 rounded px-2 py-1 text-xs"
-              >
-                <Trash2 size={14} />
-                Xóa
-              </button>
-
-            </div>
-
-          </div>
-
-        ))}
-
-      </div>
-
-      {/* DESKTOP TABLE */}
-
-      <div className="hidden md:block border rounded-xl">
-
-        <table className="w-full text-sm">
-
-          <thead className="bg-muted text-xs uppercase">
-            <tr>
-              <th className="px-4 py-3 text-left">Tin tức</th>
-              <th className="px-4 py-3 text-left">Danh mục</th>
-              <th className="px-4 py-3 text-center">Ảnh</th>
-              <th className="px-4 py-3 text-right">Views</th>
-              <th className="px-4 py-3 text-center">Trạng thái</th>
-              <th className="px-4 py-3 text-left">Ngày</th>
-              <th className="px-4 py-3 text-right">Hành động</th>
-            </tr>
-          </thead>
-
-          <tbody>
-
-            {filteredPosts.map((post) => (
-
-              <tr key={post.id} className="border-t hover:bg-muted/40">
-
-                <td className="px-4 py-3">
-                  <p className="font-medium">{post.title}</p>
+                {/* TITLE */}
+                <div>
+                  <p className="font-semibold truncate">{post.title}</p>
                   <p className="text-xs text-muted-foreground">
                     /{post.slug}
                   </p>
-                </td>
+                </div>
 
-                <td className="px-4 py-3">{post.category || "—"}</td>
+                {/* META */}
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
 
-                <td className="px-4 py-3 text-center">
-                  {post.sectionsCount ?? 0}
-                </td>
+                  <span className="flex items-center gap-1">
+                    <Tag size={13} />
+                    {post.category || "—"}
+                  </span>
 
-                <td className="px-4 py-3 text-right">
-                  {post.views}
-                </td>
+                  <span className="flex items-center gap-1">
+                    <ImageIcon size={13} />
+                    {post.sectionsCount ?? 0}
+                  </span>
 
-                <td className="px-4 py-3 text-center">
+                  <span className="flex items-center gap-1">
+                    <Eye size={13} />
+                    {post.views}
+                  </span>
+
+                  <span className="flex items-center gap-1">
+                    <Calendar size={13} />
+                    {formatDate(post.created_at)}
+                  </span>
+
+                </div>
+
+                {/* ACTION */}
+                <div className="flex gap-2 pt-2 border-t">
 
                   <button
                     onClick={() => togglePublish(post)}
-                    className={`px-3 py-1 rounded-full text-xs ${post.published
-                        ? "bg-green-500/10 text-green-600"
-                        : "bg-gray-400/10 text-gray-500"
-                      }`}
+                    className={`flex items-center gap-1 px-3 h-8 rounded-xl text-xs border ${
+                      post.published
+                        ? "text-green-500 border-green-400 bg-green-500/10"
+                        : "text-gray-500 border-border"
+                    }`}
                   >
-                    {post.published ? "Published" : "Draft"}
+                    {post.published ? <Eye size={13} /> : <EyeOff size={13} />}
+                    {post.published ? "Public" : "Nháp"}
                   </button>
 
-                </td>
+                  <button
+                    onClick={() => loadPostForEditing(post)}
+                    className="flex-1 flex items-center justify-center gap-1 border px-3 h-8 rounded-xl text-xs"
+                  >
+                    <Edit3 size={13} />
+                    Sửa
+                  </button>
 
-                <td className="px-4 py-3">
-                  {formatDate(post.created_at)}
-                </td>
+                  <button
+                    onClick={() => setDeleteId(post.id)}
+                    className="flex items-center px-3 h-8 rounded-xl border border-red-400 text-red-500"
+                  >
+                    <Trash2 size={13} />
+                  </button>
 
-                <td className="px-4 py-3 text-right">
+                </div>
 
-                  <div className="flex justify-end gap-2">
+              </div>
 
-                    <button
-                      onClick={() => loadPostForEditing(post)}
-                      className="flex items-center gap-1 border px-2 py-1 rounded text-xs"
-                    >
-                      <Edit3 size={14} />
-                      Sửa
-                    </button>
+            </div>
 
-                    <button
-                      onClick={() => setDeleteId(post.id)}
-                      className="flex items-center gap-1 border border-red-400 text-red-500 px-2 py-1 rounded text-xs"
-                    >
-                      <Trash2 size={14} />
-                      Xóa
-                    </button>
+          ))}
 
-                  </div>
-
-                </td>
-
-              </tr>
-
-            ))}
-
-          </tbody>
-
-        </table>
-
-      </div>
+        </div>
+      )}
 
       {/* FORM */}
-
       <PostsForm
         open={formOpen}
         initial={editing ?? undefined}
@@ -475,7 +372,6 @@ export default function PostsList() {
       />
 
       {/* DELETE */}
-
       <ConfirmDeleteDialog
         open={!!deleteId}
         title="Xóa Tin tức"
@@ -484,7 +380,6 @@ export default function PostsList() {
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
       />
-
     </div>
   );
 }

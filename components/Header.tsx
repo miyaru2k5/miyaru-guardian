@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Home, FileText, User, Newspaper } from "lucide-react";
+import { Users, Home, FileText, User, MessageCircle } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
@@ -29,27 +29,47 @@ const Header = () => {
 
             {/* LOGO */}
             <Link href="/" className="flex items-center gap-2">
+
               {systemSettings.logo_url ? (
-                <img
-                  src={systemSettings.logo_url}
-                  alt={systemSettings.site_name}
-                  className="w-10 h-10 rounded-xl object-cover"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-lg">
-                    {systemSettings.site_name?.charAt(0)}
+                <>
+                  {/* Logo 2:1 + bo tròn */}
+                  <div className="h-12 w-24 rounded-xl overflow-hidden flex items-center justify-center bg-background border border-border">
+                    <img
+                      src={systemSettings.logo_url}
+                      alt={systemSettings.site_name}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  {/* Site name luôn hiển thị */}
+                  <span
+                    className="text-lg font-bold truncate"
+                    style={{ color: siteNameColor }}
+                  >
+                    {systemSettings.site_name}
                   </span>
-                </div>
+                </>
+              ) : (
+                <>
+                  {/* Fallback icon */}
+                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-lg">
+                      {systemSettings.site_name?.charAt(0)}
+                    </span>
+                  </div>
+
+                  {/* Site name */}
+                  <span
+                    className="text-lg font-bold"
+                    style={{ color: siteNameColor }}
+                  >
+                    {systemSettings.site_name}
+                  </span>
+                </>
               )}
 
-              <span
-                className="text-lg font-bold"
-                style={{ color: siteNameColor }}
-              >
-                {systemSettings.site_name}
-              </span>
             </Link>
+
 
             {/* DESKTOP NAV */}
             <nav className="hidden md:flex items-center gap-2">
@@ -61,12 +81,7 @@ const Header = () => {
                 active={pathname === "/"}
               />
 
-              <NavItem
-                href="/bai-viet"
-                icon={<Newspaper size={16} />}
-                label="Tin tức"
-                active={isActive("/bai-viet")}
-              />
+
 
               {/* GDV nổi bật */}
               <NavItem
@@ -74,9 +89,14 @@ const Header = () => {
                 icon={<Users size={16} />}
                 label="Giao dịch viên"
                 active={isActive("/giao-dich-vien")}
-                
-              />
 
+              />
+              <NavItem
+                href="/contact"
+                icon={<MessageCircle size={16} />}
+                label="Liên hệ"
+                active={isActive("/bai-viet")}
+              />
               {/* Ẩn khi màn nhỏ */}
               <div className="hidden lg:block">
                 <NavItem
@@ -117,9 +137,9 @@ const Header = () => {
           />
 
           <MobileItem
-            href="/bai-viet"
-            icon={<Newspaper size={20} />}
-            label="Tin tức"
+            href="/contact"
+            icon={<MessageCircle size={20} />}
+            label="Liên hệ"
             active={isActive("/bai-viet")}
           />
 
@@ -131,11 +151,10 @@ const Header = () => {
             >
               <div
                 className={`w-16 h-16 rounded-full shadow-xl border-4 border-background flex flex-col items-center justify-center
-                ${
-                  isActive("/giao-dich-vien")
+                ${isActive("/giao-dich-vien")
                     ? "bg-primary text-white"
                     : "bg-primary text-white"
-                }`}
+                  }`}
               >
                 <Users size={24} />
                 <span className="text-[10px] font-semibold leading-none">
@@ -192,10 +211,9 @@ const NavItem = ({
         px-4 py-2 rounded-full border flex items-center gap-2 font-medium
         transition whitespace-nowrap
 
-        ${
-          highlight
-            ? "bg-primary text-white border-primary shadow-md"
-            : active
+        ${highlight
+          ? "bg-primary text-white border-primary shadow-md"
+          : active
             ? "bg-primary text-white border-primary"
             : "border-border hover:text-primary hover:border-primary"
         }

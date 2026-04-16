@@ -38,22 +38,16 @@ const ProfileDropdown = () => {
   return (
     <DropdownMenu>
       {/* ── Trigger ── */}
-      <DropdownMenuTrigger asChild>
-        <button className="w-9 h-9 rounded-full bg-secondary border border-border flex items-center justify-center hover:border-primary/50 transition-colors overflow-hidden outline-none">
-          {user ? (
-            avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-sm font-bold text-primary">
-                {user.user_metadata?.full_name?.charAt(0) ||
-                  user.email?.charAt(0)?.toUpperCase() || "U"}
-              </span>
-            )
-          ) : (
-            <Menu size={18} className="text-muted-foreground" />
-          )}
-        </button>
-      </DropdownMenuTrigger>
+<DropdownMenuTrigger asChild>
+<button
+  className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 
+  transition-colors border border-border"
+>
+  <Menu size={20} className="text-primary" />
+</button>
+
+</DropdownMenuTrigger>
+
 
       {/* ── Content — Radix tự Portal vào body, không bao giờ bị clip ── */}
       <DropdownMenuContent
@@ -71,11 +65,11 @@ const ProfileDropdown = () => {
           <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
         )}
         <Item icon={<Home size={15} />}          label="Trang chủ"      onClick={() => go("/")} />
-        <Item icon={<Newspaper size={15} />}     label="Tin tức"        onClick={() => go("/bai-viet")} />
+
         <Item icon={<Users size={15} />}         label="Giao dịch viên" onClick={() => go("/giao-dich-vien")} />
         <Item icon={<MessageCircle size={15} />} label="Liên hệ"        onClick={() => go("/contact")} />
         <Item icon={<FileText size={15} />}      label="Điều khoản"     onClick={() => go("/dieu-khoan")} />
-
+        <Item icon={<Newspaper size={15} />}     label="Tin tức"        onClick={() => go("/bai-viet")} />
         <DropdownMenuSeparator className="my-0" />
 
         {/* Hồ sơ */}
@@ -107,7 +101,7 @@ const ProfileDropdown = () => {
             </div>
             <DropdownMenuSeparator className="my-0" />
 
-            <Item icon={<User size={15} />} label="Cài đặt" onClick={() => go("/profile")} />
+            <Item icon={<User size={15} />} label="Trang cá nhân" onClick={() => go("/profile")} />
             <DropdownMenuSeparator className="my-0" />
 
             <DropdownMenuItem

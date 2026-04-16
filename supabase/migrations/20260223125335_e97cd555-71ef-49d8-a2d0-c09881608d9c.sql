@@ -79,6 +79,7 @@ CREATE TABLE public.insurance_fund (
   total_fund BIGINT NOT NULL DEFAULT 0,
   currently_insured BIGINT NOT NULL DEFAULT 0,
   max_percentage NUMERIC(5,2) NOT NULL DEFAULT 20.00,
+  safe_trade_percentage NUMERIC(5,2) NOT NULL DEFAULT 80.00,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 

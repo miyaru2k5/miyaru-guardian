@@ -14,7 +14,7 @@ import { supabase } from "@/lib/supabase";
 import MainLayout from "@/layouts/MainLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 
 const schema = z.object({
   email: z.string().email("Email không hợp lệ"),
@@ -58,20 +58,40 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Email
+                </label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input {...register("email")} placeholder="Email" className="pl-10" />
+                  <Mail
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    {...register("email")}
+                    placeholder="Nhập email"
+                    className="pl-10"
+                  />
                 </div>
-                {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Mật khẩu
+                </label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Lock
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     {...register("password")}
                     type={showPw ? "text" : "password"}
-                    placeholder="Mật khẩu"
+                    placeholder="Nhập mật khẩu"
                     className="pl-10 pr-10"
                   />
                   <button
@@ -82,7 +102,11 @@ const LoginPage = () => {
                     {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex justify-end">
@@ -91,7 +115,13 @@ const LoginPage = () => {
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full btn-glow" disabled={loading}>
+
+              <Button
+                type="submit"
+                className="w-full btn-glow flex items-center justify-center gap-2"
+                disabled={loading}
+              >
+                <LogIn className="w-4 h-4" />
                 {loading ? "Đang đăng nhập..." : "Đăng nhập"}
               </Button>
             </form>

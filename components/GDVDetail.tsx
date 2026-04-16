@@ -33,6 +33,8 @@ interface Trader {
     facebook: string | null;
     zalo: string | null;
     website: string | null;
+    created_at: string;
+
 }
 
 interface Category {
@@ -104,6 +106,10 @@ const GDVDetail = () => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
+    const formatDate = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString("vi-VN"); // => dd/mm/yyyy
+    };
 
     // ── Loading ──────────────────────────────────────────────────────────────
     if (loading) {
@@ -145,17 +151,8 @@ const GDVDetail = () => {
 
     return (
         <MainLayout>
-            <div className="min-h-screen py-6 md:py-10 px-4">
+            <div className="min-h-screen pt-20 md:pt-24 pb-6 md:pb-10 px-4">
                 <div className="container mx-auto max-w-5xl">
-
-                    {/* Back */}
-                    <button
-                        onClick={() => router.back()}
-                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-                    >
-                        <ArrowLeft size={16} />
-                        Quay lại danh sách
-                    </button>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -190,9 +187,8 @@ const GDVDetail = () => {
                                                 className="w-5 h-5 object-contain shrink-0"
                                             />
                                             <span
-                                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0 ${
-                                                    isLive ? "status-live" : "status-offline"
-                                                }`}
+                                                className={`px-2.5 py-0.5 rounded-full text-xs font-medium shrink-0 ${isLive ? "status-live" : "status-offline"
+                                                    }`}
                                             >
                                                 {trader.status}
                                             </span>
@@ -223,28 +219,6 @@ const GDVDetail = () => {
                                     <span className="font-mono font-semibold text-foreground">{trader.code}</span>
                                 </div>
                             </div>
-
-                            {/* Mô tả */}
-                            {trader.description && (
-                                <div className="glow-border rounded-3xl p-5 md:p-7">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                            <FileText size={14} className="text-primary" />
-                                        </div>
-                                        <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-                                            Giới thiệu
-                                        </h2>
-                                    </div>
-                                    <div className="space-y-3">
-                                        {trader.description.split("\n").filter(Boolean).map((para, idx) => (
-                                            <p key={idx} className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                                                {para}
-                                            </p>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
                             {/* Liên hệ */}
                             {(trader.facebook || trader.zalo || trader.website) && (
                                 <div className="glow-border rounded-3xl p-5 md:p-7">
@@ -323,6 +297,28 @@ const GDVDetail = () => {
                                     </div>
                                 </div>
                             )}
+                            {/* Mô tả */}
+                            {trader.description && (
+                                <div className="glow-border rounded-3xl p-5 md:p-7">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                            <FileText size={14} className="text-primary" />
+                                        </div>
+                                        <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                                            Giới thiệu
+                                        </h2>
+                                    </div>
+                                    <div className="space-y-3">
+                                        {trader.description.split("\n").filter(Boolean).map((para, idx) => (
+                                            <p key={idx} className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                                                {para}
+                                            </p>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+
                         </div>
 
                         {/* ── RIGHT / SIDEBAR ── */}
@@ -331,6 +327,17 @@ const GDVDetail = () => {
                                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                     Thống kê
                                 </p>
+                                <div className="flex items-center gap-3 p-4 rounded-2xl bg-card/60 border border-border">
+                                    <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                        <ShieldCheck size={18} className="text-primary" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-muted-foreground">Tham gia bảo hiểm</p>
+                                        <p className="text-base font-bold text-foreground leading-tight">
+                                            {formatDate(trader.created_at)}
+                                        </p>
+                                    </div>
+                                </div>
 
                                 <div className="flex items-center gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/20">
                                     <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">

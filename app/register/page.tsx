@@ -14,7 +14,7 @@ import { supabase } from "@/lib/supabase";
 import MainLayout from "@/layouts/MainLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, UserPlus, Loader2 } from "lucide-react";
 
 const schema = z
   .object({
@@ -70,26 +70,62 @@ const RegisterPage = () => {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Họ và tên
+                </label>
                 <div className="relative">
-                  <User size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input {...register("fullName")} placeholder="Họ tên" className="pl-10" />
+                  <User
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    {...register("fullName")}
+                    placeholder="Nhập họ tên"
+                    className="pl-10"
+                  />
                 </div>
-                {errors.fullName && <p className="text-xs text-destructive mt-1">{errors.fullName.message}</p>}
+                {errors.fullName && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.fullName.message}
+                  </p>
+                )}
               </div>
+
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Email
+                </label>
                 <div className="relative">
-                  <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input {...register("email")} placeholder="Email" className="pl-10" />
+                  <Mail
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <Input
+                    {...register("email")}
+                    placeholder="Nhập email"
+                    className="pl-10"
+                  />
                 </div>
-                {errors.email && <p className="text-xs text-destructive mt-1">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
+
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Mật khẩu
+                </label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Lock
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     {...register("password")}
                     type={showPw ? "text" : "password"}
-                    placeholder="Mật khẩu"
+                    placeholder="Nhập mật khẩu"
                     className="pl-10 pr-10"
                   />
                   <button
@@ -100,23 +136,52 @@ const RegisterPage = () => {
                     {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-destructive mt-1">{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
+
               <div>
+                <label className="block text-sm font-medium mb-1">
+                  Xác nhận mật khẩu
+                </label>
                 <div className="relative">
-                  <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Lock
+                    size={18}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
                   <Input
                     {...register("confirmPassword")}
                     type={showPw ? "text" : "password"}
-                    placeholder="Xác nhận mật khẩu"
-                    className="pl-10"
+                    placeholder="Nhập lại mật khẩu"
+                    className="pl-10 pr-10"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  >
+                    {showPw ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-xs text-destructive mt-1">{errors.confirmPassword.message}</p>
+                  <p className="text-xs text-destructive mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
-              <Button type="submit" className="w-full btn-glow" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full btn-glow flex items-center justify-center gap-2"
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <UserPlus className="w-4 h-4" />
+                )}
                 {loading ? "Đang đăng ký..." : "Đăng ký"}
               </Button>
             </form>

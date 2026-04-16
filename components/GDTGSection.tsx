@@ -9,7 +9,7 @@ const GDTGSection = () => {
 
   const stats = [
     { icon: TrendingUp, value: "10K+", label: "Giao dịch thành công", color: "text-primary" },
-    { icon: Shield, value: "99%", label: "Tỷ lệ thành công", color: "text-primary" },
+    { icon: Shield, value: "99,9%", label: "Tỷ lệ thành công", color: "text-primary" },
     { icon: Clock, value: "24/7", label: "Hỗ trợ liên tục", color: "text-primary" },
   ];
 
