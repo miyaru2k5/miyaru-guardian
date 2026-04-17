@@ -97,7 +97,7 @@ const GDVDetail = () => {
 
         // Reset title on unmount
         return () => {
-            document.title = "Miyaru Guardian";
+            document.title = "Admin Việt Nam";
         };
     }, [slug]);
 

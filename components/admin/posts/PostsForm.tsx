@@ -260,7 +260,7 @@ const PostsForm = ({ open, initial, loading = false, onClose, onSubmit }: PostsF
                   type="text"
                   value={values.tags}
                   onChange={(e) => handleInputChange("tags", e.target.value)}
-                  placeholder="miyaru, bảo vệ"
+                  placeholder="bảo vệ"
                   className="w-full rounded-xl border border-border bg-card/80 px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none"
                 />
               </label>

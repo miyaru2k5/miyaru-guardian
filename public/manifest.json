@@ -1,7 +1,7 @@
 {
-  "name": "Hệ Thống Kiểm Tra Admin",
-  "short_name": "Miyaru Admin",
-  "description": "Hệ thống kiểm tra và quản lý admin giao dịch trung gian Miyaru.",
+  "name": "Hệ Thống Kiểm Tra Admin Việt Nam",
+  "short_name": "Admin Việt Nam",
+  "description": "Hệ thống kiểm tra và quản lý admin giao dịch trung gian Admin Việt Nam.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",

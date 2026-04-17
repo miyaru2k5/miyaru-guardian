@@ -6,7 +6,9 @@ import {
   Menu, User, LogOut, LogIn, UserPlus,
   Home, Users, FileText, LayoutDashboard,
   Newspaper, MessageCircle,
+  Sparkles, ShieldCheck
 } from "lucide-react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 
@@ -24,38 +27,39 @@ const ProfileDropdown = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) { setAvatarUrl(null); return; }
+    if (!user) {
+      setAvatarUrl(null);
+      return;
+    }
+
     supabase
       .from("profiles")
       .select("avatar_url")
       .eq("id", user.id)
       .maybeSingle()
-      .then(({ data }) => { if (data?.avatar_url) setAvatarUrl(data.avatar_url); });
+      .then(({ data }) => {
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+      });
   }, [user]);
 
   const go = (path: string) => router.push(path);
 
   return (
     <DropdownMenu>
-      {/* ── Trigger ── */}
-<DropdownMenuTrigger asChild>
-<button
-  className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 
-  transition-colors border border-border"
->
-  <Menu size={20} className="text-primary" />
-</button>
+      {/* Trigger */}
+      <DropdownMenuTrigger asChild>
+        <button className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors border border-border">
+          <Menu size={20} className="text-primary" />
+        </button>
+      </DropdownMenuTrigger>
 
-</DropdownMenuTrigger>
-
-
-      {/* ── Content — Radix tự Portal vào body, không bao giờ bị clip ── */}
+      {/* Content */}
       <DropdownMenuContent
         align="end"
         sideOffset={8}
         className="w-60 rounded-2xl p-0 overflow-hidden"
       >
-        {/* Hệ thống */}
+        {/* ===== HỆ THỐNG ===== */}
         <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
           Hệ thống
         </DropdownMenuLabel>
@@ -64,15 +68,34 @@ const ProfileDropdown = () => {
         {isAdmin && (
           <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
         )}
-        <Item icon={<Home size={15} />}          label="Trang chủ"      onClick={() => go("/")} />
 
-        <Item icon={<Users size={15} />}         label="Giao dịch viên" onClick={() => go("/giao-dich-vien")} />
-        <Item icon={<MessageCircle size={15} />} label="Liên hệ"        onClick={() => go("/contact")} />
-        <Item icon={<FileText size={15} />}      label="Điều khoản"     onClick={() => go("/dieu-khoan")} />
-        <Item icon={<Newspaper size={15} />}     label="Tin tức"        onClick={() => go("/bai-viet")} />
+        <Item icon={<Home size={15} />} label="Trang chủ" onClick={() => go("/")} />
+        <Item icon={<Users size={15} />} label="Giao dịch viên" onClick={() => go("/giao-dich-vien")} />
+        <Item icon={<MessageCircle size={15} />} label="Liên hệ" onClick={() => go("/contact")} />
+        <Item icon={<FileText size={15} />} label="Điều khoản" onClick={() => go("/dieu-khoan")} />
+        <Item icon={<Newspaper size={15} />} label="Tin tức" onClick={() => go("/bai-viet")} />
+
+        {/* ===== TIỆN ÍCH ===== */}
+        <DropdownMenuSeparator className="my-0" />
+        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Tiện ích
+        </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-0" />
 
-        {/* Hồ sơ */}
+        <Item
+          icon={<Sparkles size={15} />}
+          label="Lấy UID Facebook"
+          onClick={() => go("/get-uid-fb")}
+        />
+
+        <Item
+          icon={<ShieldCheck size={15} />}
+          label="Lấy mã 2FA"
+          onClick={() => go("/get-2fa")}
+        />
+
+        {/* ===== HỒ SƠ ===== */}
+        <DropdownMenuSeparator className="my-0" />
         <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
           Hồ sơ
         </DropdownMenuLabel>
@@ -92,20 +115,28 @@ const ProfileDropdown = () => {
                   </span>
                 )}
               </div>
+
               <div className="min-w-0">
-                <p className="text-sm font-medium truncate leading-tight">
+                <p className="text-sm font-medium truncate">
                   {user.user_metadata?.full_name || "User"}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
               </div>
             </div>
+
             <DropdownMenuSeparator className="my-0" />
 
             <Item icon={<User size={15} />} label="Trang cá nhân" onClick={() => go("/profile")} />
+
             <DropdownMenuSeparator className="my-0" />
 
             <DropdownMenuItem
-              onClick={async () => { await signOut(); router.push("/"); }}
+              onClick={async () => {
+                await signOut();
+                router.push("/");
+              }}
               className="px-4 py-2.5 gap-2.5 text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer"
             >
               <LogOut size={15} />
@@ -114,8 +145,8 @@ const ProfileDropdown = () => {
           </>
         ) : (
           <>
-            <Item icon={<LogIn size={15} />}    label="Đăng nhập" onClick={() => go("/login")} />
-            <Item icon={<UserPlus size={15} />} label="Đăng ký"   onClick={() => go("/register")} />
+            <Item icon={<LogIn size={15} />} label="Đăng nhập" onClick={() => go("/login")} />
+            <Item icon={<UserPlus size={15} />} label="Đăng ký" onClick={() => go("/register")} />
           </>
         )}
       </DropdownMenuContent>
@@ -124,7 +155,9 @@ const ProfileDropdown = () => {
 };
 
 const Item = ({
-  icon, label, onClick,
+  icon,
+  label,
+  onClick,
 }: {
   icon: React.ReactNode;
   label: string;

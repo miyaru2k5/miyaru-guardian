@@ -41,7 +41,7 @@ const ArticleHeader = ({ post }: ArticleHeaderProps) => {
           )}
         </div>
         <div className="flex items-center gap-2.5">
-          <span className="font-medium text-white">{post.author_name ?? "Đội ngũ Miyaru"}</span>
+          <span className="font-medium text-white">{post.author_name ?? "Đội ngũ Admin"}</span>
           <span className="h-1 w-1 rounded-full bg-gray-600"></span>
           <span>{formattedDate}</span>
           <span className="h-1 w-1 rounded-full bg-gray-600"></span>
