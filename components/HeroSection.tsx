@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Shield, UserCheck, Headphones, Zap, AlertTriangle } from "lucide-react";
+import {
+  Shield,
+  UserCheck,
+  Headphones,
+  Zap,
+  AlertTriangle,
+} from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
@@ -9,145 +15,152 @@ interface InsuranceFund {
   total_fund: number;
   currently_insured: number;
   max_percentage: number;
-  safe_trade_percentage: number; // ✅ thêm
+  safe_trade_percentage: number;
+  banner1?: string;
+  banner2?: string;
+  link_banner1?: string;
+  link_banner2?: string;
 }
 
 const HeroSection = () => {
   const { systemSettings } = useThemeCustomizer();
   const siteName = systemSettings.site_name || "Admin";
 
-  const [insuranceFund, setInsuranceFund] = useState<InsuranceFund | null>(null);
+  const [insuranceFund, setInsuranceFund] =
+    useState<InsuranceFund | null>(null);
 
   useEffect(() => {
     const fetchInsurance = async () => {
-      try {
-        const { data } = await supabase
-          .from("insurance_fund")
-          .select("*")
-          .limit(1)
-          .maybeSingle();
+      const { data } = await supabase
+        .from("insurance_fund")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
 
-        if (data) setInsuranceFund(data);
-      } catch (err) {
-        console.error("Fetch insurance fund failed:", err);
-      }
+      if (data) setInsuranceFund(data);
     };
 
     fetchInsurance();
   }, []);
 
-  // ✅ dynamic safe %
-  const safePercent = Number(insuranceFund?.safe_trade_percentage ?? 80);
+  // ✅ FIX LINK
+  const getValidLink = (url?: string) => {
+    if (!url) return "#";
+    if (!/^https?:\/\//i.test(url)) return `https://${url}`;
+    return url;
+  };
+
+  const safePercent = Number(
+    insuranceFund?.safe_trade_percentage ?? 80
+  );
 
   const features = [
     { icon: Shield, text: "Được bảo vệ bởi quỹ bảo hiểm" },
     { icon: UserCheck, text: "Xác thực danh tính rõ ràng" },
     { icon: Headphones, text: "Hỗ trợ nhanh chóng" },
-    { icon: Zap, text: "Xử lý giao dịch trong vài phút" },
+    { icon: Zap, text: "Xử lý giao dịch nhanh chóng" },
   ];
 
   return (
-    <section className="pt-32 pb-20 px-4 relative overflow-hidden">
-      {/* Background */}
+    <section className="pt-24 md:pt-32 pb-16 md:pb-24 px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent pointer-events-none" />
 
-      <div className="container mx-auto text-center relative z-10">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-8 animate-fade-in-up">
-          <Shield className="w-4 h-4 text-primary" />
-          <span className="text-primary text-sm font-medium">
-            GIAO DỊCH VIÊN
-          </span>
+      <div className="max-w-6xl mx-auto relative z-10 text-center">
+
+        {/* HEADER */}
+        <div className="mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 mb-6">
+            <Shield className="w-4 h-4 text-primary" />
+            <span className="text-primary text-sm font-medium">
+              GIAO DỊCH VIÊN
+            </span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-4 leading-tight">
+            Giao dịch viên{" "}
+            <span className="text-gradient">Uy tín & Tận tâm</span>
+          </h1>
+
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Giao dịch minh bạch – bảo chứng bởi quỹ {siteName}
+          </p>
         </div>
 
-        {/* Title */}
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
-          Giao dịch viên{" "}
-          <span className="text-gradient">Uy tín & Tận tâm</span>
-        </h1>
+        {/* BANNER 1 */}
+        {insuranceFund?.banner1 && (
+          <a
+            href={getValidLink(insuranceFund.link_banner1)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full mb-10"
+          >
+            <img
+              src={insuranceFund.banner1}
+              className="w-full h-[120px] sm:h-[140px] md:h-[160px] object-cover rounded-2xl border shadow-sm hover:scale-[1.02] transition"
+            />
+          </a>
+        )}
 
-        {/* Subtitle */}
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-in-up">
-          Giao dịch minh bạch – bảo chứng bởi quỹ {siteName}
-        </p>
-
-        {/* Features */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto mb-12">
+        {/* FEATURES */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex items-center gap-3 p-4 rounded-xl bg-card/50 border border-border hover:border-primary/30 transition-all card-hover animate-fade-in-up"
-              style={{ animationDelay: `${0.3 + index * 0.1}s` }}
+              className="flex items-center gap-3 p-4 rounded-xl bg-card/60 border border-border hover:border-primary/30 transition"
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                 <feature.icon className="w-5 h-5 text-primary" />
               </div>
-              <span className="text-sm text-foreground text-left">
+
+              <span className="text-sm text-left leading-snug">
                 {feature.text}
               </span>
             </div>
           ))}
         </div>
 
-        {/* 🔥 SAFETY RULE (dynamic) */}
-        <div className="max-w-3xl mx-auto mb-12 animate-fade-in-up">
-          <div className="relative overflow-hidden rounded-2xl border border-amber-300/40 bg-gradient-to-br from-amber-100/60 to-amber-50/30 dark:from-amber-500/10 dark:to-transparent p-6 md:p-8 backdrop-blur">
+        {/* BANNER 2 + SAFETY */}
+        <div className="flex flex-col lg:flex-row gap-6 mb-12 items-stretch">
 
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.25),transparent_70%)] pointer-events-none" />
+          {/* Banner 2 */}
+          {insuranceFund?.banner2 && (
+            <a
+              href={getValidLink(insuranceFund.link_banner2)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full lg:w-[320px] flex-shrink-0"
+            >
+              <img
+                src={insuranceFund.banner2}
+                className="w-full h-auto max-h-[120px] object-cover rounded-2xl border shadow-sm hover:opacity-90 transition"
+              />
+            </a>
+          )}
 
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-
-              {/* Icon */}
-              <div className="relative flex-shrink-0">
-                <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-400/30">
-                  <AlertTriangle className="w-7 h-7 text-amber-600 dark:text-amber-400" />
-                </div>
-                <div className="absolute inset-0 rounded-full bg-amber-400/20 blur-xl animate-pulse" />
+          {/* SAFETY */}
+          <div className="flex-1 rounded-2xl border border-amber-300/40 bg-gradient-to-br from-amber-100/60 to-transparent dark:from-amber-500/10 p-5 sm:p-6 md:p-8">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500" />
               </div>
 
-              {/* Content */}
-              <div className="text-center md:text-left flex-1">
-                <p className="text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400 font-semibold mb-1">
+              <div className="text-left">
+                <p className="text-xs uppercase text-amber-500 font-semibold mb-1">
                   Quy tắc an toàn
                 </p>
 
-                <h3 className="text-lg md:text-xl font-bold mb-2">
-                  Chỉ giao dịch tối đa{" "}
-                  <span className="text-amber-600 dark:text-amber-400">
-                    {safePercent}%
-                  </span>{" "}
-                  quỹ bảo hiểm
+                <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1">
+                  Chỉ giao dịch tối đa {safePercent}%
                 </h3>
-
-                <p className="text-sm text-muted-foreground">
-                  Giúp giảm thiểu rủi ro và đảm bảo bạn luôn được bảo vệ khi giao dịch với GDV
-                </p>
-
-                {/* Progress */}
-                <div className="mt-4">
-                  <div className="w-full h-2 rounded-full bg-amber-200/40 dark:bg-amber-500/10 overflow-hidden">
-                    <div
-                      className="h-full bg-amber-500 rounded-full transition-all duration-500"
-                      style={{ width: `${safePercent}%` }}
-                    />
-                  </div>
-
-                  <div className="flex justify-between text-xs mt-1 text-muted-foreground">
-                    <span>0%</span>
-                    <span className="text-amber-600 font-semibold">
-                      {safePercent}% an toàn
-                    </span>
-                    <span>100%</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Insurance Stats */}
+        {/* STATS */}
         {insuranceFund && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto text-left animate-fade-in-up">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+
             <div className="p-5 rounded-2xl bg-card/60 border border-border">
               <p className="text-sm text-muted-foreground mb-1">
                 Tổng quỹ bảo hiểm
@@ -179,8 +192,19 @@ const HeroSection = () => {
                 % / {insuranceFund.max_percentage}%
               </p>
             </div>
+
+            <div className="p-5 rounded-2xl bg-card/60 border border-amber-400/30">
+              <p className="text-sm text-muted-foreground mb-1">
+                Quy tắc an toàn
+              </p>
+              <p className="text-lg md:text-xl font-bold text-amber-600">
+                GD {insuranceFund.safe_trade_percentage}% tiền cọc
+              </p>
+            </div>
+
           </div>
         )}
+
       </div>
     </section>
   );
