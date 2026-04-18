@@ -2,11 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Search as SearchIcon } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import GDVCard from "./GDVCard";
 import SearchBar from "./SearchBar";
 import FilterDropdown, { type FilterOption } from "./FilterDropdown";
+import { getFbUid } from "@/lib/getFbUid";
 
 interface Trader {
   id: string;
@@ -33,15 +36,26 @@ const GDVSection = () => {
   const [traders, setTraders] = useState<Trader[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [traderCats, setTraderCats] = useState<Record<string, string[]>>({});
-  const [search, setSearch] = useState("");
-  const [filterCat, setFilterCat] = useState("all");
+
+  const [searchText, setSearchText] = useState("");
+  const [facebookUid, setFacebookUid] = useState<string | null>(null);
+  const [zaloPhone, setZaloPhone] = useState<string | null>(null);
+  const [websiteSearch, setWebsiteSearch] = useState<string | null>(null);
+  const [slugSearch, setSlugSearch] = useState<string | null>(null);
+
+  const [isSearching, setIsSearching] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const websiteUrl = process.env.NEXT_PUBLIC_WEBSITE_URL || "";
+  const websiteDomain = process.env.NEXT_PUBLIC_WEBSITE_DOMAIN || "";
+
+  // Fetch dữ liệu ban đầu
   useEffect(() => {
     const fetchAll = async () => {
       try {
         setError(null);
+        setLoading(true);
 
         const [tRes, cRes, tcRes] = await Promise.all([
           supabase
@@ -61,7 +75,6 @@ const GDVSection = () => {
           if (!map[tc.trader_id]) map[tc.trader_id] = [];
           map[tc.trader_id].push(tc.category_id);
         });
-
         setTraderCats(map);
       } catch (e: any) {
         console.error("GDVSection fetch failed", e);
@@ -74,36 +87,161 @@ const GDVSection = () => {
     fetchAll();
   }, []);
 
+  // Xử lý tìm kiếm thông minh
+  const handleSearchChange = useCallback(async (value: string) => {
+    const trimmed = value.trim();
+    setSearchText(trimmed);
+
+    // Reset các chế độ tìm kiếm đặc biệt
+    setFacebookUid(null);
+    setZaloPhone(null);
+    setWebsiteSearch(null);
+    setSlugSearch(null);
+
+    if (!trimmed) {
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true); // Bắt đầu loading
+
+    try {
+      // 1. Facebook
+      if (trimmed.includes("facebook.com") || trimmed.includes("fb.com")) {
+        const uid = await getFbUid(trimmed);
+        if (uid) {
+          setFacebookUid(uid);
+          toast({ title: "Tìm theo Facebook UID", description: uid });
+        }
+        return;
+      }
+
+      // 2. Link profile website → slug
+      if (
+        trimmed.includes(websiteDomain) ||
+        trimmed.includes(websiteUrl.replace("https://", "")) ||
+        trimmed.startsWith("/")
+      ) {
+        let slug = trimmed
+          .replace(websiteUrl, "")
+          .replace(`https://${websiteDomain}`, "")
+          .replace(`http://${websiteDomain}`, "")
+          .replace(/^https?:\/\//, "")
+          .replace(websiteDomain, "")
+          .replace(/^\//, "")
+          .split("?")[0]
+          .split("#")[0];
+
+        if (slug) {
+          setSlugSearch(slug);
+          toast({ title: "Tìm theo slug", description: slug });
+          return;
+        }
+      }
+
+      // 3. Zalo / SĐT
+      if (
+        trimmed.includes("zalo.me") ||
+        /^(\+?84|0)[35789]\d{8,9}$/.test(trimmed.replace(/\s+/g, ""))
+      ) {
+        let phone = trimmed;
+        if (trimmed.includes("zalo.me")) {
+          const match = trimmed.match(/zalo\.me\/(\+?84|0)?(\d+)/);
+          if (match) phone = match[2];
+        }
+        phone = phone.replace(/\D/g, "");
+        if (phone.startsWith("84")) phone = "0" + phone.slice(2);
+        if (phone.length >= 9) {
+          setZaloPhone(phone);
+          toast({ title: "Tìm theo Zalo/SĐT", description: phone });
+          return;
+        }
+      }
+
+      // 4. Website / domain
+      if (
+        trimmed.includes("http") ||
+        (trimmed.includes(".") &&
+          !trimmed.includes("facebook.com") &&
+          !trimmed.includes("zalo.me"))
+      ) {
+        try {
+          let domain = trimmed;
+          if (trimmed.includes("http")) {
+            const urlObj = new URL(trimmed.startsWith("http") ? trimmed : "https://" + trimmed);
+            domain = urlObj.hostname.replace("www.", "");
+          } else {
+            domain = trimmed.replace("www.", "");
+          }
+          setWebsiteSearch(domain.toLowerCase());
+          toast({ title: "Tìm theo website", description: domain });
+          return;
+        } catch { }
+      }
+    } catch (err: any) {
+      toast({
+        title: "Có lỗi khi xử lý tìm kiếm",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSearching(false); // Kết thúc loading
+    }
+  }, [websiteUrl, websiteDomain]);
+
+  const handleFilterChange = useCallback((value: string) => setFilterCat(value), []);
+  const [filterCat, setFilterCat] = useState("all");
+
   const getCatNames = (traderId: string) => {
     const catIds = traderCats[traderId] || [];
-    return categories.filter(c => catIds.includes(c.id)).map(c => c.name);
+    return categories.filter((c) => catIds.includes(c.id)).map((c) => c.name);
   };
-
-  const handleSearchChange = useCallback((value: string) => setSearch(value), []);
-  const handleFilterChange = useCallback((value: string) => setFilterCat(value), []);
 
   const filterOptions: FilterOption[] = useMemo(
     () => [
       { value: "all", label: "Tất cả danh mục" },
-      ...categories.map(c => ({ value: c.id, label: c.name })),
+      ...categories.map((c) => ({ value: c.id, label: c.name })),
     ],
-    [categories],
+    [categories]
   );
 
-  const filtered = useMemo(
-    () =>
-      traders.filter(t => {
-        const matchSearch =
-          t.name.toLowerCase().includes(search.toLowerCase()) ||
-          t.code.toLowerCase().includes(search.toLowerCase());
+  // Logic lọc kết quả
+  const filtered = useMemo(() => {
+    return traders.filter((t) => {
+      if (facebookUid) return t.facebook === facebookUid;
+      if (slugSearch) return t.slug.toLowerCase() === slugSearch.toLowerCase();
 
-        const matchCat =
-          filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
+      if (zaloPhone && t.zalo) {
+        const normalizedZalo = t.zalo.replace(/\D/g, "");
+        const normalizedSearch = zaloPhone.replace(/\D/g, "");
+        if (normalizedZalo.includes(normalizedSearch) || normalizedSearch.includes(normalizedZalo.slice(-8))) {
+          return true;
+        }
+      }
 
-        return matchSearch && matchCat;
-      }),
-    [traders, search, filterCat, traderCats],
-  );
+      if (websiteSearch && t.website) {
+        try {
+          const traderDomain = new URL(
+            t.website.startsWith("http") ? t.website : "https://" + t.website
+          ).hostname
+            .replace("www.", "")
+            .toLowerCase();
+          if (traderDomain.includes(websiteSearch) || websiteSearch.includes(traderDomain)) return true;
+        } catch {
+          if (t.website.toLowerCase().includes(websiteSearch)) return true;
+        }
+      }
+
+      const matchSearch =
+        searchText === "" ||
+        t.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        t.code.toLowerCase().includes(searchText.toLowerCase());
+
+      const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
+
+      return matchSearch && matchCat;
+    });
+  }, [traders, searchText, facebookUid, zaloPhone, websiteSearch, slugSearch, filterCat, traderCats]);
 
   if (loading) {
     return (
@@ -144,7 +282,7 @@ const GDVSection = () => {
             <div className="flex-1 w-full">
               <SearchBar
                 onSearchChange={handleSearchChange}
-                placeholder="Tìm kiếm giao dịch viên..."
+                placeholder="Tìm theo tên, mã GDV, link FB, Zalo, website hoặc link profile..."
               />
             </div>
 
@@ -160,33 +298,48 @@ const GDVSection = () => {
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((t, i) => (
-            <Link
-              key={t.id}
-              href={`/${t.slug}`}
-              className="block animate-fade-in-up"
-              style={{ animationDelay: `${i * 0.05}s` }}
-            >
-              <GDVCard
-                name={t.name}
-                service={t.service || t.code}
-                code={t.code}
-                insurance={`${Number(t.insurance_fund).toLocaleString("vi-VN")}₫`}
-                isLive={true}
-                successRate={Number(t.success_rate)}
-                avatarUrl={t.avatar_url}
-                description={t.description || undefined}
-                facebook={t.facebook}
-                zalo={t.zalo}
-                website={t.website}
-                categories={getCatNames(t.id)}
+        {/* Khu vực hiển thị kết quả + Loading */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[400px]">
+          {/* Hiển thị loading.gif khi đang tìm kiếm */}
+          {isSearching ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-20">
+              <Image
+                src="/loading.gif"
+                alt="Đang tìm kiếm..."
+                width={100}
+                height={100}
+                className="mb-4"
+                priority
               />
-            </Link>
-          ))}
-
-          {filtered.length === 0 && (
+              <p className="text-muted-foreground text-lg">Đang tìm kiếm giao dịch viên...</p>
+            </div>
+          ) : filtered.length > 0 ? (
+            /* Hiển thị danh sách GDV */
+            filtered.map((t, i) => (
+              <Link
+                key={t.id}
+                href={`/${t.slug}`}
+                className="block animate-fade-in-up"
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
+                <GDVCard
+                  name={t.name}
+                  service={t.service || t.code}
+                  code={t.code}
+                  insurance={`${Number(t.insurance_fund).toLocaleString("vi-VN")}₫`}
+                  isLive={true}
+                  successRate={Number(t.success_rate)}
+                  avatarUrl={t.avatar_url}
+                  description={t.description || undefined}
+                  facebook={t.facebook}
+                  zalo={t.zalo}
+                  website={t.website}
+                  categories={getCatNames(t.id)}
+                />
+              </Link>
+            ))
+          ) : searchText ? (
+            /* Không tìm thấy kết quả */
             <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                 <SearchIcon size={22} className="text-primary" />
@@ -195,11 +348,10 @@ const GDVSection = () => {
                 Không tìm thấy giao dịch viên phù hợp
               </p>
               <p className="max-w-md text-sm text-muted-foreground">
-                Thử thay đổi từ khóa tìm kiếm hoặc bấm{" "}
-                <span className="font-semibold">{"Xóa bộ lọc"}</span>
+                Thử từ khóa khác hoặc kiểm tra lại link bạn dán
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </section>
