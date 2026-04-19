@@ -29,18 +29,18 @@ import { useAuth } from "@/lib/auth";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
 const menuItems = [
-  { icon: LayoutDashboard, label: "Trang chủ",             path: "/admin/dashboard" },
-  { icon: Users,           label: "Giao dịch viên",        path: "/admin/traders" },
-  { icon: Tag,             label: "Danh mục",              path: "/admin/categories" },
+  { icon: LayoutDashboard, label: "Trang chủ", path: "/admin/dashboard" },
+  { icon: Users, label: "Giao dịch viên", path: "/admin/traders" },
+  { icon: Tag, label: "Danh mục", path: "/admin/categories" },
   // { icon: Shield,          label: "Giao dịch trung gian",  path: "/admin/transactions" },
-  { icon: Building2,       label: "Ngân hàng",             path: "/admin/banks" },
-  { icon: ShieldCheck,     label: "Bảo chứng",      path: "/admin/insurance" },
-  { icon: MessageCircle,   label: "Liên hệ",         path: "/admin/facebook" },
-  { icon: FileText,        label: "Điều khoản",            path: "/admin/terms" },
-  { icon: Newspaper,       label: "Tin tức",               path: "/admin/posts" },
-  { icon: UserCog,         label: "Tài khoản",          path: "/admin/users" },
-  { icon: Settings,        label: "Cài đặt",               path: "/admin/settings" },
-  { icon: User,            label: "Trang cá nhân",               path: "/admin/profile" },
+  { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
+  { icon: ShieldCheck, label: "Bảo chứng", path: "/admin/insurance" },
+  { icon: MessageCircle, label: "Liên hệ", path: "/admin/facebook" },
+  { icon: FileText, label: "Điều khoản", path: "/admin/terms" },
+  { icon: Newspaper, label: "Tin tức", path: "/admin/posts" },
+  { icon: UserCog, label: "Tài khoản", path: "/admin/users" },
+  { icon: Settings, label: "Cài đặt", path: "/admin/settings" },
+  { icon: User, label: "Trang cá nhân", path: "/admin/profile" },
 ];
 
 // ── Tooltip khi sidebar collapsed ──────────────────────────────────────────
@@ -68,7 +68,7 @@ interface SidebarContentProps {
 }
 
 const SidebarContent = ({ collapsed, onNavigate, onLogout }: SidebarContentProps) => {
-  const router   = useRouter();
+  const router = useRouter();
   const pathname = usePathname();
   const { systemSettings } = useThemeCustomizer();
 
@@ -80,31 +80,31 @@ const SidebarContent = ({ collapsed, onNavigate, onLogout }: SidebarContentProps
   return (
     <div className="flex flex-col h-full">
 
-{/* Logo */}
-<div className={`shrink-0 h-16 border-b border-border flex items-center gap-3 px-4 overflow-hidden`}>
-  <img
-    src={systemSettings.logo_url}
-    alt="logo"
-    className="w-12 h-12 rounded-lg object-cover shrink-0"
-  />
-  <AnimatePresence initial={false}>
-    {!collapsed && (
-      <motion.span
-        key="site-name"
-        initial={{ opacity: 0, width: 0 }}
-        animate={{ opacity: 1, width: "auto" }}
-        exit={{ opacity: 0, width: 0 }}
-        transition={{ duration: 0.2 }}
-        className="font-bold text-base truncate overflow-hidden whitespace-nowrap"
-      >
+      {/* Logo */}
+      <div className={`shrink-0 h-16 border-b border-border flex items-center gap-3 px-4 overflow-hidden`}>
+        <img
+          src={systemSettings.logo_url}
+          alt="logo"
+          className="w-12 h-12 rounded-lg object-cover shrink-0"
+        />
+        <AnimatePresence initial={false}>
+          {!collapsed && (
+            <motion.span
+              key="site-name"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: "auto" }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.2 }}
+              className="font-bold text-base truncate overflow-hidden whitespace-nowrap"
+            >
               <span className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold bg-primary text-white rounded-lg shadow-sm">
                 <Shield className="w-4 h-4" />
                 ADMIN
               </span>
-      </motion.span>
-    )}
-  </AnimatePresence>
-</div>
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Menu — scrollable */}
       <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-2 py-3 space-y-0.5 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
@@ -184,7 +184,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [collapsed, setCollapsed]     = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const { user, isAdmin, signOut, isLoading } = useAuth();
   const { systemSettings } = useThemeCustomizer();
@@ -195,7 +195,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (isLoading) return;
-    if (!user)    router.replace("/login");
+    if (!user) router.replace("/login");
     if (!isAdmin) router.replace("/");
   }, [user, isAdmin, isLoading]);
 
@@ -233,7 +233,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <SidebarContent
           collapsed={collapsed}
-          onNavigate={() => {}}
+          onNavigate={() => { }}
           onLogout={handleLogout}
         />
       </aside>
@@ -304,13 +304,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               transition={{ type: "spring", stiffness: 320, damping: 32 }}
               className="fixed left-0 top-0 bottom-0 w-72 bg-background border-r border-border z-50 md:hidden flex flex-col"
             >
-<button
-  onClick={() => setSidebarOpen(false)}
-  className="absolute right-3 top-5 p-4 rounded-lg hover:bg-accent/60 transition-colors z-10"
-  aria-label="Đóng menu"
->
-  <X size={30} />
-</button>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="absolute right-3 top-5 p-4 rounded-lg hover:bg-accent/60 transition-colors z-10"
+                aria-label="Đóng menu"
+              >
+                <X size={30} />
+              </button>
 
               <SidebarContent
                 collapsed={false}

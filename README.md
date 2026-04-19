@@ -1,75 +1,237 @@
-NOTIFY pgrst, 'reload schema';
+# 🚀 Check Admin Dashboard
 
-# Welcome to your Lovable project
+Admin Dashboard được xây dựng bằng **React + Vite + TypeScript + Supabase + TailwindCSS + shadcn/ui**.
+Dự án dùng để quản lý hệ thống như:
 
-## Project info
+* 👤 Quản lý người dùng
+* ⚙️ Cài đặt hệ thống
+* 🔑 Google OAuth Login
+* 📊 Site Analytics
+* 📄 Terms & Policy
+* 📱 Facebook Contact
+* 💳 Bank Accounts
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT
+---
 
-## How can I edit this code?
+# 🧰 Công nghệ sử dụng
 
-There are several ways of editing your application.
+* **React**
+* **Vite**
+* **TypeScript**
+* **Supabase**
+* **TailwindCSS**
+* **shadcn/ui**
+* **React Router**
+* **Lucide Icons**
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+# 📂 Cấu trúc project
 
-Changes made via Lovable will be committed automatically to this repo.
+```
+project-root
+│
+├── public
+│
+├── src
+│   ├── components        # UI Components
+│   ├── pages             # Pages
+│   ├── hooks             # Custom hooks
+│   ├── integrations
+│   │   └── supabase      # Supabase client
+│   ├── contexts
+│   ├── lib
+│   └── App.tsx
+│
+├── supabase
+│   ├── functions         # Edge functions
+│   ├── migrations        # Database migrations
+│   └── config.toml
+│
+├── .env
+├── package.json
+└── README.md
+```
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+# ⚙️ Yêu cầu hệ thống
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Cài đặt trước:
 
-Follow these steps:
+* **Node.js >= 18**
+* **npm hoặc pnpm**
+* **Supabase CLI**
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Cài Supabase CLI:
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```
+npm install -g supabase
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 📦 Cài đặt project
+
+Clone repository
+
+```
+git clone <YOUR_REPOSITORY_URL>
+```
+
+Di chuyển vào project
+
+```
+cd checkadmin
+```
+
+Cài dependencies
+
+```
+npm install
+```
+
+---
+
+# 🔐 Cấu hình Environment
+
+Tạo file `.env`
+
+```
+VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
+VITE_SUPABASE_ANON_KEY=YOUR_ANON_KEY
+```
+
+Lấy thông tin tại:
+
+Supabase Dashboard
+Project Settings → API
+
+---
+
+# 🗄️ Setup Database (Supabase)
+
+Đăng nhập Supabase CLI
+
+```
+supabase login
+```
+
+Link project
+
+```
+supabase link --project-ref YOUR_PROJECT_ID
+```
+
+Push migrations
+
+```
+supabase db push
+```
+
+---
+
+# ▶️ Chạy project
+
+```
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Server sẽ chạy tại:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+http://localhost:8080
+```
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# 🧪 Build production
 
-## What technologies are used for this project?
+```
+npm run build
+```
 
-This project is built with:
+Preview build
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+npm run preview
+```
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+# 🔑 Authentication
 
-## Can I connect a custom domain to my Lovable project?
+Dự án hỗ trợ:
 
-Yes, you can!
+* Email Login
+* Google OAuth Login
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Cấu hình Google OAuth tại:
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain
+Supabase Dashboard → Authentication → Providers → Google
+
+---
+
+# 🚀 Deploy
+
+Bạn có thể deploy bằng:
+
+### Vercel
+
+```
+https://vercel.com
+```
+
+```
+
+### VPS / Docker
+
+Sau khi build:
+
+```
+npm run build
+```
+
+Deploy thư mục:
+
+```
+dist
+```
+
+---
+
+# 📊 Supabase Features sử dụng
+
+* Authentication
+* Row Level Security (RLS)
+* Postgres Database
+* Storage
+* Edge Functions
+
+---
+
+# 🛠️ Development Tips
+
+Update browserslist database:
+
+```
+npx update-browserslist-db@latest
+```
+
+Fix vulnerabilities:
+
+```
+npm audit fix
+```
+
+---
+
+# 📜 License
+
+MIT License
+
+---
+
+# 👨‍💻 Author
+
+Developed by **Miyaru**

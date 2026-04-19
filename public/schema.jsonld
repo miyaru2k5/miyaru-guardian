@@ -3,11 +3,11 @@
   "@type": "WebSite",
   "name": "Hệ Thống Kiểm Tra Admin",
   "url": "https://admin.miyaru.online",
-  "description": "Nền tảng kiểm tra và quản lý admin giao dịch trung gian Miyaru.",
+  "description": "Nền tảng kiểm tra và quản lý admin giao dịch trung gian.",
   "inLanguage": "vi-VN",
   "publisher": {
     "@type": "Organization",
-    "name": "Miyaru",
+    "name": "Admin Việt Nam",
     "url": "https://admin.miyaru.online",
     "logo": {
       "@type": "ImageObject",
