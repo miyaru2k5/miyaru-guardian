@@ -17,24 +17,26 @@ const Footer = () => {
           <div className="space-y-4 col-span-2 md:col-span-1">
             <div className="flex items-center gap-2">
               {logoUrl ? (
-                <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center">
+                <div className="h-14 flex items-center">
                   <img
                     src={logoUrl}
                     alt={siteName}
-                    className="w-full h-full object-contain"
+                    className="h-full w-auto object-contain"
                   />
                 </div>
               ) : (
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center">
-                  <span className="font-bold text-lg text-foreground">
+                <div className="h-14 flex items-center">
+                  <span className="font-bold text-2xl text-foreground">
                     {siteName?.charAt(0)}
                   </span>
                 </div>
               )}
+
               <span className="text-xl font-bold text-foreground">
                 {siteName}
               </span>
             </div>
+
 
             <p className="text-sm text-muted-foreground leading-relaxed">
               {footer.description}

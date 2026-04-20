@@ -6,7 +6,8 @@ import {
   Menu, User, LogOut, LogIn, UserPlus,
   Home, Users, FileText, LayoutDashboard,
   Newspaper, MessageCircle,
-  Sparkles, ShieldCheck
+  Sparkles, ShieldCheck,
+  Wallet,
 } from "lucide-react";
 
 import {
@@ -65,12 +66,8 @@ const ProfileDropdown = () => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-0" />
 
-        {isAdmin && (
-          <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
-        )}
 
         <Item icon={<Home size={15} />} label="Trang chủ" onClick={() => go("/")} />
-        <Item icon={<Users size={15} />} label="Giao dịch viên" onClick={() => go("/giao-dich-vien")} />
         <Item icon={<MessageCircle size={15} />} label="Liên hệ" onClick={() => go("/contact")} />
         <Item icon={<FileText size={15} />} label="Điều khoản" onClick={() => go("/dieu-khoan")} />
         <Item icon={<Newspaper size={15} />} label="Tin tức" onClick={() => go("/bai-viet")} />
@@ -128,8 +125,11 @@ const ProfileDropdown = () => {
 
             <DropdownMenuSeparator className="my-0" />
 
+            {isAdmin && (
+              <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
+            )}
             <Item icon={<User size={15} />} label="Trang cá nhân" onClick={() => go("/profile")} />
-
+            <Item icon={<Wallet size={15} />} label="Nạp tiền" onClick={() => go("/bankings")} />
             <DropdownMenuSeparator className="my-0" />
 
             <DropdownMenuItem

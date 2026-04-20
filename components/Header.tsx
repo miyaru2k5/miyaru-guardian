@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Home, FileText, User, MessageCircle } from "lucide-react";
+import { Users, Home, FileText, User, MessageCircle, Wallet } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
@@ -32,16 +32,16 @@ const Header = () => {
 
               {systemSettings.logo_url ? (
                 <>
-                  {/* Logo 2:1 + bo tròn */}
-                  <div className="h-12 w-24 rounded-xl overflow-hidden flex items-center justify-center bg-background border border-border">
+                  {/* Logo: chỉ cố định chiều cao, width auto */}
+                  <div className="h-14 flex items-center">
                     <img
                       src={systemSettings.logo_url}
                       alt={systemSettings.site_name}
-                      className="h-full w-full object-cover"
+                      className="h-full w-auto object-contain"
                     />
                   </div>
 
-                  {/* Site name luôn hiển thị */}
+                  {/* Site name */}
                   <span
                     className="text-lg font-bold truncate"
                     style={{ color: siteNameColor }}
@@ -51,14 +51,13 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  {/* Fallback icon */}
-                  <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                  {/* Fallback icon (giữ nguyên hoặc sửa nếu muốn) */}
+                  <div className="w-10 h-10 bg-primary flex items-center justify-center">
                     <span className="text-primary-foreground font-bold text-lg">
                       {systemSettings.site_name?.charAt(0)}
                     </span>
                   </div>
 
-                  {/* Site name */}
                   <span
                     className="text-lg font-bold"
                     style={{ color: siteNameColor }}
@@ -69,6 +68,7 @@ const Header = () => {
               )}
 
             </Link>
+
 
 
             {/* DESKTOP NAV */}
@@ -95,7 +95,7 @@ const Header = () => {
                 href="/contact"
                 icon={<MessageCircle size={16} />}
                 label="Liên hệ"
-                active={isActive("/bai-viet")}
+                active={isActive("/contact")}
               />
               {/* Ẩn khi màn nhỏ */}
               <div className="hidden lg:block">
@@ -137,10 +137,10 @@ const Header = () => {
           />
 
           <MobileItem
-            href="/contact"
-            icon={<MessageCircle size={20} />}
-            label="Liên hệ"
-            active={isActive("/bai-viet")}
+            href="/bankings"
+            icon={<Wallet  size={20} />}
+            label="Nạp tiền"
+            active={isActive("/bankings")}
           />
 
           {/* GDV CENTER BUTTON */}
