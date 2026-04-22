@@ -61,6 +61,10 @@ const ProfileDropdown = () => {
         className="w-60 rounded-2xl p-0 overflow-hidden"
       >
 
+        {/* ===== HỒ SƠ ===== */}
+        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          Hồ sơ
+        </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-0" />
 
         {user ? (
@@ -92,6 +96,7 @@ const ProfileDropdown = () => {
 
             {isAdmin && (
               <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
+              
             )}
             <Item icon={<Home size={15} />} label="Trang chủ" onClick={() => go("/")} />
             <Item icon={<User size={15} />} label="Trang cá nhân" onClick={() => go("/profile")} />

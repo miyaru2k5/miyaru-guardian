@@ -60,8 +60,8 @@ const sections: NavSection[] = [
     {
         title: "Dịch vụ",
         links: [
-            { href: "/", label: "Tăng tương tác", icon: <ShieldAlert size={17} /> },
-            { href: "/", label: "Shop game", icon: <Newspaper size={17} /> },
+            { href: "/profile", label: "Tăng tương tác", icon: <ShieldAlert size={17} /> },
+            { href: "/profile", label: "Shop game", icon: <Newspaper size={17} /> },
         ],
     },
 ];
