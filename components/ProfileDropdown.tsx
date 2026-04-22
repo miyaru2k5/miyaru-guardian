@@ -50,7 +50,7 @@ const ProfileDropdown = () => {
       {/* Trigger */}
       <DropdownMenuTrigger asChild>
         <button className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors border border-border">
-          <Menu size={20} className="text-primary" />
+          <User size={20} className="text-primary" />
         </button>
       </DropdownMenuTrigger>
 
@@ -60,42 +60,7 @@ const ProfileDropdown = () => {
         sideOffset={8}
         className="w-60 rounded-2xl p-0 overflow-hidden"
       >
-        {/* ===== HỆ THỐNG ===== */}
-        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-          Hệ thống
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="my-0" />
 
-
-        <Item icon={<Home size={15} />} label="Trang chủ" onClick={() => go("/")} />
-        <Item icon={<MessageCircle size={15} />} label="Liên hệ" onClick={() => go("/contact")} />
-        <Item icon={<FileText size={15} />} label="Điều khoản" onClick={() => go("/dieu-khoan")} />
-        <Item icon={<Newspaper size={15} />} label="Tin tức" onClick={() => go("/bai-viet")} />
-
-        {/* ===== TIỆN ÍCH ===== */}
-        <DropdownMenuSeparator className="my-0" />
-        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-          Tiện ích
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator className="my-0" />
-
-        <Item
-          icon={<Sparkles size={15} />}
-          label="Lấy UID Facebook"
-          onClick={() => go("/get-uid-fb")}
-        />
-
-        <Item
-          icon={<ShieldCheck size={15} />}
-          label="Lấy mã 2FA"
-          onClick={() => go("/get-2fa")}
-        />
-
-        {/* ===== HỒ SƠ ===== */}
-        <DropdownMenuSeparator className="my-0" />
-        <DropdownMenuLabel className="px-4 py-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-          Hồ sơ
-        </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-0" />
 
         {user ? (
@@ -128,6 +93,7 @@ const ProfileDropdown = () => {
             {isAdmin && (
               <Item icon={<LayoutDashboard size={15} />} label="Quản trị hệ thống" onClick={() => go("/admin/dashboard")} />
             )}
+            <Item icon={<Home size={15} />} label="Trang chủ" onClick={() => go("/")} />
             <Item icon={<User size={15} />} label="Trang cá nhân" onClick={() => go("/profile")} />
             <Item icon={<Wallet size={15} />} label="Nạp tiền" onClick={() => go("/bankings")} />
             <DropdownMenuSeparator className="my-0" />
