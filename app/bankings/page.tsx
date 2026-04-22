@@ -276,10 +276,10 @@ export default function BankingsPage() {
                                                 {copied === "nội dung chuyển khoản" ? <CheckCircle2 size={18} className="text-emerald-500" /> : <Copy size={18} />}
                                             </Button>
                                         </div>
-<div className="flex items-center gap-2 mt-2 text-destructive font-semibold text-base">
-  <AlertTriangle className="w-5 h-5" />
-  <span>Nạp tiền tối thiểu 2.000 đ</span>
-</div>
+                                        <div className="flex items-center gap-2 mt-2 text-destructive font-semibold text-base">
+                                            <AlertTriangle className="w-5 h-5" />
+                                            <span>Nạp tiền tối thiểu 2.000 đ</span>
+                                        </div>
                                     </div>
                                 </div>
                             )}

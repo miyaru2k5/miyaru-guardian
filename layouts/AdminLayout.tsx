@@ -40,7 +40,6 @@ const menuItems = [
   { icon: Newspaper, label: "Tin tức", path: "/admin/posts" },
   { icon: UserCog, label: "Tài khoản", path: "/admin/users" },
   { icon: Settings, label: "Cài đặt", path: "/admin/settings" },
-  { icon: User, label: "Trang cá nhân", path: "/admin/profile" },
 ];
 
 // ── Tooltip khi sidebar collapsed ──────────────────────────────────────────

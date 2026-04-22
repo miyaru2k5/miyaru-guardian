@@ -92,20 +92,11 @@ const Header = () => {
 
               />
               <NavItem
-                href="/contact"
-                icon={<MessageCircle size={16} />}
-                label="Liên hệ"
-                active={isActive("/contact")}
+                href="/dieu-khoan"
+                icon={<FileText size={16} />}
+                label="Điều khoản"
+                active={isActive("/dieu-khoan")}
               />
-              {/* Ẩn khi màn nhỏ */}
-              <div className="hidden lg:block">
-                <NavItem
-                  href="/dieu-khoan"
-                  icon={<FileText size={16} />}
-                  label="Điều khoản"
-                  active={isActive("/dieu-khoan")}
-                />
-              </div>
 
               <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border">
                 <ThemeToggle />
@@ -137,10 +128,10 @@ const Header = () => {
           />
 
           <MobileItem
-            href="/bankings"
-            icon={<Wallet  size={20} />}
-            label="Nạp tiền"
-            active={isActive("/bankings")}
+            href="/dieu-khoan"
+            icon={<FileText size={20} />}
+            label="Điều khoản"
+            active={isActive("/dieu-khoan")}
           />
 
           {/* GDV CENTER BUTTON */}
@@ -165,10 +156,10 @@ const Header = () => {
           </div>
 
           <MobileItem
-            href="/dieu-khoan"
-            icon={<FileText size={20} />}
-            label="Điều khoản"
-            active={isActive("/dieu-khoan")}
+            href="/bankings"
+            icon={<Wallet size={20} />}
+            label="Nạp tiền"
+            active={isActive("/bankings")}
           />
 
           <MobileItem
