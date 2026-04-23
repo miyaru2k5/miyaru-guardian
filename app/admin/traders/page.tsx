@@ -1,157 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Plus, Edit, Trash2, Power, Copy } from "lucide-react";
 import ConfirmDeleteDialog from "@/components/ConfirmDeleteDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import SearchBar from "@/components/SearchBar";
 import FilterDropdown, { type FilterOption } from "@/components/FilterDropdown";
-import { Upload } from "lucide-react";
-import { getFbUid } from "@/lib/getFbUid";
-
-const traderSchema = z.object({
-  name: z.string().min(1, "Bắt buộc").max(100),
-  slug: z
-    .string()
-    .min(1, "Slug bắt buộc")
-    .max(120)
-    .regex(/^[a-z0-9-]+$/, "Slug chỉ gồm chữ thường, số và dấu gạch ngang"),
-  code: z.string().min(1, "Bắt buộc").max(20),
-  avatar_url: z.string().max(500).optional(),
-  service: z.string().max(100).optional(),
-  description: z.string().max(500).optional(),
-  insurance_fund: z.coerce.number().min(0),
-  success_rate: z.coerce.number().min(0).max(100),
-  facebook: z.string().max(255).optional(),
-  zalo: z.string().max(50).optional(),
-  website: z.string().max(255).optional(),
-});
-
-type TraderForm = z.infer<typeof traderSchema>;
 
 interface Category {
   id: string;
   name: string;
 }
 
-const Traders = () => {
+const TradersPage = () => {
+  const router = useRouter();
+
   const [traders, setTraders] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [traderCats, setTraderCats] = useState<Record<string, string[]>>({});
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("all");
-  const [editTrader, setEditTrader] = useState<any>(null);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedCats, setSelectedCats] = useState<string[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [gettingUid, setGettingUid] = useState(false);
-
-  const handleGetFacebookUID = async (url: string) => {
-    if (!url) return;
-
-    try {
-      setGettingUid(true);
-
-      const uid = await getFbUid(url);
-
-      // ghi UID vào field facebook
-      setValue("facebook", uid);
-
-      toast({
-        title: "Đã lấy UID Facebook",
-        description: uid,
-      });
-    } catch (err: any) {
-      toast({
-        title: "Không lấy được UID",
-        description: err.message,
-        variant: "destructive",
-      });
-    } finally {
-      setGettingUid(false);
-    }
-  };
-
-  const copyLink = (slug: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_WEBSITE_URL;
-
-    const url = `${baseUrl}/${slug}`;
-
-    navigator.clipboard.writeText(url);
-
-    toast({
-      title: "Đã copy link",
-      description: url,
-    });
-  };
-
-  const uploadAvatar = async (file: File) => {
-    try {
-      setUploadingAvatar(true);
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error);
-
-      setAvatarPreview(data.url);
-
-      // gán vào form
-      reset({
-        ...((editTrader || {}) as any),
-        avatar_url: data.url,
-      });
-
-      toast({
-        title: "Upload thành công",
-        description: "Avatar đã upload lên R2",
-      });
-    } catch (err: any) {
-      toast({
-        title: "Upload lỗi",
-        description: err.message,
-        variant: "destructive",
-      });
-    }
-
-    setUploadingAvatar(false);
-  };
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    uploadAvatar(e.target.files[0]);
-  };
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<TraderForm>({
-    resolver: zodResolver(traderSchema),
-    defaultValues: {
-      insurance_fund: 0,
-      success_rate: 100,
-      slug: "",
-    },
-  });
 
   const fetchAll = async () => {
     const [tRes, cRes, tcRes] = await Promise.all([
@@ -171,71 +43,7 @@ const Traders = () => {
     setTraderCats(map);
   };
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
-
-  const onSubmit = async (data: TraderForm) => {
-    const payload = {
-      name: data.name,
-      slug: data.slug,
-      code: data.code,
-      avatar_url: data.avatar_url || null,
-      service: data.service || "",
-      description: data.description || "",
-      insurance_fund: data.insurance_fund,
-      success_rate: data.success_rate,
-      status: editTrader?.status || "LIVE",
-      facebook: data.facebook || null,
-      zalo: data.zalo || null,
-      website: data.website || null,
-    };
-
-    let traderId = editTrader?.id;
-
-    if (editTrader) {
-      const { error } = await supabase
-        .from("traders")
-        .update(payload)
-        .eq("id", editTrader.id);
-
-      if (error) {
-        toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-        return;
-      }
-    } else {
-      const { data: inserted, error } = await supabase
-        .from("traders")
-        .insert([payload])
-        .select("id")
-        .single();
-
-      if (error) {
-        toast({ title: "Lỗi", description: error.message, variant: "destructive" });
-        return;
-      }
-      traderId = inserted.id;
-    }
-
-    // Xử lý danh mục
-    await supabase.from("trader_categories").delete().eq("trader_id", traderId);
-
-    if (selectedCats.length > 0) {
-      await supabase
-        .from("trader_categories")
-        .insert(selectedCats.map(catId => ({ trader_id: traderId, category_id: catId })));
-    }
-
-    toast({
-      title: editTrader ? "Đã cập nhật GDV" : "Đã thêm GDV mới",
-    });
-
-    setDialogOpen(false);
-    setEditTrader(null);
-    setSelectedCats([]);
-    reset({ insurance_fund: 0, success_rate: 100, slug: "" });
-    fetchAll();
-  };
+  useEffect(() => { fetchAll(); }, []);
 
   const toggleStatus = async (trader: any) => {
     const newStatus = trader.status === "LIVE" ? "OFFLINE" : "LIVE";
@@ -252,50 +60,10 @@ const Traders = () => {
     fetchAll();
   };
 
-  const openEdit = (t: any) => {
-    setEditTrader(t);
-    setSelectedCats(traderCats[t.id] || []);
-    setAvatarPreview(t.avatar_url || null);
-    reset({
-      name: t.name,
-      slug: t.slug || "",
-      code: t.code,
-      avatar_url: t.avatar_url || "",
-      service: t.service || "",
-      description: t.description || "",
-      insurance_fund: t.insurance_fund,
-      success_rate: Number(t.success_rate),
-      facebook: t.facebook || "",
-      zalo: t.zalo || "",
-      website: t.website || "",
-    });
-    setDialogOpen(true);
-  };
-
-  const openNew = () => {
-    setEditTrader(null);
-    setSelectedCats([]);
-    setAvatarPreview(null);
-    reset({
-      name: "",
-      slug: "",
-      code: "",
-      avatar_url: "",
-      service: "",
-      description: "",
-      insurance_fund: 0,
-      success_rate: 100,
-      facebook: "",
-      zalo: "",
-      website: "",
-    });
-    setDialogOpen(true);
-  };
-
-  const toggleCat = (catId: string) => {
-    setSelectedCats(prev =>
-      prev.includes(catId) ? prev.filter(c => c !== catId) : [...prev, catId]
-    );
+  const copyLink = (slug: string) => {
+    const url = `${process.env.NEXT_PUBLIC_WEBSITE_URL}/${slug}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: "Đã copy link", description: url });
   };
 
   const getCatNames = (traderId: string) => {
@@ -303,13 +71,8 @@ const Traders = () => {
     return categories.filter(c => catIds.includes(c.id)).map(c => c.name);
   };
 
-  const handleSearchChange = useCallback((value: string) => {
-    setSearch(value);
-  }, []);
-
-  const handleFilterChange = useCallback((value: string) => {
-    setFilterCat(value);
-  }, []);
+  const handleSearchChange = useCallback((value: string) => setSearch(value), []);
+  const handleFilterChange = useCallback((value: string) => setFilterCat(value), []);
 
   const filterOptions: FilterOption[] = useMemo(
     () => [
@@ -325,7 +88,8 @@ const Traders = () => {
         const matchSearch =
           t.name.toLowerCase().includes(search.toLowerCase()) ||
           t.code.toLowerCase().includes(search.toLowerCase());
-        const matchCat = filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
+        const matchCat =
+          filterCat === "all" || (traderCats[t.id] || []).includes(filterCat);
         return matchSearch && matchCat;
       }),
     [traders, search, filterCat, traderCats]
@@ -333,34 +97,43 @@ const Traders = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Giao dịch viên</h1>
           <p className="text-muted-foreground text-sm">Quản lý danh sách GDV</p>
         </div>
-        <Button onClick={openNew} className="btn-glow gap-2">
+        <Button onClick={() => router.push("/admin/traders/add")} className="btn-glow gap-2">
           <Plus size={16} /> Thêm GDV
         </Button>
       </div>
 
-      <div className="mb-4">
-        <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
-          <div className="flex-1 w-full">
-            <SearchBar onSearchChange={handleSearchChange} placeholder="Tìm kiếm giao dịch viên..." />
-          </div>
-          {filterOptions.length > 1 && (
-            <div className="w-full md:w-auto shrink-0">
-              <FilterDropdown options={filterOptions} value={filterCat} onChange={handleFilterChange} />
-            </div>
-          )}
+      {/* Search + Filter */}
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center">
+        <div className="flex-1 w-full">
+          <SearchBar
+            onSearchChange={handleSearchChange}
+            placeholder="Tìm kiếm giao dịch viên..."
+          />
         </div>
+        {filterOptions.length > 1 && (
+          <div className="w-full md:w-auto shrink-0">
+            <FilterDropdown
+              options={filterOptions}
+              value={filterCat}
+              onChange={handleFilterChange}
+            />
+          </div>
+        )}
       </div>
 
+      {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map(t => {
           const catNames = getCatNames(t.id);
           return (
             <div key={t.id} className="glow-border rounded-2xl p-5 card-hover">
+              {/* Top row */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   {t.avatar_url ? (
@@ -371,7 +144,9 @@ const Traders = () => {
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center border border-primary/20">
-                      <span className="text-lg font-bold text-primary">{t.name.charAt(0)}</span>
+                      <span className="text-lg font-bold text-primary">
+                        {t.name.charAt(0)}
+                      </span>
                     </div>
                   )}
                   <div>
@@ -382,8 +157,9 @@ const Traders = () => {
 
                 <div className="flex flex-col items-end gap-1">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${t.status === "LIVE" ? "status-live" : "status-offline"
-                      }`}
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      t.status === "LIVE" ? "status-live" : "status-offline"
+                    }`}
                   >
                     {t.status}
                   </span>
@@ -393,6 +169,7 @@ const Traders = () => {
                 </div>
               </div>
 
+              {/* Categories */}
               {catNames.length > 0 && (
                 <div className="flex flex-wrap gap-1 mb-3">
                   {catNames.map(name => (
@@ -406,6 +183,7 @@ const Traders = () => {
                 </div>
               )}
 
+              {/* Stats */}
               <div className="space-y-2 mb-4 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Mã GDV</span>
@@ -419,6 +197,7 @@ const Traders = () => {
                 </div>
               </div>
 
+              {/* Actions */}
               <div className="flex gap-2">
                 <Button
                   size="sm"
@@ -433,7 +212,7 @@ const Traders = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => openEdit(t)}
+                  onClick={() => router.push(`/admin/traders/edit/${t.id}`)}
                 >
                   <Edit size={14} />
                 </Button>
@@ -460,167 +239,6 @@ const Traders = () => {
         })}
       </div>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editTrader ? "Sửa GDV" : "Thêm GDV mới"}</DialogTitle>
-          </DialogHeader>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="sm:max-w-md max-h-[70vh] overflow-y-auto">
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Tên GDV</label>
-                <Input {...register("name")} placeholder="Nhập tên giao dịch viên" />
-                {errors.name && <p className="text-xs text-destructive mt-1">{errors.name.message}</p>}
-              </div>
-
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Slug URL</label>
-                <Input {...register("slug")} placeholder="vd: admin-gdv" />
-                {errors.slug && <p className="text-xs text-destructive mt-1">{errors.slug.message}</p>}
-              </div>
-
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Biệt danh</label>
-                <Input {...register("service")} placeholder="Nhập biệt danh" />
-              </div>
-
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Mã GDV</label>
-                <Input {...register("code")} placeholder="VD: GDV#001" />
-                {errors.code && <p className="text-xs text-destructive mt-1">{errors.code.message}</p>}
-              </div>
-              <div className="space-y-3">
-
-                {/* Upload Avatar */}
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                    <Upload size={14} />
-                    Upload Avatar (R2)
-                  </label>
-
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                  />
-
-                  {uploadingAvatar && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Đang upload...
-                    </p>
-                  )}
-                </div>
-
-                {/* Avatar URL */}
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">
-                    Avatar URL
-                  </label>
-
-                  <Input
-                    {...register("avatar_url")}
-                    placeholder="https://..."
-                  />
-
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Có thể nhập URL ngoài hoặc upload trực tiếp.
-                  </p>
-                </div>
-
-                {/* Preview */}
-                {avatarPreview && (
-                  <div className="flex justify-center">
-                    <img
-                      src={avatarPreview}
-                      className="w-16 h-16 rounded-full object-cover border border-border"
-                      alt="Avatar preview"
-                    />
-                  </div>
-                )}
-
-              </div>
-
-              {categories.length > 0 && (
-                <div>
-                  <label className="text-sm text-muted-foreground mb-2 block">Danh mục</label>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map(c => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => toggleCat(c.id)}
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedCats.includes(c.id)
-                          ? "bg-primary/20 text-primary border-primary/40"
-                          : "border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
-                          }`}
-                      >
-                        {c.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Quỹ bảo hiểm</label>
-                  <Input {...register("insurance_fund")} type="number" placeholder="0" />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">% Thành công</label>
-                  <Input {...register("success_rate")} type="number" placeholder="100" />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm text-muted-foreground mb-1 block">Mô tả</label>
-                <Input {...register("description")} placeholder="Nhập mô tả" />
-              </div>
-
-              <div className="border-t border-border pt-4 space-y-4">
-                <p className="text-sm font-medium text-muted-foreground">Liên kết</p>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Facebook URL</label>
-                  <div className="flex gap-2">
-                    <Input
-                      {...register("facebook")}
-                      placeholder="https://facebook.com/username"
-                    />
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={(e) => {
-                        const input = (e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement);
-                        if (input?.value) handleGetFacebookUID(input.value);
-                      }}
-                      disabled={gettingUid}
-                    >
-                      {gettingUid ? "..." : "Lấy UID"}
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Zalo (SĐT)</label>
-                  <Input {...register("zalo")} placeholder="Nhập số điện thoại Zalo" />
-                </div>
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1 block">Website</label>
-                  <Input {...register("website")} placeholder="Nhập địa chỉ website" />
-                </div>
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full btn-glow">
-              {editTrader ? "Cập nhật" : "Thêm mới"}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
-
       <ConfirmDeleteDialog
         open={!!deleteId}
         title="Xác nhận xóa GDV"
@@ -632,4 +250,4 @@ const Traders = () => {
   );
 };
 
-export default Traders;
+export default TradersPage;

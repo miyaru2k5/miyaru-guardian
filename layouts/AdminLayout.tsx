@@ -32,7 +32,6 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Trang chủ", path: "/admin/dashboard" },
   { icon: Users, label: "Giao dịch viên", path: "/admin/traders" },
   { icon: Tag, label: "Danh mục", path: "/admin/categories" },
-  // { icon: Shield,          label: "Giao dịch trung gian",  path: "/admin/transactions" },
   { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
   { icon: ShieldCheck, label: "Bảo chứng", path: "/admin/insurance" },
   { icon: MessageCircle, label: "Liên hệ", path: "/admin/facebook" },
