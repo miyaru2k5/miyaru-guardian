@@ -242,26 +242,46 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* HEADER — sticky, không di chuyển */}
         <header className="shrink-0 h-16 border-b border-border bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 z-40 relative">
 
-          <div className="flex items-center gap-3">
-            {/* Mobile: hamburger */}
-            <button
-              className="md:hidden p-1.5 rounded-lg hover:bg-accent/60 transition-colors"
-              onClick={() => setSidebarOpen(true)}
-              aria-label="Mở menu"
-            >
-              <Menu size={22} />
-            </button>
+          <div className="flex items-center gap-3 h-12">
+            {/* Mobile: hamburger + logo */}
+            <div className="flex items-center gap-3 md:hidden">
+              {/* Icon menu */}
+              <button
+                className="transition-transform active:scale-95"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Mở menu"
+              >
+                <div className="p-[2px] rounded-full bg-gradient-to-br from-primary to-primary/30">
+                  <div className="p-2 rounded-full bg-card hover:bg-accent/60 transition-colors">
+                    <Menu size={20} className="text-primary" />
+                  </div>
+                </div>
+              </button>
 
-            {/* Desktop: collapse toggle */}
+              {/* Logo */}
+              <img
+                src={systemSettings.logo_url}
+                alt="logo"
+                className="h-14 w-auto object-contain shrink-0"
+              />
+            </div>
+
+            {/* Desktop: chỉ hiện icon collapse */}
             <button
-              className="hidden md:flex p-1.5 rounded-lg hover:bg-accent/60 transition-colors"
+              className="hidden md:flex transition-transform active:scale-95"
               onClick={() => setCollapsed(v => !v)}
               aria-label={collapsed ? "Mở rộng sidebar" : "Thu gọn sidebar"}
             >
-              {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              <div className="p-[2px] rounded-full bg-gradient-to-br from-primary to-primary/30">
+                <div className="p-2 rounded-full bg-card hover:bg-accent/60 transition-colors">
+                  {collapsed ? (
+                    <ChevronRight size={18} className="text-primary" />
+                  ) : (
+                    <ChevronLeft size={18} className="text-primary" />
+                  )}
+                </div>
+              </div>
             </button>
-
-
           </div>
 
           <div className="flex items-center gap-2">

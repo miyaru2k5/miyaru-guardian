@@ -178,15 +178,7 @@ const GDVCard = ({
                 </div>
               )}
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-foreground font-medium">
-                  <FileText size={16} className="text-muted-foreground" />
-                  <span>Mô tả</span>
-                </div>
-                <p className="text-sm text-muted-foreground pl-6">
-                  {description || "Chưa có mô tả"}
-                </p>
-              </div>
+
             </div>
           </motion.div>
         )}

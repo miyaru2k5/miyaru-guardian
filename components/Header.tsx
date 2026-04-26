@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Home, Users, FileText, Wallet, User } from "lucide-react";
+import { Menu, Home, Users, FileText, Wallet, User, MessageCircle } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
@@ -152,10 +152,10 @@ const Header = () => {
           </div>
 
           <MobileItem
-            href="/bankings"
-            icon={<Wallet size={20} />}
-            label="Nạp tiền"
-            active={isActive("/bankings")}
+            href="/contact"
+            icon={<MessageCircle size={20} />}
+            label="Liên hệ"
+            active={isActive("/contact")}
           />
 
           <MobileItem

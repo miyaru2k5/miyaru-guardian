@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const { data: trader } = await supabase
     .from("traders")
-    .select("name, insurance_fund, description, avatar_url, slug")
+    .select("name, insurance_fund, description, avatar_url, slug, banner_url")
     .eq("slug", slug)
     .maybeSingle();
 
@@ -33,14 +33,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const fund = Number(trader.insurance_fund).toLocaleString("vi-VN");
 
-  const title = `Quỹ bảo hiểm: ${fund}đ - ${trader.name} - ${SITE_DOMAIN}`;
+  const title = `Quỹ bảo hiểm: ${fund}đ - ${trader.name} - Tại ${SITE_DOMAIN}`;
 
   const description =
     trader.description?.slice(0, 160) ||
     `${trader.name} — Giao dịch viên đã được xác thực. Quỹ bảo hiểm: ${fund}đ`;
 
-  const imageUrl =
-    trader.avatar_url || `${SITE_URL}/seo-preview.png`;
+const imageUrl =
+  trader.banner_url || trader.avatar_url || `${SITE_URL}/seo-preview.png`;
 
   const pageUrl = `${SITE_URL}/${trader.slug}`;
 
@@ -55,8 +55,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [
         {
           url: imageUrl,
-          width: 400,
-          height: 400,
+          width: 1200,
+          height: 630,
           alt: trader.name,
         },
       ],
