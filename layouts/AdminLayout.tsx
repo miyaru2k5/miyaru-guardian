@@ -21,6 +21,7 @@ import {
   FileText,
   Newspaper,
   UserCog,
+  ShoppingBag,
 } from "lucide-react";
 
 import ThemeToggle from "@/components/ThemeToggle";
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Trang chủ", path: "/admin/dashboard" },
   { icon: Users, label: "Giao dịch viên", path: "/admin/traders" },
   { icon: Tag, label: "Danh mục", path: "/admin/categories" },
+  { icon: ShoppingBag, label: "Dịch vụ", path: "/admin/products" },
   { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
   { icon: ShieldCheck, label: "Bảo chứng", path: "/admin/insurance" },
   { icon: MessageCircle, label: "Liên hệ", path: "/admin/facebook" },

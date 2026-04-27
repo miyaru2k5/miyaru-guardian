@@ -18,6 +18,7 @@ import {
     LayoutDashboard,
     LogIn,
     LogOut,
+    ShoppingBag,
 } from "lucide-react";
 
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
@@ -43,10 +44,10 @@ const sections: NavSection[] = [
             { href: "/", label: "Trang chủ", icon: <Home size={17} /> },
 
             { href: "/giao-dich-vien", label: "Giao dịch viên", icon: <Users size={17} /> },
+            { href: "/dich-vu", label: "Dịch vụ", icon: <ShoppingBag size={17} /> },
             { href: "/contact", label: "Liên hệ", icon: <MessageCircle size={17} /> },
             { href: "/dieu-khoan", label: "Điều khoản", icon: <FileText size={17} /> },
             { href: "/bai-viet", label: "Tin tức", icon: <Newspaper size={17} /> },
-
             { href: "/banks", label: "Nạp tiền", icon: <Wallet size={17} /> },
         ],
     },
@@ -60,8 +61,8 @@ const sections: NavSection[] = [
     {
         title: "Dịch vụ",
         links: [
-            { href: "/profile", label: "Tăng tương tác", icon: <ShieldAlert size={17} /> },
-            { href: "/profile", label: "Shop game", icon: <Newspaper size={17} /> },
+            { href: "/dich-vu", label: "Tăng tương tác", icon: <ShieldAlert size={17} /> },
+            { href: "/dich-vu", label: "Shop game", icon: <Newspaper size={17} /> },
         ],
     },
 ];

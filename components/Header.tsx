@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Home, Users, FileText, Wallet, User, MessageCircle } from "lucide-react";
+import { Menu, Home, Users, FileText, Wallet, User, MessageCircle, ShoppingBag } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
@@ -132,10 +132,10 @@ const Header = () => {
           />
 
           <MobileItem
-            href="/dieu-khoan"
-            icon={<FileText size={20} />}
-            label="Điều khoản"
-            active={isActive("/dieu-khoan")}
+            href="/di-vu"
+            icon={<ShoppingBag size={20} />}
+            label="Dịch vụ"
+            active={isActive("/dich-vu")}
           />
 
           {/* GDV CENTER BUTTON */}
@@ -152,10 +152,10 @@ const Header = () => {
           </div>
 
           <MobileItem
-            href="/contact"
-            icon={<MessageCircle size={20} />}
-            label="Liên hệ"
-            active={isActive("/contact")}
+            href="/dieu-khoan"
+            icon={<FileText size={20} />}
+            label="Điều khoản"
+            active={isActive("/dieu-khoan")}
           />
 
           <MobileItem

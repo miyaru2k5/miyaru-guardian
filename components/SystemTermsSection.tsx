@@ -55,11 +55,10 @@ const AccordionItem: React.FC<{
   return (
     <div
       className={`rounded-2xl border backdrop-blur-md transition-all duration-300
-      ${
-        isOpen
+      ${isOpen
           ? "border-primary/40 bg-card/90 shadow-lg shadow-primary/10"
           : "border-border bg-card/50 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5"
-      }`}
+        }`}
       style={{ animationDelay: `${index * 0.08}s` }}
     >
       {/* Header */}
@@ -74,11 +73,10 @@ const AccordionItem: React.FC<{
           <div
             className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0
             transition-all duration-300
-            ${
-              isOpen
+            ${isOpen
                 ? "bg-primary text-primary-foreground shadow-md scale-105"
                 : "bg-primary/10 text-primary group-hover:bg-primary/20 group-hover:scale-105"
-            }`}
+              }`}
           >
             {getIcon(item.title)}
           </div>
@@ -87,22 +85,20 @@ const AccordionItem: React.FC<{
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-3">
               <h3
-                className={`font-semibold text-sm sm:text-base transition-colors ${
-                  isOpen
+                className={`font-semibold text-sm sm:text-base transition-colors ${isOpen
                     ? "text-primary"
                     : "text-foreground group-hover:text-primary"
-                }`}
+                  }`}
               >
                 {item.title}
               </h3>
 
               <ChevronDown
                 size={18}
-                className={`transition-all duration-300 ${
-                  isOpen
+                className={`transition-all duration-300 ${isOpen
                     ? "rotate-180 text-primary scale-110"
                     : "text-muted-foreground group-hover:text-primary"
-                }`}
+                  }`}
               />
             </div>
 
@@ -177,16 +173,16 @@ const SystemTermsSection: React.FC = () => {
 
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-12 gap-5">
-<div className="flex items-center gap-2 px-4 py-2 rounded-full 
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full 
 bg-primary/10 text-primary text-sm font-semibold 
 shadow-sm border border-primary/20">
 
-  <Shield size={18} className="shrink-0" />
+            <Shield size={18} className="shrink-0" />
 
-  <span className="tracking-wide">
-    Chính sách hệ thống
-  </span>
-</div>
+            <span className="tracking-wide">
+              Chính sách hệ thống
+            </span>
+          </div>
 
 
           <img
