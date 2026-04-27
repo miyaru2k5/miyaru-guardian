@@ -132,7 +132,7 @@ const Header = () => {
           />
 
           <MobileItem
-            href="/di-vu"
+            href="/dich-vu"
             icon={<ShoppingBag size={20} />}
             label="Dịch vụ"
             active={isActive("/dich-vu")}
