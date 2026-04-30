@@ -231,7 +231,13 @@ const GDVDetail = () => {
     const [copied, setCopied] = useState(false);
     const [bankMap, setBankMap] = useState<Record<string, BankData>>({});
     const [qrError, setQrError] = useState<Record<number, boolean>>({});
+    const [copiedField, setCopiedField] = useState<string | null>(null);
+    const handleCopy = (text: string, key: string) => {
+        navigator.clipboard.writeText(text);
+        setCopiedField(key);
 
+        setTimeout(() => setCopiedField(null), 1500);
+    };
     // ── Fetch bank list ──
     useEffect(() => {
         let cancelled = false;
@@ -485,7 +491,7 @@ const GDVDetail = () => {
                                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                                     <ShieldCheck className="w-5 h-5 text-primary" />
                                 </div>
-                                <span className="text-sm text-muted-foreground">QUỸ BẢO HIỂM</span>
+                                <span className="text-sm text-muted-foreground">Quỹ bảo hiểm</span>
                                 <span className="ml-auto text-lg md:text-xl font-bold text-primary tracking-wide">
                                     {formatCurrency(trader!.insurance_fund)}đ
                                 </span>
@@ -573,7 +579,6 @@ const GDVDetail = () => {
                                     </div>
                                 </div>
                             )}
-
                             {/* Bank accounts */}
                             {banks.length > 0 && (
                                 <div className="glow-border rounded-3xl p-5 md:p-6">
@@ -585,6 +590,8 @@ const GDVDetail = () => {
                                             Tài khoản ngân hàng
                                         </p>
                                     </div>
+
+                                    {/* 👉 2 columns */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         {banks.map((bank, i) => (
                                             <div
@@ -592,20 +599,58 @@ const GDVDetail = () => {
                                                 className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/60 border border-border hover:border-primary/30 transition-colors"
                                             >
                                                 <BankLogo bankName={bank.bank_name} bankMap={bankMap} size={40} />
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm font-semibold text-foreground truncate">
-                                                        {bank.bank_name}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground font-mono">
-                                                        STK: {bank.account_number}
-                                                    </p>
-                                                    <p className="text-xs text-muted-foreground truncate">
-                                                        CTK: {bank.account_holder}
-                                                    </p>
+
+                                                <div className="flex-1 min-w-0 space-y-1.5">
+
+                                                    {/* Bank + STK */}
+                                                    <div className="flex items-start gap-2">
+                                                        <p className="flex-1 min-w-0 text-sm font-semibold text-foreground leading-snug break-words">
+                                                            {bank.bank_name}
+                                                            <span className="text-muted-foreground font-mono">
+                                                                {" : "}{bank.account_number}
+                                                            </span>
+                                                        </p>
+
+                                                        <button
+                                                            onClick={() => handleCopy(bank.account_number, `stk-${i}`)}
+                                                            className="shrink-0 mt-0.5 text-muted-foreground hover:text-primary transition-colors"
+                                                        >
+                                                            {copiedField === `stk-${i}` ? (
+                                                                <CheckCheck size={14} className="text-green-500" />
+                                                            ) : (
+                                                                <Copy size={14} />
+                                                            )}
+                                                        </button>
+                                                    </div>
+
+                                                    {/* CTK */}
+                                                    <div className="flex items-start gap-2">
+                                                        <p className="flex-1 min-w-0 text-xs text-muted-foreground leading-snug break-words">
+                                                            CTK: {bank.account_holder}
+                                                        </p>
+
+                                                        <button
+                                                            onClick={() => handleCopy(bank.account_holder, `holder-${i}`)}
+                                                            className="shrink-0 mt-0.5 text-muted-foreground hover:text-primary transition-colors"
+                                                        >
+                                                            {copiedField === `holder-${i}` ? (
+                                                                <CheckCheck size={14} className="text-green-500" />
+                                                            ) : (
+                                                                <Copy size={14} />
+                                                            )}
+                                                        </button>
+                                                    </div>
+
                                                 </div>
+
+                                                {/* QR */}
                                                 {!qrError[i] && (
                                                     <img
-                                                        src={vietQRUrl(bank.bank_name, bank.account_number, bank.account_holder)}
+                                                        src={vietQRUrl(
+                                                            bank.bank_name,
+                                                            bank.account_number,
+                                                            bank.account_holder
+                                                        )}
                                                         alt={`QR ${bank.bank_name}`}
                                                         className="w-12 h-12 rounded-xl object-contain bg-white border border-border/30 shrink-0"
                                                         onError={() => handleQrError(i)}
@@ -616,49 +661,50 @@ const GDVDetail = () => {
                                     </div>
                                 </div>
                             )}
-
                             {/* Description */}
                             {descSections && descSections.length > 0 && (
                                 <div className="glow-border rounded-3xl p-5 md:p-6 space-y-5">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                            <FileText size={15} className="text-primary" />
-                                        </div>
-                                        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                                            Mô tả
-                                        </p>
-                                    </div>
 
                                     <div className="space-y-4">
                                         {descSections.map((sec, si) => (
                                             <div key={si} className="space-y-3">
+
+                                                {/* Title + Icon */}
                                                 {sec.title && (
-                                                    <p className="text-base md:text-lg font-semibold text-foreground">
-                                                        {sec.title}
-                                                    </p>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                                            <FileText size={14} className="text-primary" />
+                                                        </div>
+                                                        <p className="text-sm md:text-base font-semibold text-foreground">
+                                                            {sec.title}
+                                                        </p>
+                                                    </div>
                                                 )}
+
+                                                {/* Items */}
                                                 <div className="space-y-2">
                                                     {sec.items.map((item, ii) => (
                                                         <div
                                                             key={ii}
                                                             className="flex items-center gap-3 p-3 rounded-2xl bg-card/60 border border-border"
                                                         >
-                                                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                                                                 <span className="w-2 h-2 rounded-full bg-primary" />
                                                             </div>
+
                                                             <div className="flex-1 min-w-0">
                                                                 {item.link ? (
                                                                     <a
                                                                         href={item.link}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className="text-base md:text-lg text-primary hover:underline leading-snug flex items-center gap-2"
+                                                                        className="text-sm md:text-base text-primary hover:underline leading-snug flex items-center gap-2"
                                                                     >
                                                                         {item.text}
-                                                                        <ExternalLink size={14} className="opacity-60 shrink-0" />
+                                                                        <ExternalLink size={13} className="opacity-60 shrink-0" />
                                                                     </a>
                                                                 ) : (
-                                                                    <p className="text-base md:text-lg text-muted-foreground leading-snug">
+                                                                    <p className="text-sm md:text-base text-muted-foreground leading-snug">
                                                                         {item.text}
                                                                     </p>
                                                                 )}
@@ -666,6 +712,7 @@ const GDVDetail = () => {
                                                         </div>
                                                     ))}
                                                 </div>
+
                                             </div>
                                         ))}
                                     </div>

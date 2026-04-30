@@ -201,9 +201,10 @@ function TraderAvatar({ trader, index }: TraderAvatarProps) {
   return (
     <Link
       href={`/${trader.slug}`}
-      className="flex flex-col items-center gap-2 group"
+      className="flex flex-col items-center gap-2 group w-[90px] md:w-[110px]"
       style={{ animationDelay: `${index * 0.04}s` }}
     >
+      {/* Avatar */}
       <div className="relative">
         <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 border-border group-hover:border-primary/50 transition-all duration-200 shadow-sm group-hover:shadow-md group-hover:scale-105 bg-muted">
           {trader.avatar_url ? (
@@ -218,6 +219,7 @@ function TraderAvatar({ trader, index }: TraderAvatarProps) {
               }}
             />
           ) : null}
+
           <div
             className={`w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-primary/60 ${trader.avatar_url ? "hidden" : ""}`}
           >
@@ -227,6 +229,7 @@ function TraderAvatar({ trader, index }: TraderAvatarProps) {
           </div>
         </div>
 
+        {/* Tick */}
         <img
           src={tickSrc}
           alt={role}
@@ -235,11 +238,13 @@ function TraderAvatar({ trader, index }: TraderAvatarProps) {
         />
       </div>
 
-      <div className="text-center max-w-[90px] md:max-w-[100px]">
-        <p className="text-[11px] text-muted-foreground font-mono leading-none mb-0.5">
+      {/* Text */}
+      <div className="text-center w-full">
+        <p className="text-[11px] text-muted-foreground font-mono leading-none mb-0.5 truncate">
           {trader.code}
         </p>
-        <p className="text-xs md:text-sm font-medium text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-2">
+
+        <p className="text-xs md:text-sm font-medium text-foreground leading-tight group-hover:text-primary transition-colors text-center truncate w-full">
           {trader.name}
         </p>
       </div>
@@ -266,25 +271,34 @@ function RoleSection({ role, traders, startIndex }: RoleSectionProps) {
       className="rounded-2xl border bg-card overflow-hidden"
       style={{ borderColor: `${accent}33` }}
     >
-      {/* Section header — căn giữa, bỏ span "người" */}
+      {/* Header */}
       <div
         className="px-5 py-3 flex items-center justify-center gap-2"
-        style={{ borderBottom: `1px solid ${accent}22`, background: `${accent}08` }}
+        style={{
+          borderBottom: `1px solid ${accent}22`,
+          background: `${accent}08`,
+        }}
       >
-        <span className="text-base" aria-hidden>⭐</span>
+        <span className="star-spin" aria-hidden>⭐</span>
+
         <h2
-          className="text-sm md:text-base font-bold tracking-wide"
+          className="text-sm md:text-base font-bold tracking-wide flex items-center gap-1"
           style={{ color: accent }}
         >
           {label}
+          <span className="star-spin" aria-hidden>⭐</span>
         </h2>
       </div>
 
-      {/* Avatar grid */}
+      {/* Avatar */}
       <div className="p-5">
-        <div className="flex flex-wrap gap-4 md:gap-6">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
           {traders.map((t, i) => (
-            <TraderAvatar key={t.id} trader={t} index={startIndex + i} />
+            <TraderAvatar
+              key={t.id}
+              trader={t}
+              index={startIndex + i}
+            />
           ))}
         </div>
       </div>
@@ -454,8 +468,8 @@ const GDVPage = () => {
   if (loading) {
     return (
       <MainLayout>
-        <section className="py-20 px-4 min-h-screen">
-          <div className="container mx-auto max-w-6xl">
+        <section className="py-20 px-0 min-h-screen">
+          <div className="mx-auto max-w-6xl">
             <div className="text-center mb-12">
               <div className="h-9 w-64 rounded-xl bg-muted/50 animate-pulse mx-auto mb-3" />
               <div className="h-4 w-48 rounded-xl bg-muted/30 animate-pulse mx-auto" />
@@ -486,8 +500,8 @@ const GDVPage = () => {
 
   return (
     <MainLayout>
-      <section className="py-20 md:py-24 px-4 min-h-screen">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-20 md:py-24 min-h-screen">
+        <div className="mx-auto max-w-6xl px-4">
 
           {/* ── Header ── */}
           <div className="text-center mb-10">

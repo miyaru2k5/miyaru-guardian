@@ -281,3 +281,18 @@
   pointer-events: none;
 }
 
+.star-spin {
+  display: inline-block;
+  animation: spinSlow 4s linear infinite; /* 4s = quay chậm mượt */
+  transform-origin: center;
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+

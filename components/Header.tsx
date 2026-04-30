@@ -95,10 +95,10 @@ const Header = () => {
                 active={isActive("/giao-dich-vien")}
               />
               <NavItem
-                href="/dieu-khoan"
-                icon={<FileText size={16} />}
-                label="Điều khoản"
-                active={isActive("/dieu-khoan")}
+                href="/dich-vu"
+                icon={<ShoppingBag size={16} />}
+                label="Dịch vụ"
+                active={isActive("/dich-vu")}
               />
 
               <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border">
