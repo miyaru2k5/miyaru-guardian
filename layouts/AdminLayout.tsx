@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -10,7 +10,6 @@ import {
   Building2,
   ShieldCheck,
   Settings,
-  User,
   LogOut,
   Menu,
   X,
@@ -63,53 +62,51 @@ const Tooltip = ({ label, children }: { label: string; children: React.ReactNode
 // ── Sidebar content ─────────────────────────────────────────────────────────
 interface SidebarContentProps {
   collapsed: boolean;
-  onNavigate: () => void;
   onLogout: () => void;
 }
 
-const SidebarContent = ({ collapsed, onNavigate, onLogout }: SidebarContentProps) => {
+// FIX 1: Bỏ hoàn toàn prop onNavigate — mobile sidebar tự đóng qua useEffect pathname
+// FIX 3: React.memo để tránh re-render sidebar không cần thiết khi parent thay đổi state
+const SidebarContent = React.memo(({ collapsed, onLogout }: SidebarContentProps) => {
   const router = useRouter();
   const pathname = usePathname();
   const { systemSettings } = useThemeCustomizer();
 
+  // FIX 1: handleClick KHÔNG gọi bất kỳ setState nào — router.push chạy ngay lập tức
   const handleClick = (path: string) => {
     router.push(path);
-    onNavigate(); // đóng mobile sidebar
   };
 
   return (
     <div className="flex flex-col h-full">
 
       {/* Logo */}
-      <div className={`shrink-0 h-16 border-b border-border flex items-center gap-3 px-4 overflow-hidden`}>
+      <div className="shrink-0 h-16 border-b border-border flex items-center gap-3 px-4 overflow-hidden">
         <img
           src={systemSettings.logo_url}
           alt="logo"
           className="w-12 h-12 rounded-lg object-cover shrink-0"
         />
-        <AnimatePresence initial={false}>
-          {!collapsed && (
-            <motion.span
-              key="site-name"
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: "auto" }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: 0.2 }}
-              className="font-bold text-base truncate overflow-hidden whitespace-nowrap"
-            >
-              <span className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold bg-primary text-white rounded-lg shadow-sm">
-                <Shield className="w-4 h-4" />
-                ADMIN
-              </span>
-            </motion.span>
-          )}
-        </AnimatePresence>
+        {/* FIX 2: Thay AnimatePresence + motion.span bằng CSS transition thuần */}
+        <span
+          className={`
+            font-bold text-base whitespace-nowrap overflow-hidden
+            transition-all duration-200
+            ${collapsed ? "w-0 opacity-0" : "w-auto opacity-100"}
+          `}
+        >
+          <span className="flex items-center gap-2 px-3 py-1.5 text-sm font-bold bg-primary text-white rounded-lg shadow-sm">
+            <Shield className="w-4 h-4" />
+            ADMIN
+          </span>
+        </span>
       </div>
 
       {/* Menu — scrollable */}
       <nav className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-2 py-3 space-y-0.5 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
         {menuItems.map((item) => {
           const active = pathname === item.path;
+
           const btn = (
             <button
               key={item.path}
@@ -125,20 +122,17 @@ const SidebarContent = ({ collapsed, onNavigate, onLogout }: SidebarContentProps
               `}
             >
               <item.icon size={19} className="shrink-0" />
-              <AnimatePresence initial={false}>
-                {!collapsed && (
-                  <motion.span
-                    key={`label-${item.path}`}
-                    initial={{ opacity: 0, width: 0 }}
-                    animate={{ opacity: 1, width: "auto" }}
-                    exit={{ opacity: 0, width: 0 }}
-                    transition={{ duration: 0.18 }}
-                    className="truncate overflow-hidden whitespace-nowrap"
-                  >
-                    {item.label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
+
+              {/* FIX 2: CSS transition thay cho AnimatePresence + motion.span */}
+              <span
+                className={`
+                  truncate whitespace-nowrap overflow-hidden
+                  transition-all duration-150
+                  ${collapsed ? "w-0 opacity-0" : "w-auto opacity-100"}
+                `}
+              >
+                {item.label}
+              </span>
 
               {/* Active indicator */}
               {active && !collapsed && (
@@ -177,11 +171,14 @@ const SidebarContent = ({ collapsed, onNavigate, onLogout }: SidebarContentProps
 
     </div>
   );
-};
+});
+
+SidebarContent.displayName = "SidebarContent";
 
 // ── AdminLayout ─────────────────────────────────────────────────────────────
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -189,8 +186,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { user, isAdmin, signOut, isLoading } = useAuth();
   const { systemSettings } = useThemeCustomizer();
 
-  // Close mobile sidebar on route change
-  const pathname = usePathname();
+  // Đóng mobile sidebar khi route thay đổi (không cần gọi trong handleClick nữa)
   useEffect(() => { setSidebarOpen(false); }, [pathname]);
 
   useEffect(() => {
@@ -199,7 +195,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (!isAdmin) router.replace("/");
   }, [user, isAdmin, isLoading]);
 
-  // Block body scroll when mobile sidebar open
+  // Block body scroll khi mobile sidebar mở
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -221,7 +217,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="flex h-screen overflow-hidden bg-background" style={{ height: "100dvh" }}>
 
-      {/* ── DESKTOP SIDEBAR (cố định, không scroll cùng content) ── */}
+      {/* ── DESKTOP SIDEBAR ── */}
       <aside
         className={`
           hidden md:flex flex-col shrink-0
@@ -233,7 +229,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <SidebarContent
           collapsed={collapsed}
-          onNavigate={() => { }}
           onLogout={handleLogout}
         />
       </aside>
@@ -241,13 +236,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* ── RIGHT COLUMN: header + content ── */}
       <div className="flex flex-col flex-1 min-w-0 min-h-0">
 
-        {/* HEADER — sticky, không di chuyển */}
+        {/* HEADER */}
         <header className="shrink-0 h-16 border-b border-border bg-background/95 backdrop-blur-sm flex items-center justify-between px-4 z-40 relative">
 
           <div className="flex items-center gap-3 h-12">
             {/* Mobile: hamburger + logo */}
             <div className="flex items-center gap-3 md:hidden">
-              {/* Icon menu */}
               <button
                 className="transition-transform active:scale-95"
                 onClick={() => setSidebarOpen(true)}
@@ -260,7 +254,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </div>
               </button>
 
-              {/* Logo */}
               <img
                 src={systemSettings.logo_url}
                 alt="logo"
@@ -268,7 +261,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               />
             </div>
 
-            {/* Desktop: chỉ hiện icon collapse */}
+            {/* Desktop: icon collapse */}
             <button
               className="hidden md:flex transition-transform active:scale-95"
               onClick={() => setCollapsed(v => !v)}
@@ -334,7 +327,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
               <SidebarContent
                 collapsed={false}
-                onNavigate={() => setSidebarOpen(false)}
                 onLogout={handleLogout}
               />
             </motion.aside>

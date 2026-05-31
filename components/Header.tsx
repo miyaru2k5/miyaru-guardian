@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Home, Users, FileText, Wallet, User, MessageCircle, ShoppingBag } from "lucide-react";
+import { Menu, Home, Users, FileText, Wallet, User, MessageCircle, ShoppingBag, TrendingUp } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
@@ -37,10 +37,14 @@ const Header = () => {
 
               <button
                 onClick={() => setDrawerOpen(true)}
-                className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors border border-border"
+                className="transition-transform active:scale-95"
                 aria-label="Mở menu"
               >
-                <Menu size={22} className="text-primary" />
+                <div className="p-[2px] rounded-full bg-gradient-to-br from-primary to-primary/30">
+                  <div className="p-2 rounded-full bg-card hover:bg-accent/60 transition-colors">
+                    <Menu size={20} className="text-primary" />
+                  </div>
+                </div>
               </button>
 
 
@@ -95,10 +99,10 @@ const Header = () => {
                 active={isActive("/giao-dich-vien")}
               />
               <NavItem
-                href="/dich-vu"
-                icon={<ShoppingBag size={16} />}
-                label="Dịch vụ"
-                active={isActive("/dich-vu")}
+                href="/contact"
+                icon={<MessageCircle size={16} />}
+                label="Liên hệ"
+                active={isActive("/contact")}
               />
 
               <div className="flex items-center gap-2 ml-3 pl-3 border-l border-border">
@@ -132,10 +136,10 @@ const Header = () => {
           />
 
           <MobileItem
-            href="/dich-vu"
-            icon={<ShoppingBag size={20} />}
-            label="Dịch vụ"
-            active={isActive("/dich-vu")}
+            href="/contact"
+            icon={<MessageCircle size={20} />}
+            label="Liên hệ"
+            active={isActive("/contact")}
           />
 
           {/* GDV CENTER BUTTON */}

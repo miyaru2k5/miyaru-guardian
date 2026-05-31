@@ -2,13 +2,26 @@
 const nextConfig = {
   images: {
     remotePatterns: [
+      // Upanh
       {
         protocol: "https",
         hostname: "sf-static.upanhlaylink.com",
       },
+
+      // Cloudflare R2
       {
         protocol: "https",
         hostname: "*.r2.cloudflarestorage.com",
+      },
+
+      // VnExpress CDN
+      {
+        protocol: "https",
+        hostname: "**.vnecdn.net",
+      },
+      {
+        protocol: "https",
+        hostname: "**.vnexpress.net",
       },
     ],
   },

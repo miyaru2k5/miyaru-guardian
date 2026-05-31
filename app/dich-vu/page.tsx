@@ -42,7 +42,7 @@ const SEO = {
         "Khám phá hàng trăm dịch vụ chất lượng cao với giá cạnh tranh nhất. Cung cấp đầy đủ các giải pháp cho cá nhân và doanh nghiệp tại Việt Nam.",
     keywords:
         "dịch vụ, mua dịch vụ online, dịch vụ giá rẻ, nền tảng dịch vụ Việt Nam",
-    ogImage: "/og-dich-vu.jpg",
+    ogImage: "/seo-preview.png",
     canonical: "https://admin.miyaru.online/dich-vu",
 };
 

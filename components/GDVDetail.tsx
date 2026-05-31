@@ -78,7 +78,23 @@ const ROLE_LABEL: Record<string, string> = {
 const VIETQR_API = "https://api.vietqr.io/v2/banks";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+function normalizeUrl(url?: string): string {
+    if (!url) return "#";
 
+    return /^https?:\/\//i.test(url)
+        ? url
+        : `https://${url}`;
+}
+
+function getDomain(url?: string): string {
+    if (!url) return "";
+
+    try {
+        return new URL(normalizeUrl(url)).hostname;
+    } catch {
+        return url;
+    }
+}
 function parseDesc(raw: string): DescSection[] | null {
     if (!raw?.trim()) return null;
     try {
@@ -662,59 +678,84 @@ const GDVDetail = () => {
                                 </div>
                             )}
                             {/* Description */}
-                            {descSections && descSections.length > 0 && (
+                            {Array.isArray(descSections) && descSections.length > 0 && (
                                 <div className="glow-border rounded-3xl p-5 md:p-6 space-y-5">
-
                                     <div className="space-y-4">
-                                        {descSections.map((sec, si) => (
-                                            <div key={si} className="space-y-3">
+                                        {descSections.map((sec, si) => {
+                                            const hasTitle = sec?.title?.trim();
+                                            const hasItems = Array.isArray(sec?.items) && sec.items.length > 0;
 
-                                                {/* Title + Icon */}
-                                                {sec.title && (
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                                            <FileText size={14} className="text-primary" />
-                                                        </div>
-                                                        <p className="text-sm md:text-base font-semibold text-foreground">
-                                                            {sec.title}
-                                                        </p>
-                                                    </div>
-                                                )}
+                                            if (!hasTitle && !hasItems) return null;
 
-                                                {/* Items */}
-                                                <div className="space-y-2">
-                                                    {sec.items.map((item, ii) => (
-                                                        <div
-                                                            key={ii}
-                                                            className="flex items-center gap-3 p-3 rounded-2xl bg-card/60 border border-border"
-                                                        >
-                                                            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                                                                <span className="w-2 h-2 rounded-full bg-primary" />
+                                            return (
+                                                <div key={si} className="space-y-3">
+
+                                                    {/* Title */}
+                                                    {hasTitle && (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                                                <FileText size={14} className="text-primary" />
                                                             </div>
 
-                                                            <div className="flex-1 min-w-0">
-                                                                {item.link ? (
-                                                                    <a
-                                                                        href={item.link}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="text-sm md:text-base text-primary hover:underline leading-snug flex items-center gap-2"
+                                                            <p className="text-sm md:text-base font-semibold text-foreground">
+                                                                {sec.title}
+                                                            </p>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Items */}
+                                                    {hasItems && (
+                                                        <div className="space-y-2">
+                                                            {sec.items.map((item, ii) => {
+                                                                const hasText = item?.text?.trim();
+                                                                const hasLink = item?.link?.trim();
+
+                                                                if (!hasText && !hasLink) return null;
+
+                                                                return (
+                                                                    <div
+                                                                        key={ii}
+                                                                        className="flex items-center gap-3 p-3 rounded-2xl bg-card/60 border border-border"
                                                                     >
-                                                                        {item.text}
-                                                                        <ExternalLink size={13} className="opacity-60 shrink-0" />
-                                                                    </a>
-                                                                ) : (
-                                                                    <p className="text-sm md:text-base text-muted-foreground leading-snug">
-                                                                        {item.text}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                                                        <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                                                            <span className="w-2 h-2 rounded-full bg-primary" />
+                                                                        </div>
 
-                                            </div>
-                                        ))}
+                                                                        <div className="flex-1 min-w-0">
+                                                                            {hasLink ? (
+                                                                                <a
+                                                                                    href={normalizeUrl(item.link)}
+                                                                                    target="_blank"
+                                                                                    rel="noopener noreferrer"
+                                                                                    className="group block"
+                                                                                >
+                                                                                    <div className="flex items-center gap-2 text-primary">
+                                                                                        <span>{hasText || "Xem liên kết"}</span>
+
+                                                                                        <ExternalLink
+                                                                                            size={13}
+                                                                                            className="opacity-60 group-hover:opacity-100"
+                                                                                        />
+                                                                                    </div>
+
+                                                                                    <div className="text-xs text-muted-foreground mt-1 break-all">
+                                                                                        {getDomain(item.link)}
+                                                                                    </div>
+                                                                                </a>
+                                                                            ) : (
+                                                                                <p className="text-sm md:text-base text-muted-foreground leading-snug">
+                                                                                    {item.text}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
