@@ -22,6 +22,7 @@ import {
   Camera,
 } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
+import { VerifiedBadge } from "@/components/icons/VerifiedBadge";
 
 import {
   useThemeCustomizer,
@@ -282,7 +283,7 @@ const ProfilePage = () => {
               <div>
                 <div className="flex items-center gap-1.5">
                   <p className="font-bold">{fullName || "User"}</p>
-                  <img src="/tick.gif" className="w-4 h-4" alt="tick" />
+                  <VerifiedBadge size={16} />
                 </div>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
               </div>

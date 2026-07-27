@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Menu, User, LogOut, LogIn, UserPlus,
-  Home, Users, FileText, LayoutDashboard,
-  Newspaper, MessageCircle,
-  Sparkles, ShieldCheck,
-  Wallet,
+  Home, LayoutDashboard,
 } from "lucide-react";
 
 import {
@@ -28,20 +25,24 @@ const ProfileDropdown = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      setAvatarUrl(null);
-      return;
-    }
+    if (!user) return;
 
+    let cancelled = false;
     supabase
       .from("profiles")
       .select("avatar_url")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        if (!cancelled && data?.avatar_url) setAvatarUrl(data.avatar_url);
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
+
+  const displayAvatar = user ? avatarUrl : null;
 
   const go = (path: string) => router.push(path);
 
@@ -72,8 +73,8 @@ const ProfileDropdown = () => {
             {/* User info */}
             <div className="px-4 py-3 flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 overflow-hidden">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
+                {displayAvatar ? (
+                  <img src={displayAvatar} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
                   <span className="text-xs font-bold text-primary">
                     {user.user_metadata?.full_name?.charAt(0) ||
@@ -100,7 +101,6 @@ const ProfileDropdown = () => {
             )}
             <Item icon={<Home size={15} />} label="Trang chủ" onClick={() => go("/")} />
             <Item icon={<User size={15} />} label="Trang cá nhân" onClick={() => go("/profile")} />
-            <Item icon={<Wallet size={15} />} label="Nạp tiền" onClick={() => go("/bankings")} />
             <DropdownMenuSeparator className="my-0" />
 
             <DropdownMenuItem

@@ -1,26 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
   Shield,
-  Building2,
-  ShieldCheck,
-  Settings,
   LogOut,
   Menu,
   X,
   ChevronLeft,
   ChevronRight,
   Tag,
-  MessageCircle,
-  FileText,
-  Newspaper,
   UserCog,
-  ShoppingBag,
 } from "lucide-react";
 
 import ThemeToggle from "@/components/ThemeToggle";
@@ -28,18 +21,30 @@ import ProfileDropdown from "@/components/ProfileDropdown";
 import { useAuth } from "@/lib/auth";
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
 
+const emptySubscribe = () => () => {};
+
+/** Stable boot UI — identical on server + first client paint (no hydration drift). */
+function AdminBootScreen() {
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center bg-background"
+      suppressHydrationWarning
+    >
+      <div
+        className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"
+        role="status"
+        aria-label="Đang tải"
+        suppressHydrationWarning
+      />
+    </div>
+  );
+}
+
 const menuItems = [
   { icon: LayoutDashboard, label: "Trang chủ", path: "/admin/dashboard" },
   { icon: Users, label: "Giao dịch viên", path: "/admin/traders" },
   { icon: Tag, label: "Danh mục", path: "/admin/categories" },
-  { icon: ShoppingBag, label: "Dịch vụ", path: "/admin/products" },
-  { icon: Building2, label: "Ngân hàng", path: "/admin/banks" },
-  { icon: ShieldCheck, label: "Bảo chứng", path: "/admin/insurance" },
-  { icon: MessageCircle, label: "Liên hệ", path: "/admin/facebook" },
-  { icon: FileText, label: "Điều khoản", path: "/admin/terms" },
-  { icon: Newspaper, label: "Tin tức", path: "/admin/posts" },
   { icon: UserCog, label: "Tài khoản", path: "/admin/users" },
-  { icon: Settings, label: "Cài đặt", path: "/admin/settings" },
 ];
 
 // ── Tooltip khi sidebar collapsed ──────────────────────────────────────────
@@ -83,7 +88,7 @@ const SidebarContent = React.memo(({ collapsed, onLogout }: SidebarContentProps)
       {/* Logo */}
       <div className="shrink-0 h-16 border-b border-border flex items-center gap-3 px-4 overflow-hidden">
         <img
-          src={systemSettings.logo_url}
+          src={systemSettings.logo_url || "/logo.gif"}
           alt="logo"
           className="w-12 h-12 rounded-lg object-cover shrink-0"
         />
@@ -183,22 +188,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
+  // Server + first client paint both return false → same boot UI (fixes hydration mismatch).
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
+
   const { user, isAdmin, signOut, isLoading } = useAuth();
   const { systemSettings } = useThemeCustomizer();
 
-  // Đóng mobile sidebar khi route thay đổi (không cần gọi trong handleClick nữa)
-  useEffect(() => { setSidebarOpen(false); }, [pathname]);
-
+  // Đóng mobile sidebar khi route thay đổi
   useEffect(() => {
-    if (isLoading) return;
-    if (!user) router.replace("/login");
-    if (!isAdmin) router.replace("/");
-  }, [user, isAdmin, isLoading]);
+    setSidebarOpen(false);
+  }, [pathname]);
 
-  // Block body scroll khi mobile sidebar mở
+  // Redirect only after mount + auth/role fully resolved
+  useEffect(() => {
+    if (!mounted || isLoading) return;
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+    if (!isAdmin) {
+      router.replace("/");
+    }
+  }, [mounted, user, isAdmin, isLoading, router]);
+
   useEffect(() => {
     document.body.style.overflow = sidebarOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [sidebarOpen]);
 
   const handleLogout = async () => {
@@ -206,12 +223,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.push("/");
   };
 
-  if (isLoading || !user || !isAdmin) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+  // Always boot screen until client mounted and auth/role ready
+  if (!mounted || isLoading || !user || !isAdmin) {
+    return <AdminBootScreen />;
   }
 
   return (
@@ -255,7 +269,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
 
               <img
-                src={systemSettings.logo_url}
+                src={systemSettings.logo_url || "/logo.gif"}
                 alt="logo"
                 className="h-14 w-auto object-contain shrink-0"
               />
@@ -286,8 +300,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* MAIN — chỉ khu vực này scroll */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
-          <div className="p-4 md:p-6">
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="ds-section p-4 md:p-6">
             {children}
           </div>
         </main>

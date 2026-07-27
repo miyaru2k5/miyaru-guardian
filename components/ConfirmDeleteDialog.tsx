@@ -1,6 +1,7 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { AlertTriangle, X, Trash2 } from "lucide-react";
+"use client";
+
+import { useEffect, useRef } from "react";
+import { swal } from "@/lib/swal";
 
 interface Props {
   open: boolean;
@@ -11,6 +12,10 @@ interface Props {
   loading?: boolean;
 }
 
+/**
+ * Backward-compatible delete confirm — powered by Miyaru Swal.
+ * Parent still uses open / onClose / onConfirm state.
+ */
 const ConfirmDeleteDialog = ({
   open,
   title = "Xác nhận xóa",
@@ -19,57 +24,32 @@ const ConfirmDeleteDialog = ({
   onConfirm,
   loading = false,
 }: Props) => {
-  return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="w-[95%] sm:max-w-md rounded-2xl p-5 sm:p-6">
+  const busy = useRef(false);
+  const onConfirmRef = useRef(onConfirm);
+  const onCloseRef = useRef(onClose);
 
-        {/* HEADER */}
-        <DialogHeader className="space-y-3">
-          <DialogTitle className="flex items-center gap-3 text-base sm:text-lg">
+  useEffect(() => {
+    onConfirmRef.current = onConfirm;
+    onCloseRef.current = onClose;
+  }, [onConfirm, onClose]);
 
-            {/* ICON */}
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
-            </div>
+  useEffect(() => {
+    if (!open) {
+      busy.current = false;
+      return;
+    }
+    if (loading || busy.current) return;
 
-            {/* TITLE */}
-            <span className="leading-snug">{title}</span>
-          </DialogTitle>
-        </DialogHeader>
+    busy.current = true;
+    void (async () => {
+      const ok = await swal.confirmDelete({ title, text: description });
+      busy.current = false;
+      if (ok) onConfirmRef.current();
+      else onCloseRef.current();
+    })();
+  }, [open, loading, title, description]);
 
-        {/* DESCRIPTION */}
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {description}
-        </p>
-
-        {/* ACTIONS */}
-        <div className="flex items-center justify-end gap-2 pt-4 border-t">
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onClose}
-            disabled={loading}
-            className="flex items-center gap-2"
-          >
-            <X className="w-4 h-4" />
-            Hủy
-          </Button>
-
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={loading}
-            className="flex items-center gap-2"
-          >
-            <Trash2 className="w-4 h-4" />
-            {loading ? "Đang xóa..." : "Xóa"}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
+  return null;
 };
 
 export default ConfirmDeleteDialog;

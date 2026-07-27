@@ -14,42 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      bank_accounts: {
-        Row: {
-          account_holder: string
-          account_number: string
-          bank_name: string
-          created_at: string
-          id: string
-          is_visible: boolean
-          logo_url: string | null
-          qr_image_url: string | null
-          updated_at: string
-        }
-        Insert: {
-          account_holder: string
-          account_number: string
-          bank_name: string
-          created_at?: string
-          id?: string
-          is_visible?: boolean
-          logo_url?: string | null
-          qr_image_url?: string | null
-          updated_at?: string
-        }
-        Update: {
-          account_holder?: string
-          account_number?: string
-          bank_name?: string
-          created_at?: string
-          id?: string
-          is_visible?: boolean
-          logo_url?: string | null
-          qr_image_url?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       categories: {
         Row: {
           created_at: string
@@ -68,78 +32,10 @@ export type Database = {
         }
         Relationships: []
       }
-      facebook_contacts: {
-        Row: {
-          branch_name: string
-          contact_url: string
-          created_at: string
-          display_order: number
-          id: string
-          is_active: boolean
-          platform: string
-          platform_avatar_url: string | null
-          platform_logo_url: string | null
-          support_text: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          branch_name: string
-          contact_url: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_active?: boolean
-          platform: string
-          platform_avatar_url?: string | null
-          platform_logo_url?: string | null
-          support_text?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          branch_name?: string
-          contact_url?: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_active?: boolean
-          platform?: string
-          platform_avatar_url?: string | null
-          platform_logo_url?: string | null
-          support_text?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      insurance_fund: {
-        Row: {
-          currently_insured: number
-          id: string
-          max_percentage: number
-          total_fund: number
-          updated_at: string
-        }
-        Insert: {
-          currently_insured?: number
-          id?: string
-          max_percentage?: number
-          total_fund?: number
-          updated_at?: string
-        }
-        Update: {
-          currently_insured?: number
-          id?: string
-          max_percentage?: number
-          total_fund?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
+          balance: number
           created_at: string
           custom_background_color: string | null
           custom_primary_color: string | null
@@ -151,6 +47,7 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          balance?: number
           created_at?: string
           custom_background_color?: string | null
           custom_primary_color?: string | null
@@ -162,6 +59,7 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          balance?: number
           created_at?: string
           custom_background_color?: string | null
           custom_primary_color?: string | null
@@ -170,210 +68,6 @@ export type Database = {
           id?: string
           theme_mode?: string | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      site_analytics: {
-        Row: {
-          id: string
-          total_page_views: number
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          total_page_views?: number
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          total_page_views?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      system_settings: {
-        Row: {
-          accent_color: string
-          allow_user_theme: boolean
-          auth_google_client_id: string | null
-          auth_google_enabled: boolean
-          background_color: string
-          border_radius: string
-          default_mode: string
-          footer_data: Json
-          id: string
-          logo_url: string | null
-          primary_color: string
-          site_name: string
-          updated_at: string
-        }
-        Insert: {
-          accent_color?: string
-          allow_user_theme?: boolean
-          auth_google_client_id?: string | null
-          auth_google_enabled?: boolean
-          background_color?: string
-          border_radius?: string
-          default_mode?: string
-          footer_data?: Json
-          id?: string
-          logo_url?: string | null
-          primary_color?: string
-          site_name?: string
-          updated_at?: string
-        }
-        Update: {
-          accent_color?: string
-          allow_user_theme?: boolean
-          auth_google_client_id?: string | null
-          auth_google_enabled?: boolean
-          background_color?: string
-          border_radius?: string
-          default_mode?: string
-          footer_data?: Json
-          id?: string
-          logo_url?: string | null
-          primary_color?: string
-          site_name?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      terms_pages: {
-        Row: {
-          content: string
-          created_at: string
-          display_order: number
-          id: string
-          is_published: boolean
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_published?: boolean
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          display_order?: number
-          id?: string
-          is_published?: boolean
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      posts: {
-        Row: {
-          id: string
-          slug: string
-          title: string
-          excerpt: string | null
-          meta_title: string | null
-          meta_description: string | null
-          meta_keywords: string | null
-          og_title: string | null
-          og_description: string | null
-          og_image: string | null
-          cover_image: string | null
-          author_name: string | null
-          author_avatar: string | null
-          category: string | null
-          tags: string[] | null
-          reading_time: number | null
-          views: number
-          published: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          slug: string
-          title: string
-          excerpt?: string | null
-          meta_title?: string | null
-          meta_description?: string | null
-          meta_keywords?: string | null
-          og_title?: string | null
-          og_description?: string | null
-          og_image?: string | null
-          cover_image?: string | null
-          author_name?: string | null
-          author_avatar?: string | null
-          category?: string | null
-          tags?: string[] | null
-          reading_time?: number | null
-          views?: number
-          published?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          slug?: string
-          title?: string
-          excerpt?: string | null
-          meta_title?: string | null
-          meta_description?: string | null
-          meta_keywords?: string | null
-          og_title?: string | null
-          og_description?: string | null
-          og_image?: string | null
-          cover_image?: string | null
-          author_name?: string | null
-          author_avatar?: string | null
-          category?: string | null
-          tags?: string[] | null
-          reading_time?: number | null
-          views?: number
-          published?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      post_images: {
-        Row: {
-          id: string
-          post_id: string
-          title: string | null
-          content: string | null
-          image_url: string
-          alt_text: string | null
-          caption: string | null
-          image_order: number
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          post_id: string
-          title?: string | null
-          content?: string | null
-          image_url: string
-          alt_text?: string | null
-          caption?: string | null
-          image_order?: number
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          post_id?: string
-          title?: string | null
-          content?: string | null
-          image_url?: string
-          alt_text?: string | null
-          caption?: string | null
-          image_order?: number
-          created_at?: string
         }
         Relationships: []
       }
@@ -410,6 +104,8 @@ export type Database = {
       traders: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
+          banks: Json
           code: string
           created_at: string
           description: string | null
@@ -417,7 +113,9 @@ export type Database = {
           id: string
           insurance_fund: number
           name: string
+          role: string
           service: string | null
+          slug: string
           status: string
           success_rate: number
           updated_at: string
@@ -426,6 +124,8 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
+          banks?: Json
           code: string
           created_at?: string
           description?: string | null
@@ -433,7 +133,9 @@ export type Database = {
           id?: string
           insurance_fund?: number
           name: string
+          role?: string
           service?: string | null
+          slug: string
           status?: string
           success_rate?: number
           updated_at?: string
@@ -442,6 +144,8 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
+          banks?: Json
           code?: string
           created_at?: string
           description?: string | null
@@ -449,54 +153,14 @@ export type Database = {
           id?: string
           insurance_fund?: number
           name?: string
+          role?: string
           service?: string | null
+          slug?: string
           status?: string
           success_rate?: number
           updated_at?: string
           website?: string | null
           zalo?: string | null
-        }
-        Relationships: []
-      }
-      transactions: {
-        Row: {
-          amount: number
-          buyer_name: string
-          created_at: string
-          created_by: string | null
-          fee: number
-          id: string
-          notes: string | null
-          seller_name: string
-          status: string
-          transaction_code: string
-          updated_at: string
-        }
-        Insert: {
-          amount?: number
-          buyer_name: string
-          created_at?: string
-          created_by?: string | null
-          fee?: number
-          id?: string
-          notes?: string | null
-          seller_name: string
-          status?: string
-          transaction_code: string
-          updated_at?: string
-        }
-        Update: {
-          amount?: number
-          buyer_name?: string
-          created_at?: string
-          created_by?: string | null
-          fee?: number
-          id?: string
-          notes?: string | null
-          seller_name?: string
-          status?: string
-          transaction_code?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -530,7 +194,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_page_views: { Args: never; Returns: undefined }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {

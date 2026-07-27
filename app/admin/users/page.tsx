@@ -80,7 +80,7 @@ interface AvatarFieldProps {
   currentUrl: string | undefined;
   onClear: () => void;
   uploading: boolean;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   error?: string;
 }
@@ -450,7 +450,7 @@ const Users = () => {
                 <label className="text-sm font-medium text-foreground block">Vai trò</label>
                 <select
                   {...register("role")}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-control rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
@@ -534,7 +534,7 @@ const Users = () => {
                 <label className="text-sm font-medium text-foreground block">Vai trò</label>
                 <select
                   {...addForm.register("role")}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full h-control rounded-lg border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>

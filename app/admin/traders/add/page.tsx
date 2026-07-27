@@ -55,7 +55,7 @@ const traderSchema = z.object({
     slug: z.string().min(1, "Slug bắt buộc").max(120)
         .regex(/^[a-z0-9-]+$/, "Slug chỉ gồm chữ thường, số và dấu gạch ngang"),
     code: z.string().min(1, "Bắt buộc").max(20),
-    role: z.enum(["admin", "gdv", "kdv"]).default("gdv"),
+    role: z.enum(["admin", "gdv", "kdv"]),
     avatar_url: z.string().max(500).optional(),
     banner_url: z.string().max(500).optional(),
     service: z.string().max(100).optional(),
@@ -65,7 +65,7 @@ const traderSchema = z.object({
     facebook: z.string().max(255).optional(),
     zalo: z.string().max(50).optional(),
     website: z.string().max(255).optional(),
-    banks: z.array(bankEntrySchema).default([]),
+    banks: z.array(bankEntrySchema),
 });
 
 type TraderForm = z.infer<typeof traderSchema>;
@@ -110,12 +110,11 @@ function ImagePicker({ currentUrl, pendingFile, localPreview, onFileSelect, shap
                 onClick={() => inputRef.current?.click()}
                 className={cn(
                     "overflow-hidden flex items-center justify-center bg-muted/30 border-2 transition-colors cursor-pointer",
-                    isAvatar ? "w-[110px] h-[110px] rounded-xl" : "w-full h-[110px] rounded-xl",
+                    isAvatar ? "w-[110px] h-[110px] rounded-lg" : "w-full h-[110px] rounded-lg",
                     displayUrl ? "border-border" : "border-dashed border-border/50"
                 )}
             >
                 {displayUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={displayUrl} alt={isAvatar ? "Avatar" : "Banner"} className="w-full h-full object-cover" />
                 ) : (
                     <div className="flex flex-col items-center gap-1.5 text-muted-foreground/30 pointer-events-none select-none">
@@ -187,7 +186,7 @@ function DescriptionEditor({ value, onChange }: DescriptionEditorProps) {
     return (
         <div className="space-y-3">
             {sections.map((sec, si) => (
-                <div key={si} className="border border-border rounded-xl overflow-hidden bg-card/40">
+                <div key={si} className="border border-border rounded-lg overflow-hidden bg-card/40">
                     <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 border-b border-border">
                         <FileText size={12} className="text-muted-foreground shrink-0" />
                         <input
@@ -247,7 +246,7 @@ function DescriptionEditor({ value, onChange }: DescriptionEditorProps) {
             <button
                 type="button"
                 onClick={addSection}
-                className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-border/50 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 border border-dashed border-border/50 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
             >
                 <Plus size={12} /> Thêm tiêu đề
             </button>
@@ -275,7 +274,7 @@ function RoleCombobox({ value, onChange }: { value: RoleValue; onChange: (v: Rol
             <button
                 type="button"
                 onClick={() => setOpen((v) => !v)}
-                className="w-full flex items-center gap-2 h-10 px-3 rounded-xl border border-input bg-background text-sm hover:border-ring/50 focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                className="w-full flex items-center gap-2 h-10 px-3 rounded-lg border border-input bg-background text-sm hover:border-ring/50 focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
             >
                 <User size={14} className="text-muted-foreground shrink-0" />
                 <span className="flex-1 text-left">{current.label}</span>
@@ -284,7 +283,7 @@ function RoleCombobox({ value, onChange }: { value: RoleValue; onChange: (v: Rol
             </button>
 
             {open && (
-                <div className="absolute z-50 mt-1.5 w-full bg-popover border rounded-xl shadow-lg overflow-hidden">
+                <div className="absolute z-50 mt-1.5 w-full bg-popover border rounded-lg shadow-lg overflow-hidden">
                     {ROLE_OPTIONS.map((opt) => (
                         <button
                             key={opt.value}
@@ -367,7 +366,7 @@ function BankRow({
                 <button
                     type="button"
                     onClick={() => setOpen((v) => !v)}
-                    className="w-full flex items-center gap-2.5 h-10 px-3 rounded-xl border border-input bg-background text-sm hover:border-ring/50 focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
+                    className="w-full flex items-center gap-2.5 h-10 px-3 rounded-lg border border-input bg-background text-sm hover:border-ring/50 focus:outline-none focus:ring-1 focus:ring-ring transition-colors"
                 >
                     {selectedBank?.logo
                         ? <Image src={selectedBank.logo} alt={selectedBank.short_name} width={18} height={18} className="rounded object-contain shrink-0" unoptimized />
@@ -380,7 +379,7 @@ function BankRow({
                 </button>
 
                 {open && (
-                    <div className="absolute z-50 mt-1.5 w-full bg-popover border rounded-xl shadow-lg overflow-hidden">
+                    <div className="absolute z-50 mt-1.5 w-full bg-popover border rounded-lg shadow-lg overflow-hidden">
                         <div className="p-2 border-b">
                             <Input autoFocus placeholder="Tìm ngân hàng..." value={search}
                                 onChange={(e) => setSearch(e.target.value)} className="h-8 text-sm" />
@@ -444,7 +443,7 @@ function BankRow({
                 </div>
 
                 <div className={cn(
-                    "w-[80px] h-[80px] shrink-0 rounded-xl border overflow-hidden flex items-center justify-center transition-all duration-300",
+                    "w-[80px] h-[80px] shrink-0 rounded-lg border overflow-hidden flex items-center justify-center transition-all duration-300",
                     qrLink ? "border-border/50 bg-white" : "border-dashed border-border/30 bg-muted/20"
                 )}>
                     {qrLink
@@ -541,7 +540,6 @@ const AddTraderPage = () => {
             if (avatarLocalPreview) URL.revokeObjectURL(avatarLocalPreview);
             if (bannerLocalPreview) URL.revokeObjectURL(bannerLocalPreview);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ── Handlers ───────────────────────────────────────────────────────────────────
@@ -607,7 +605,7 @@ const AddTraderPage = () => {
                 facebook: data.facebook || null,
                 zalo: data.zalo || null,
                 website: data.website || null,
-                banks: cleanedBanks,
+                banks: cleanedBanks as unknown as import("@/types/supabase").Json,
             }]).select("id").single();
 
             if (error) throw error;
@@ -620,8 +618,9 @@ const AddTraderPage = () => {
 
             toast({ title: "Đã thêm GDV mới" });
             router.push("/admin/traders");
-        } catch (err: any) {
-            toast({ title: "Lỗi thêm mới", description: err.message, variant: "destructive" });
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : "Unknown error";
+            toast({ title: "Lỗi thêm mới", description: message, variant: "destructive" });
             setSubmitting(false);
         }
     };
@@ -820,7 +819,7 @@ const AddTraderPage = () => {
                                             register={register}
                                             setValue={setValue}
                                             onRemove={() => remove(index)}
-                                            errors={errors.banks?.[index] as any}
+                                            errors={errors.banks?.[index]}
                                         />
                                     ))}
                                 </div>

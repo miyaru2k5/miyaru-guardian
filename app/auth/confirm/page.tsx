@@ -48,7 +48,8 @@ const AuthConfirmPage = () => {
   useEffect(() => {
     if (status === "success" && user) {
       const t = setTimeout(() => {
-        router.push(isAdmin ? "/admin/dashboard" : "/");
+        // Sau xác thực / OAuth → vào profile (tài khoản đã tạo)
+        router.push(isAdmin ? "/admin/dashboard" : "/profile");
       }, 1500);
       return () => clearTimeout(t);
     }
@@ -76,7 +77,7 @@ const AuthConfirmPage = () => {
                 </div>
                 <h1 className="text-xl font-bold text-foreground mb-2">Xác minh thành công!</h1>
                 <p className="text-muted-foreground text-sm mb-6">{message}</p>
-                <p className="text-xs text-muted-foreground">Bạn sẽ được chuyển đến trang chủ...</p>
+                <p className="text-xs text-muted-foreground">Bạn sẽ được chuyển đến hồ sơ...</p>
               </>
             )}
             {status === "error" && (
@@ -86,13 +87,13 @@ const AuthConfirmPage = () => {
                 <div className="flex gap-3 justify-center">
                   <button
                     onClick={goToLogin}
-                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
+                    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition"
                   >
                     Đăng nhập
                   </button>
                   <button
                     onClick={goToHome}
-                    className="px-4 py-2 rounded-xl border border-border text-foreground font-medium hover:bg-accent/50 transition"
+                    className="px-4 py-2 rounded-lg border border-border text-foreground font-medium hover:bg-accent/50 transition"
                   >
                     Về trang chủ
                   </button>

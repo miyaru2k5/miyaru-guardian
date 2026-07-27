@@ -1,27 +1,15 @@
 import MainLayout from "@/layouts/MainLayout";
-import HeroSection from "@/components/HeroSection";
-import GDVSection from "@/components/GDVSection";
-import GDTGSection from "@/components/GDTGSection";
-import FacebookAdminSection from "@/components/FacebookAdminSection";
-import ProcessSection from "@/components/ProcessSection";
-import AdvantagesSection from "@/components/AdvantagesSection";
-import SystemTermsSection from "@/components/SystemTermsSection";
+import GDVList from "@/components/GDVList";
 
 export const metadata = {
   title: "Admin Việt Nam",
-  description: "Hệ thống bảo vệ giao dịch trung gian và giao dịch viên.",
+  description: "Danh sách giao dịch viên uy tín và hệ thống bảo vệ giao dịch.",
 };
 
 const HomePage = () => {
   return (
     <MainLayout>
-      <HeroSection />
-      <GDVSection />
-      <GDTGSection />
-      <FacebookAdminSection />
-      <ProcessSection />
-      <AdvantagesSection />
-      <SystemTermsSection />
+      <GDVList />
     </MainLayout>
   );
 };

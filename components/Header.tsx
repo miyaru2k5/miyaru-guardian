@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Home, Users, FileText, Wallet, User, MessageCircle, ShoppingBag, TrendingUp } from "lucide-react";
+import { Menu, Home, Users, MessageCircle, User } from "lucide-react";
 
 import ThemeToggle from "./ThemeToggle";
 import ProfileDropdown from "./ProfileDropdown";
@@ -28,9 +28,9 @@ const Header = () => {
   return (
     <>
       {/* ================= HEADER ================= */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+      <header className="fixed inset-x-0 top-0 z-sticky border-b border-border bg-background/80 backdrop-blur-lg">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex h-16 items-center justify-between gap-3">
 
             {/* ── LEFT: Hamburger + Logo ── */}
             <div className="flex items-center gap-1">
@@ -126,7 +126,7 @@ const Header = () => {
 
       {/* ================= MOBILE BOTTOM NAV ================= */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border pb-[env(safe-area-inset-bottom)]">
-        <div className="relative grid grid-cols-5 items-center h-16">
+        <div className="relative grid grid-cols-4 items-center h-16">
 
           <MobileItem
             href="/"
@@ -154,13 +154,6 @@ const Header = () => {
               </div>
             </Link>
           </div>
-
-          <MobileItem
-            href="/dieu-khoan"
-            icon={<FileText size={20} />}
-            label="Điều khoản"
-            active={isActive("/dieu-khoan")}
-          />
 
           <MobileItem
             href={user ? "/profile" : "/login"}

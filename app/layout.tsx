@@ -51,8 +51,13 @@ export const metadata = {
 
 const RootLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <html lang="vi">
-      <body className="min-h-screen bg-background text-foreground">
+    // suppressHydrationWarning: theme class + browser extensions (e.g. cz-shortcut-listen)
+    // may alter <html>/<body> attributes before React hydrates.
+    <html lang="vi" suppressHydrationWarning>
+      <body
+        className="min-h-screen bg-background text-foreground"
+        suppressHydrationWarning
+      >
         <InitialLoader />
         <Providers>{children}</Providers>
       </body>

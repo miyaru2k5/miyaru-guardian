@@ -37,9 +37,12 @@ async function generateTOTP(secretBase32: string): Promise<string> {
         const view = new DataView(buf);
         view.setUint32(4, counter);
 
+        const keyCopy = new Uint8Array(keyBytes.byteLength);
+        keyCopy.set(keyBytes);
+
         const cryptoKey = await crypto.subtle.importKey(
             "raw",
-            keyBytes,
+            keyCopy,
             { name: "HMAC", hash: "SHA-1" },
             false,
             ["sign"]

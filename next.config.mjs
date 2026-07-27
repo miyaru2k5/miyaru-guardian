@@ -2,19 +2,18 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      // Upanh
       {
         protocol: "https",
         hostname: "sf-static.upanhlaylink.com",
       },
-
-      // Cloudflare R2
       {
         protocol: "https",
         hostname: "*.r2.cloudflarestorage.com",
       },
-
-      // VnExpress CDN
+      {
+        protocol: "https",
+        hostname: "pub-49d2fd12bb2f4f23a6d3196d2fcf2842.r2.dev",
+      },
       {
         protocol: "https",
         hostname: "**.vnecdn.net",
@@ -26,19 +25,32 @@ const nextConfig = {
     ],
   },
 
-  typescript: {
-    ignoreBuildErrors: true,
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
   },
 
   async rewrites() {
     return [
       {
         source: "/lien-he",
-        destination: "/contact-facebook",
-      },
-      {
-        source: "/dieu-khoan/:slug",
-        destination: "/terms/:slug",
+        destination: "/contact",
       },
     ];
   },

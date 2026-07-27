@@ -3,11 +3,9 @@
 import { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth";
 import { ThemeCustomizerProvider } from "@/contexts/ThemeCustomizerContext";
-import PageViewTracker from "@/components/PageViewTracker";
+import SwalHost from "@/components/SwalHost";
 
 const queryClient = new QueryClient();
 
@@ -16,10 +14,9 @@ const Providers = ({ children }: { children: ReactNode }) => (
     <AuthProvider>
       <ThemeCustomizerProvider>
         <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <PageViewTracker />
           {children}
+          {/* Global SweetAlert2-style notifications */}
+          <SwalHost />
         </TooltipProvider>
       </ThemeCustomizerProvider>
     </AuthProvider>

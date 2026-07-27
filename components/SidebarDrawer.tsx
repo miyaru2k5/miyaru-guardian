@@ -8,17 +8,11 @@ import {
     X,
     Home,
     MessageCircle,
-    FileText,
-    Newspaper,
     Sparkles,
     ShieldCheck,
     Users,
-    Wallet,
-    ShieldAlert,
     LogIn,
     LogOut,
-    ShoppingBag,
-    TrendingUp,
 } from "lucide-react";
 
 import { useThemeCustomizer } from "@/contexts/ThemeCustomizerContext";
@@ -43,12 +37,7 @@ const sections: NavSection[] = [
         links: [
             { href: "/", label: "Trang chủ", icon: <Home size={17} /> },
             { href: "/giao-dich-vien", label: "Giao dịch viên", icon: <Users size={17} /> },
-            { href: "/dich-vu", label: "Dịch vụ", icon: <ShoppingBag size={17} /> },
-            { href: "/tin-tuc", label: "Tin tức 247", icon: <TrendingUp size={17} /> },
             { href: "/contact", label: "Liên hệ", icon: <MessageCircle size={17} /> },
-            { href: "/dieu-khoan", label: "Điều khoản", icon: <FileText size={17} /> },
-            { href: "/bai-viet", label: "Bài viết", icon: <Newspaper size={17} /> },
-            { href: "/bankings", label: "Nạp tiền", icon: <Wallet size={17} /> },
         ],
     },
     {
@@ -56,12 +45,6 @@ const sections: NavSection[] = [
         links: [
             { href: "/get-2fa", label: "Lấy mã 2FA", icon: <ShieldCheck size={17} /> },
             { href: "/get-uid-fb", label: "Lấy UID Facebook", icon: <Sparkles size={17} /> },
-        ],
-    },
-    {
-        title: "Dịch vụ",
-        links: [
-            { href: "/tang-tuong-tac", label: "Tăng tương tác", icon: <ShieldAlert size={17} /> },
         ],
     },
 ];

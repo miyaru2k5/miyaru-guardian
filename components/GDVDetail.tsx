@@ -5,11 +5,12 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import {
-    ArrowLeft, Globe, MessageCircle, Facebook, ShieldCheck, TrendingUp,
+    ArrowLeft, Globe, MessageCircle, Share2, ShieldCheck, TrendingUp,
     Copy, CheckCheck, Hash, FileText, MessageSquare, CreditCard,
     Tag, Lock, ExternalLink, AlertCircle, RefreshCw,
 } from "lucide-react";
 import MainLayout from "@/layouts/MainLayout";
+import { VerifiedBadge } from "@/components/icons/VerifiedBadge";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -62,12 +63,6 @@ interface BankData {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const ROLE_TICK: Record<string, string> = {
-    gdv: "/tickxanh.png",
-    admin: "/ticktim.png",
-    kdv: "/tickvang.png",
-};
 
 const ROLE_LABEL: Record<string, string> = {
     gdv: "Giao dịch viên",
@@ -279,13 +274,11 @@ const GDVDetail = () => {
         setPageState("loading");
 
         try {
-            const { data: rawTrader, error } = await (
-                supabase
-                    .from("traders")
-                    .select("*")
-                    .eq("slug", slug)
-                    .maybeSingle() as any
-            ) as { data: Trader | null; error: Error | null };
+            const { data: rawTrader, error } = await supabase
+                .from("traders")
+                .select("*")
+                .eq("slug", slug)
+                .maybeSingle();
 
             if (error) throw error;
 
@@ -294,8 +287,16 @@ const GDVDetail = () => {
                 return;
             }
 
-            setTrader(rawTrader);
-            document.title = `Quỹ bảo hiểm: ${formatCurrency(rawTrader.insurance_fund)}đ - ${rawTrader.name}`;
+            const traderData: Trader = {
+              ...rawTrader,
+              role: (rawTrader.role as Trader["role"]) ?? null,
+              banks: Array.isArray(rawTrader.banks)
+                ? (rawTrader.banks as unknown as BankEntry[])
+                : null,
+            };
+
+            setTrader(traderData);
+            document.title = `Quỹ bảo hiểm: ${formatCurrency(traderData.insurance_fund)}đ - ${traderData.name}`;
 
             // Fetch categories
             const { data: tcData, error: tcError } = await supabase
@@ -405,7 +406,6 @@ const GDVDetail = () => {
 
     // ── Ready ──
     const role = trader!.role ?? "gdv";
-    const tickSrc = ROLE_TICK[role] ?? ROLE_TICK["gdv"];
     const roleLabel = ROLE_LABEL[role] ?? "Giao dịch viên";
     const banks: BankEntry[] = Array.isArray(trader!.banks) ? trader!.banks : [];
     const descSections = trader!.description ? parseDesc(trader!.description) : null;
@@ -484,13 +484,7 @@ const GDVDetail = () => {
                                         <h1 className="text-xl md:text-2xl font-bold text-foreground leading-tight truncate">
                                             {trader!.name}
                                         </h1>
-                                        <img
-                                            src={tickSrc}
-                                            alt={roleLabel}
-                                            title={roleLabel}
-                                            className="w-[18px] h-[18px] shrink-0 object-contain"
-                                            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                                        />
+                                        <VerifiedBadge role={role} size={18} aria-label={roleLabel} />
                                     </div>
                                     {trader!.service && (
                                         <p className="text-sm text-muted-foreground mt-0.5 truncate">
@@ -551,7 +545,7 @@ const GDVDetail = () => {
                                                 rel="noopener noreferrer"
                                                 className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card/60 border border-border hover:border-blue-500/40 hover:bg-blue-500/5 transition-colors"
                                             >
-                                                <Facebook size={16} className="text-blue-500 shrink-0" />
+                                                <Share2 size={16} className="shrink-0 text-blue-500" />
                                                 <div className="min-w-0">
                                                     <p className="text-xs text-muted-foreground">Facebook</p>
                                                     <p className="text-foreground font-medium truncate text-sm">

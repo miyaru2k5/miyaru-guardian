@@ -1,34 +1,51 @@
+import sanitizeHtmlLib from "sanitize-html";
+
+const ALLOWED_TAGS = [
+  ...sanitizeHtmlLib.defaults.allowedTags,
+  "img",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "span",
+  "div",
+  "figure",
+  "figcaption",
+  "u",
+  "s",
+  "hr",
+  "table",
+  "thead",
+  "tbody",
+  "tr",
+  "th",
+  "td",
+];
+
+const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
+  a: ["href", "name", "target", "rel"],
+  img: ["src", "alt", "title", "width", "height", "loading"],
+  td: ["colspan", "rowspan"],
+  th: ["colspan", "rowspan"],
+  "*": ["class"],
+};
+
+/**
+ * Isomorphic HTML sanitizer safe for Server Components and Client Components.
+ */
 export function sanitizeHtml(html: string): string {
-  if (typeof window === "undefined") return "";
+  if (!html) return "";
 
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, "text/html");
-
-  // Remove <script>, <style>, <iframe> tags completely
-  doc.querySelectorAll("script, style, iframe").forEach(node => node.remove());
-
-  // Remove dangerous attributes like on*, javascript: urls
-  const walk = (node: Element | ChildNode) => {
-    if (!(node instanceof Element)) return;
-
-    // Remove event handlers and javascript: href/src
-    for (const attr of Array.from(node.attributes)) {
-      const name = attr.name.toLowerCase();
-      const value = attr.value.trim().toLowerCase();
-
-      if (name.startsWith("on")) {
-        node.removeAttribute(attr.name);
-        continue;
-      }
-      if ((name === "href" || name === "src") && value.startsWith("javascript:")) {
-        node.removeAttribute(attr.name);
-      }
-    }
-
-    node.childNodes.forEach(walk);
-  };
-
-  doc.body.childNodes.forEach(walk);
-  return doc.body.innerHTML;
+  return sanitizeHtmlLib(html, {
+    allowedTags: ALLOWED_TAGS,
+    allowedAttributes: ALLOWED_ATTRIBUTES,
+    allowedSchemes: ["http", "https", "mailto"],
+    allowProtocolRelative: false,
+    transformTags: {
+      a: sanitizeHtmlLib.simpleTransform("a", {
+        rel: "noopener noreferrer nofollow",
+        target: "_blank",
+      }),
+    },
+  });
 }
-

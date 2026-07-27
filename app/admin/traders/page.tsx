@@ -15,10 +15,22 @@ interface Category {
   name: string;
 }
 
+interface TraderRow {
+  id: string;
+  name: string;
+  slug: string;
+  code: string;
+  status: string;
+  insurance_fund: number;
+  success_rate: number;
+  avatar_url: string | null;
+  service: string | null;
+}
+
 const TradersPage = () => {
   const router = useRouter();
 
-  const [traders, setTraders] = useState<any[]>([]);
+  const [traders, setTraders] = useState<TraderRow[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [traderCats, setTraderCats] = useState<Record<string, string[]>>({});
   const [search, setSearch] = useState("");
@@ -32,11 +44,11 @@ const TradersPage = () => {
       supabase.from("trader_categories").select("*"),
     ]);
 
-    setTraders(tRes.data || []);
+    setTraders((tRes.data || []) as TraderRow[]);
     setCategories((cRes.data as Category[]) || []);
 
     const map: Record<string, string[]> = {};
-    ((tcRes.data as any[]) || []).forEach((tc: any) => {
+    (tcRes.data || []).forEach((tc) => {
       if (!map[tc.trader_id]) map[tc.trader_id] = [];
       map[tc.trader_id].push(tc.category_id);
     });
@@ -45,7 +57,7 @@ const TradersPage = () => {
 
   useEffect(() => { fetchAll(); }, []);
 
-  const toggleStatus = async (trader: any) => {
+  const toggleStatus = async (trader: { id: string; status: string }) => {
     const newStatus = trader.status === "LIVE" ? "OFFLINE" : "LIVE";
     await supabase.from("traders").update({ status: newStatus }).eq("id", trader.id);
     fetchAll();
